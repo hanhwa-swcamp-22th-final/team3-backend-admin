@@ -35,5 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
-.env
 .claude
+
+### Application Secrets ###
+src/main/resources/application-db.yml
+src/main/resources/application-secret.yml
