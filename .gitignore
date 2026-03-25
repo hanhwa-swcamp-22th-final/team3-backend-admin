@@ -39,4 +39,4 @@ out/
 
 ### Application Secrets ###
 src/main/resources/application-db.yml
-hel
+src/main/resources/application-secret.yml
