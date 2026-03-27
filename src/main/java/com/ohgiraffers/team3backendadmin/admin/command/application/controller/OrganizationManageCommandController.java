@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.OrganizationManageCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -52,5 +53,17 @@ public class OrganizationManageCommandController {
         organizationManageCommandService.deleteDepartment(departmentId, userDetails.getUsername());
 
         return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @PostMapping("/employee")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> insertEmployee(
+            @Valid @RequestBody EmployeeCreateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        organizationManageCommandService.insertEmployee(request, userDetails.getUsername());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(null));
     }
 }

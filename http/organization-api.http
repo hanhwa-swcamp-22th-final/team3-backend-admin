@@ -3,8 +3,8 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "employeeEmail": "admin@company.com",
-  "password": "$2a$10$examplehashedpassword"
+  "employeeEmail": "sinseon2000@company.com",
+  "password": "password123!"
 }
 
 > {%
@@ -42,9 +42,9 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "departmentId": 1774590557453239,
-  "departmentName": "경영지원본부-수정",
-  "teamName": "시스템관리팀-수정"
+  "departmentId": 1774590584056408,
+  "departmentName": "경영지원본부",
+  "teamName": "인사시스템관리팀"
 }
 
 ### 부서 수정 - 부서명만 수정
@@ -66,7 +66,7 @@ Authorization: Bearer {{accessToken}}
 {
   "departmentId": 1774590557453239,
   "departmentName": null,
-  "teamName": "시스템관리팀-수정3"
+  "teamName": "null"
 }
 
 ### 부서 등록 실패 - 부서명 누락 (400 Bad Request)
@@ -102,4 +102,40 @@ Content-Type: application/json
   "departmentName": "경영지원본부",
   "teamName": "null",
   "depth": "L0"
+}
+
+### 사원 등록
+POST http://localhost:8080/api/v1/organization/employee
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "departmentId": 1774590584056408,
+  "employeeName": "김신우",
+  "employeeEmail": "sinseon2000@company.com",
+  "employeePhone": "010-1234-5678",
+  "employeeAddress": "서울시 강남구 테헤란로 123",
+  "employeeEmergencyContact": "010-9876-5432",
+  "employeePassword": "password123!",
+  "employeeRole": "ADMIN",
+  "employeeStatus": "ACTIVE",
+  "employeeTier": "S"
+}
+
+### 사원 등록 실패 - 필수 항목 누락 (400 Bad Request)
+POST http://localhost:8080/api/v1/organization/employee
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "departmentId": 1000000000000002,
+  "employeeName": "",
+  "employeeEmail": "hong@company.com",
+  "employeePhone": "010-1234-5678",
+  "employeeAddress": "서울시 강남구",
+  "employeeEmergencyContact": "010-9876-5432",
+  "employeePassword": "password123!",
+  "employeeRole": "WORKER",
+  "employeeStatus": "ACTIVE",
+  "employeeTier": "B"
 }

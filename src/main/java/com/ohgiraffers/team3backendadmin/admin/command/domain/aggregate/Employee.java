@@ -59,14 +59,17 @@ public class Employee {
     @Column(name = "employee_tier")
     private EmployeeTier employeeTier;
 
+    @Builder.Default
     @Column(name = "mfa_enabled")
-    private Boolean mfaEnabled;
+    private Boolean mfaEnabled = false;
 
+    @Builder.Default
     @Column(name = "login_fail_count")
-    private Integer loginFailCount;
+    private Integer loginFailCount = 0;
 
+    @Builder.Default
     @Column(name = "is_locked")
-    private Boolean isLocked;
+    private Boolean isLocked = false;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;

@@ -2,11 +2,13 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -20,11 +22,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -45,6 +49,9 @@ class OrganizationManageCommandServiceTest {
 
     @Mock
     private IdGenerator idGenerator;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     private Employee admin;
 
@@ -329,6 +336,101 @@ class OrganizationManageCommandServiceTest {
             BadCredentialsException exception = assertThrows(
                     BadCredentialsException.class,
                     () -> organizationManageCommandService.deleteDepartment(1000L, "UNKNOWN")
+            );
+            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("insertEmployee 메서드")
+    class InsertEmployee {
+
+        private EmployeeCreateRequest createRequest() {
+            return new EmployeeCreateRequest(
+                    100L,
+                    "홍길동",
+                    "hong@company.com",
+                    "010-1234-5678",
+                    "서울시 강남구",
+                    "010-9876-5432",
+                    "password123",
+                    EmployeeRole.WORKER,
+                    EmployeeStatus.ACTIVE,
+                    EmployeeTier.B
+            );
+        }
+
+        @Test
+        @DisplayName("사원이 정상적으로 등록된다")
+        void insertEmployeeSuccess() {
+            // given
+            EmployeeCreateRequest request = createRequest();
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(departmentRepository.findById(100L))
+                    .willReturn(Optional.of(Department.builder().departmentId(100L).build()));
+            given(idGenerator.generate()).willReturn(5000L);
+            given(organizationManageDomainService.generateEmployeeCode()).willReturn("EMP2603001");
+            given(passwordEncoder.encode(anyString())).willAnswer(invocation -> "$2a$10$" + invocation.getArgument(0));
+
+            // when
+            organizationManageCommandService.insertEmployee(request, "EMP-0001");
+
+            // then
+            ArgumentCaptor<Employee> captor = ArgumentCaptor.forClass(Employee.class);
+            verify(employeeRepository).save(captor.capture());
+
+            Employee saved = captor.getValue();
+            assertEquals(5000L, saved.getEmployeeId());
+            assertEquals(100L, saved.getDepartmentId());
+            assertEquals("EMP2603001", saved.getEmployeeCode());
+            assertEquals("홍길동", saved.getEmployeeName());
+            assertEquals("hong@company.com", saved.getEmployeeEmail());
+            assertEquals("$2a$10$010-1234-5678", saved.getEmployeePhone());
+            assertEquals("$2a$10$서울시 강남구", saved.getEmployeeAddress());
+            assertEquals("$2a$10$010-9876-5432", saved.getEmployeeEmergencyContact());
+            assertEquals("$2a$10$password123", saved.getEmployeePassword());
+            assertEquals(EmployeeRole.WORKER, saved.getEmployeeRole());
+            assertEquals(EmployeeStatus.ACTIVE, saved.getEmployeeStatus());
+            assertEquals(EmployeeTier.B, saved.getEmployeeTier());
+            assertFalse(saved.getMfaEnabled());
+            assertEquals(0, saved.getLoginFailCount());
+            assertFalse(saved.getIsLocked());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 부서이면 예외가 발생한다")
+        void insertEmployeeDepartmentNotFound() {
+            // given
+            EmployeeCreateRequest request = createRequest();
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(departmentRepository.findById(100L))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> organizationManageCommandService.insertEmployee(request, "EMP-0001")
+            );
+            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사원코드이면 예외가 발생한다")
+        void insertEmployeeAdminNotFound() {
+            // given
+            EmployeeCreateRequest request = createRequest();
+
+            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            BadCredentialsException exception = assertThrows(
+                    BadCredentialsException.class,
+                    () -> organizationManageCommandService.insertEmployee(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
         }
