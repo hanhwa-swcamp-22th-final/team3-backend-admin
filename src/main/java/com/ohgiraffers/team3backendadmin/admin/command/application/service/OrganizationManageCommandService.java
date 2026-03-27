@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
@@ -48,6 +49,21 @@ public class OrganizationManageCommandService {
     }
 
     // Update Department
+    @Transactional
+    public void updateDepartment(DepartmentUpdateRequest request, String employeeCode) {
+
+        Employee employee = employeeRepository.findByEmployeeCode(employeeCode)
+                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 부서를 찾을 수 없습니다"));
+
+        department.updateNames(
+                request.getDepartmentName(),
+                request.getTeamName(),
+                employee.getEmployeeId()
+        );
+    }
 
     // Delete Department
 

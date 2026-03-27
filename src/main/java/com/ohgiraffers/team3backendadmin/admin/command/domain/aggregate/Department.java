@@ -40,4 +40,15 @@ public class Department {
 
     @Column(name = "updated_by")
     private Long updatedBy;
+
+    public void updateNames(String departmentName, String teamName, Long updatedBy) {
+        if (departmentName != null) {
+            this.departmentName = departmentName;
+        }
+        if (teamName != null) {
+            this.teamName = teamName;
+        }
+        this.updatedBy = updatedBy;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
