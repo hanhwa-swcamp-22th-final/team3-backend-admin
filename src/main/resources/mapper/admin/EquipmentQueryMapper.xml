@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper">
+
+    <select id="selectEquipmentList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse">
+        SELECT
+            e.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            e.equipment_status AS equipmentStatus,
+            e.equipment_grade AS equipmentGrade,
+            ep.equipment_process_name AS equipmentProcessName,
+            fl.factory_line_name AS factoryLineName,
+            es.environment_name AS environmentName
+        FROM equipment e
+        INNER JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
+        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        INNER JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
+        WHERE 1 = 1
+        <if test="request != null and request.keyword != null and request.keyword != ''">
+            AND (
+                e.equipment_code LIKE CONCAT('%', #{request.keyword}, '%')
+                OR e.equipment_name LIKE CONCAT('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request != null and request.equipmentStatus != null">
+            AND e.equipment_status = #{request.equipmentStatus}
+        </if>
+        <if test="request != null and request.equipmentGrade != null">
+            AND e.equipment_grade = #{request.equipmentGrade}
+        </if>
+        ORDER BY e.equipment_id DESC
+    </select>
+
+    <select id="selectEquipmentDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse">
+        SELECT
+            e.equipment_id AS equipmentId,
+            e.equipment_process_id AS equipmentProcessId,
+            e.environment_standard_id AS environmentStandardId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            e.equipment_status AS equipmentStatus,
+            e.equipment_grade AS equipmentGrade,
+            e.equipment_install_date AS equipmentInstallDate,
+            e.equipment_description AS equipmentDescription,
+            ep.equipment_process_name AS equipmentProcessName,
+            fl.factory_line_name AS factoryLineName,
+            es.environment_code AS environmentCode,
+            es.environment_name AS environmentName
+        FROM equipment e
+        INNER JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
+        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        INNER JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
+        WHERE e.equipment_id = #{equipmentId}
+    </select>
+
+    <select id="selectEquipmentIdByCode" resultType="java.lang.Long">
+        SELECT equipment_id
+        FROM equipment
+        WHERE equipment_code = #{equipmentCode}
+        LIMIT 1
+    </select>
+
+    <select id="selectEquipmentAgingParamIdByEquipmentId" resultType="java.lang.Long">
+        SELECT equipment_aging_param_id
+        FROM equipment_aging_param
+        WHERE equipment_id = #{equipmentId}
+        LIMIT 1
+    </select>
+
+    <select id="selectEquipmentBaselineIdByEquipmentId" resultType="java.lang.Long">
+        SELECT equipment_baseline_id
+        FROM equipment_baseline
+        WHERE equipment_id = #{equipmentId}
+        LIMIT 1
+    </select>
+</mapper>

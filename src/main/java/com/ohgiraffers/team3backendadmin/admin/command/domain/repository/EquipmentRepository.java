@@ -6,5 +6,6 @@ import com.ohgiraffers.team3backendadmin.admin.command.infrastructure.repository
 import java.util.Optional;
 
 public interface EquipmentRepository extends JpaEquipmentRepository {
-  Optional<Equipment> findByEquipmentCode(String s);
+
+  Optional<Equipment> findByEquipmentCode(String equipmentCode);
 }

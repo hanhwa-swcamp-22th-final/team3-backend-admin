@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request;
+package com.ohgiraffers.team3backendadmin.admin.command.application.dto.response;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
@@ -8,15 +8,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EquipmentCreateRequest {
-  private Long equipmentProcessId;
-  private Long environmentStandardId;
+public class EquipmentCreateResponse {
+  private Long equipmentId;
   private String equipmentCode;
   private String equipmentName;
   private EquipmentStatus equipmentStatus;
   private EquipmentGrade equipmentGrade;
-  private String equipmentDescription;
-  private Integer equipmentWarrantyMonth;
-  private Integer equipmentDesignLifeMonths;
-  private Double equipmentWearCoefficient;
 }

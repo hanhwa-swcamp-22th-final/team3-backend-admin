@@ -8,22 +8,22 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 class EquipmentQueryControllerTest {
 
     @Test
-    @DisplayName("설비 목록 API 성공: 목록 JSON을 반환한다")
+    @DisplayName("Get equipment list API success: return list JSON")
     void getEquipments_success() {
     }
 
     @Test
-    @DisplayName("설비 목록 API 성공: 쿼리 파라미터가 정상 바인딩된다")
+    @DisplayName("Get equipment list API success: bind query parameters correctly")
     void getEquipments_withQueryParams_success() {
     }
 
     @Test
-    @DisplayName("설비 상세 API 성공: 상세 JSON을 반환한다")
+    @DisplayName("Get equipment detail API success: return detail JSON")
     void getEquipmentDetail_success() {
     }
 
     @Test
-    @DisplayName("설비 상세 API 실패: 대상이 없으면 404를 반환한다")
+    @DisplayName("Get equipment detail API failure: return 404 when the target does not exist")
     void getEquipmentDetail_whenServiceThrowsNotFound_thenNotFound() {
     }
 }
