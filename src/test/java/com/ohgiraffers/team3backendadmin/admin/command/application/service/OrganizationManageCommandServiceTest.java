@@ -269,4 +269,68 @@ class OrganizationManageCommandServiceTest {
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
         }
     }
+
+    @Nested
+    @DisplayName("deleteDepartment 메서드")
+    class DeleteDepartment {
+
+        @Test
+        @DisplayName("부서가 소프트 삭제된다")
+        void deleteDepartmentSuccess() {
+            // given
+            Department existing = Department.builder()
+                    .departmentId(1000L)
+                    .parentDepartmentId(50L)
+                    .departmentName("경영지원본부")
+                    .teamName("시스템관리팀")
+                    .depth("L1")
+                    .build();
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(departmentRepository.findById(1000L))
+                    .willReturn(Optional.of(existing));
+
+            // when
+            organizationManageCommandService.deleteDepartment(1000L, "EMP-0001");
+
+            // then
+            assertEquals("삭제됨", existing.getDepartmentName());
+            assertEquals("삭제됨", existing.getTeamName());
+            assertNull(existing.getParentDepartmentId());
+            assertNull(existing.getDepth());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 부서이면 예외가 발생한다")
+        void deleteDepartmentNotFound() {
+            // given
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(departmentRepository.findById(9999L))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> organizationManageCommandService.deleteDepartment(9999L, "EMP-0001")
+            );
+            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사원코드이면 예외가 발생한다")
+        void deleteDepartmentEmployeeNotFound() {
+            // given
+            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            BadCredentialsException exception = assertThrows(
+                    BadCredentialsException.class,
+                    () -> organizationManageCommandService.deleteDepartment(1000L, "UNKNOWN")
+            );
+            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+        }
+    }
 }

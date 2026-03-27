@@ -81,6 +81,10 @@ Authorization: Bearer {{accessToken}}
   "depth": "L0"
 }
 
+### 부서 삭제 (소프트 삭제)
+DELETE http://localhost:8080/api/v1/organization/department/1774590557453239
+Authorization: Bearer {{accessToken}}
+
 ### 부서 등록 실패 - 인증 없음 (401 Unauthorized)
 POST http://localhost:8080/api/v1/organization/department
 Content-Type: application/json

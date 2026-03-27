@@ -59,4 +59,11 @@ public class Department {
             this.teamName = teamName;
         }
     }
+
+    public void softDelete() {
+        this.departmentName = "삭제됨";
+        this.teamName = "삭제됨";
+        this.parentDepartmentId = null;
+        this.depth = null;
+    }
 }

@@ -58,5 +58,16 @@ public class OrganizationManageCommandService {
     }
 
     // Delete Department
+    @Transactional
+    public void deleteDepartment(Long departmentId, String employeeCode) {
+
+        employeeRepository.findByEmployeeCode(employeeCode)
+                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 부서를 찾을 수 없습니다"));
+
+        department.softDelete();
+    }
 
 }

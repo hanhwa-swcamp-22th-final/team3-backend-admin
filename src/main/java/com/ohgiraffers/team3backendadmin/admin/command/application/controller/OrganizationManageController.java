@@ -42,4 +42,15 @@ public class OrganizationManageController {
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
+
+    @DeleteMapping("/department/{departmentId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteDepartment(
+            @PathVariable Long departmentId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        organizationManageCommandService.deleteDepartment(departmentId, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
 }
