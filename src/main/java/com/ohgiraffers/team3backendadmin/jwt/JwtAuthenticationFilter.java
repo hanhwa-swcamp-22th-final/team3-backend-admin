@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             // 3. 토큰에서 userId 추출
             String employeeCode = jwtTokenProvider.getEmployeeCodeFromJWT(token);
-            // 4. username으로 사용자 정보(UserDetails) 로드 (DB 등에서 조회)
+            // 4. userCode로 사용자 정보(UserDetails) 로드 (DB 등에서 조회)
             // CustomUserDetailsService 를 통해 사용자 정보를 로드한다.
             UserDetails userDetails = userDetailsService.loadUserByUsername(employeeCode);
 
