@@ -30,7 +30,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "parentDepartmentId": 1774588409082208,
+  "parentDepartmentId": 1774590557453239,
   "departmentName": "개발본부",
   "teamName": "백엔드팀-2",
   "depth": "L2"
@@ -42,7 +42,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "departmentId": 1774588409082208,
+  "departmentId": 1774590557453239,
   "departmentName": "경영지원본부-수정",
   "teamName": "시스템관리팀-수정"
 }
@@ -53,9 +53,20 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "departmentId": 1774588409082208,
+  "departmentId": 1774590557453239,
   "departmentName": "경영지원본부-수정2",
   "teamName": null
+}
+
+### 부서 수정 - 팀명만 수정
+PUT http://localhost:8080/api/v1/organization/department
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "departmentId": 1774590557453239,
+  "departmentName": null,
+  "teamName": "시스템관리팀-수정3"
 }
 
 ### 부서 등록 실패 - 부서명 누락 (400 Bad Request)

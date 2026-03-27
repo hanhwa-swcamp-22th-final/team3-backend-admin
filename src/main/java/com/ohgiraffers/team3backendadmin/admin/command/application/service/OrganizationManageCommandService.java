@@ -4,7 +4,6 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.D
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -12,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +25,7 @@ public class OrganizationManageCommandService {
     @Transactional
     public void insertDepartment(DepartmentCreateRequest request, String employeeCode) {
 
-        Employee employee = employeeRepository.findByEmployeeCode(employeeCode)
+        employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
 
         Department department = Department.builder()
@@ -37,10 +34,6 @@ public class OrganizationManageCommandService {
                 .departmentName(request.getDepartmentName())
                 .teamName(request.getTeamName())
                 .depth(request.getDepth())
-                .createdAt(LocalDateTime.now())
-                .createdBy(employee.getEmployeeId())
-                .updatedAt(LocalDateTime.now())
-                .updatedBy(employee.getEmployeeId())
                 .build();
 
         Department verified = organizationManageDomainService.buildVerifiedDepartment(department);
@@ -52,7 +45,7 @@ public class OrganizationManageCommandService {
     @Transactional
     public void updateDepartment(DepartmentUpdateRequest request, String employeeCode) {
 
-        Employee employee = employeeRepository.findByEmployeeCode(employeeCode)
+        employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
 
         Department department = departmentRepository.findById(request.getDepartmentId())
@@ -60,8 +53,7 @@ public class OrganizationManageCommandService {
 
         department.updateNames(
                 request.getDepartmentName(),
-                request.getTeamName(),
-                employee.getEmployeeId()
+                request.getTeamName()
         );
     }
 

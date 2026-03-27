@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,10 +38,6 @@ class OrganizationManageDomainServiceTest {
                     .departmentName("경영지원본부")
                     .teamName("시스템관리팀")
                     .depth("anything")
-                    .createdAt(LocalDateTime.now())
-                    .createdBy(1L)
-                    .updatedAt(LocalDateTime.now())
-                    .updatedBy(1L)
                     .build();
 
             // when
@@ -54,7 +49,6 @@ class OrganizationManageDomainServiceTest {
             assertEquals("경영지원본부", result.getDepartmentName());
             assertNull(result.getTeamName());
             assertEquals("L0", result.getDepth());
-            assertEquals(1L, result.getCreatedBy());
         }
 
         @Test
@@ -72,10 +66,6 @@ class OrganizationManageDomainServiceTest {
                     .departmentName("개발본부")
                     .teamName("백엔드팀")
                     .depth("anything")
-                    .createdAt(LocalDateTime.now())
-                    .createdBy(1L)
-                    .updatedAt(LocalDateTime.now())
-                    .updatedBy(1L)
                     .build();
 
             given(departmentRepository.findById(100L)).willReturn(Optional.of(parent));
@@ -103,10 +93,6 @@ class OrganizationManageDomainServiceTest {
                     .parentDepartmentId(200L)
                     .departmentName("세부팀")
                     .teamName("유닛A")
-                    .createdAt(LocalDateTime.now())
-                    .createdBy(1L)
-                    .updatedAt(LocalDateTime.now())
-                    .updatedBy(1L)
                     .build();
 
             given(departmentRepository.findById(200L)).willReturn(Optional.of(parent));

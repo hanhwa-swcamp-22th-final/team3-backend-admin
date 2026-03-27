@@ -94,8 +94,8 @@ class OrganizationManageCommandServiceTest {
         }
 
         @Test
-        @DisplayName("도메인 서비스에 전달되는 부서에 사원 정보가 포함된다")
-        void insertDepartmentPassesEmployeeInfo() {
+        @DisplayName("도메인 서비스에 전달되는 부서에 요청 정보가 포함된다")
+        void insertDepartmentPassesRequestInfo() {
             // given
             DepartmentCreateRequest request = new DepartmentCreateRequest(
                     50L, "개발본부", "백엔드팀", "L1"
@@ -116,9 +116,9 @@ class OrganizationManageCommandServiceTest {
 
             Department passed = captor.getValue();
             assertEquals(2000L, passed.getDepartmentId());
-            assertEquals(1L, passed.getCreatedBy());
-            assertEquals(1L, passed.getUpdatedBy());
-            assertNotNull(passed.getCreatedAt());
+            assertEquals(50L, passed.getParentDepartmentId());
+            assertEquals("개발본부", passed.getDepartmentName());
+            assertEquals("백엔드팀", passed.getTeamName());
         }
 
         @Test
@@ -158,8 +158,6 @@ class OrganizationManageCommandServiceTest {
                     .departmentName("경영지원본부")
                     .teamName("시스템관리팀")
                     .depth("L0")
-                    .createdBy(1L)
-                    .updatedBy(1L)
                     .build();
 
             given(employeeRepository.findByEmployeeCode("EMP-0001"))
@@ -173,8 +171,6 @@ class OrganizationManageCommandServiceTest {
             // then
             assertEquals("경영지원본부-수정", existing.getDepartmentName());
             assertEquals("시스템관리팀-수정", existing.getTeamName());
-            assertEquals(1L, existing.getUpdatedBy());
-            assertNotNull(existing.getUpdatedAt());
         }
 
         @Test
@@ -203,6 +199,34 @@ class OrganizationManageCommandServiceTest {
             // then
             assertEquals("경영지원본부-수정", existing.getDepartmentName());
             assertEquals("시스템관리팀", existing.getTeamName());
+        }
+
+        @Test
+        @DisplayName("팀명만 수정하면 부서명은 변경되지 않는다")
+        void updateDepartmentOnlyTeamName() {
+            // given
+            DepartmentUpdateRequest request = new DepartmentUpdateRequest(
+                    1000L, null, "시스템관리팀-수정"
+            );
+
+            Department existing = Department.builder()
+                    .departmentId(1000L)
+                    .departmentName("경영지원본부")
+                    .teamName("시스템관리팀")
+                    .depth("L0")
+                    .build();
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(departmentRepository.findById(1000L))
+                    .willReturn(Optional.of(existing));
+
+            // when
+            organizationManageCommandService.updateDepartment(request, "EMP-0001");
+
+            // then
+            assertEquals("경영지원본부", existing.getDepartmentName());
+            assertEquals("시스템관리팀-수정", existing.getTeamName());
         }
 
         @Test

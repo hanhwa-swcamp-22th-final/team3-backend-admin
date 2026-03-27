@@ -26,10 +26,6 @@ public class OrganizationManageDomainService {
                     .departmentName(department.getDepartmentName())
                     .teamName(null)
                     .depth("L0")
-                    .createdAt(department.getCreatedAt())
-                    .createdBy(department.getCreatedBy())
-                    .updatedAt(department.getUpdatedAt())
-                    .updatedBy(department.getUpdatedBy())
                     .build();
         }
 
@@ -45,10 +41,6 @@ public class OrganizationManageDomainService {
                 .departmentName(department.getDepartmentName())
                 .teamName(department.getTeamName())
                 .depth(depth)
-                .createdAt(department.getCreatedAt())
-                .createdBy(department.getCreatedBy())
-                .updatedAt(department.getUpdatedAt())
-                .updatedBy(department.getUpdatedBy())
                 .build();
     }
 }
