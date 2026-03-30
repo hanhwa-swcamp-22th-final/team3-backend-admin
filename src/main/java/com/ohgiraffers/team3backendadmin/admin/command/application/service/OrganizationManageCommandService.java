@@ -8,6 +8,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
+import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,6 +25,7 @@ public class OrganizationManageCommandService {
     private final EmployeeRepository employeeRepository;
     private final IdGenerator idGenerator;
     private final PasswordEncoder passwordEncoder;
+    private final AesEncryptor aesEncryptor;
 
     // Insert Department
     @Transactional
@@ -91,10 +93,10 @@ public class OrganizationManageCommandService {
                 .departmentId(request.getDepartmentId())
                 .employeeCode(generatedCode)
                 .employeeName(request.getEmployeeName())
-                .employeeEmail(request.getEmployeeEmail())
-                .employeePhone(passwordEncoder.encode(request.getEmployeePhone()))
-                .employeeAddress(passwordEncoder.encode(request.getEmployeeAddress()))
-                .employeeEmergencyContact(passwordEncoder.encode(request.getEmployeeEmergencyContact()))
+                .employeeEmail(aesEncryptor.encrypt(request.getEmployeeEmail()))
+                .employeePhone(aesEncryptor.encrypt(request.getEmployeePhone()))
+                .employeeAddress(aesEncryptor.encrypt(request.getEmployeeAddress()))
+                .employeeEmergencyContact(aesEncryptor.encrypt(request.getEmployeeEmergencyContact()))
                 .employeePassword(passwordEncoder.encode(request.getEmployeePassword()))
                 .employeeRole(request.getEmployeeRole())
                 .employeeStatus(request.getEmployeeStatus())
