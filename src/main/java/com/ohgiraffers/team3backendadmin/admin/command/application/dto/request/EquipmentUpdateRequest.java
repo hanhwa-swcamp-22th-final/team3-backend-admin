@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EquipmentCreateRequest {
+public class EquipmentUpdateRequest {
   private Long equipmentProcessId;
   private Long environmentStandardId;
   private String equipmentCode;
@@ -19,4 +19,5 @@ public class EquipmentCreateRequest {
   private Integer equipmentWarrantyMonth;
   private Integer equipmentDesignLifeMonths;
   private Double equipmentWearCoefficient;
+
 }
