@@ -36,6 +36,9 @@ public class EquipmentProcess {
     @Column(name = "equipment_process_name", nullable = false)
     private String equipmentProcessName;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -56,7 +59,7 @@ public class EquipmentProcess {
                             Long factoryLineId,
                             String equipmentProcessCode,
                             String equipmentProcessName) {
-        this(equipmentProcessId, factoryLineId, equipmentProcessCode, equipmentProcessName, null, null, null, null);
+        this(equipmentProcessId, factoryLineId, equipmentProcessCode, equipmentProcessName, false, null, null, null, null);
     }
 
     @Builder
@@ -64,6 +67,7 @@ public class EquipmentProcess {
                             Long factoryLineId,
                             String equipmentProcessCode,
                             String equipmentProcessName,
+                            Boolean isDeleted,
                             LocalDateTime createdAt,
                             Long createdBy,
                             LocalDateTime updatedAt,
@@ -72,6 +76,7 @@ public class EquipmentProcess {
         this.factoryLineId = factoryLineId;
         this.equipmentProcessCode = equipmentProcessCode;
         this.equipmentProcessName = equipmentProcessName;
+        this.isDeleted = isDeleted == null ? false : isDeleted;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.updatedAt = updatedAt;
