@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service;
 
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.config.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;

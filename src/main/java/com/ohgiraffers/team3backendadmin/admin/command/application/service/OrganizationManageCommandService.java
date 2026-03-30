@@ -4,10 +4,14 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.D
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -17,6 +21,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
 @Service
 @RequiredArgsConstructor
 public class OrganizationManageCommandService {
@@ -24,6 +32,7 @@ public class OrganizationManageCommandService {
     private final OrganizationManageDomainService organizationManageDomainService;
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final SkillRepository skillRepository;
     private final IdGenerator idGenerator;
     private final PasswordEncoder passwordEncoder;
     private final AesEncryptor aesEncryptor;
@@ -105,6 +114,20 @@ public class OrganizationManageCommandService {
                 .build();
 
         employeeRepository.save(employee);
+
+        // 새 사원 생성 시, 각 스킬 카테고리에 대해 기본 레코드 생성 (총 6개)
+        Arrays.stream(SkillCategory.values())
+                .forEach(category -> {
+                    Skill defaultSkill = Skill.builder()
+                            .skillId(idGenerator.generate())
+                            .employeeId(employee.getEmployeeId())
+                            .skillCategory(category)
+                            .skillScore(BigDecimal.ZERO)
+                            .skillTier(SkillTier.C)
+                            .evaluatedAt(LocalDateTime.now())
+                            .build();
+                    skillRepository.save(defaultSkill);
+                });
     }
 
     // Update Employee

@@ -19,8 +19,8 @@ Authorization: Bearer {{accessToken}}
 
 {
   "departmentId": 1774590584056408,
-  "employeeName": "김신우",
-  "employeeEmail": "sinseon2000@company.com",
+  "employeeName": "홍길동",
+  "employeeEmail": "sample123@company.com",
   "employeePhone": "010-1234-5678",
   "employeeAddress": "서울시 강남구 테헤란로 123",
   "employeeEmergencyContact": "010-9876-5432",

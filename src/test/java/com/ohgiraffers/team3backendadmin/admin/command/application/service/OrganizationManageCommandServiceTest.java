@@ -4,13 +4,15 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.D
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeRole;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +51,9 @@ class OrganizationManageCommandServiceTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
+
+    @Mock
+    private SkillRepository skillRepository;
 
     @Mock
     private IdGenerator idGenerator;
@@ -403,6 +409,9 @@ class OrganizationManageCommandServiceTest {
             assertFalse(saved.getMfaEnabled());
             assertEquals(0, saved.getLoginFailCount());
             assertFalse(saved.getIsLocked());
+
+            // 6개의 기본 스킬 레코드가 생성되는지 확인
+            verify(skillRepository, times(6)).save(any(Skill.class));
         }
 
         @Test
