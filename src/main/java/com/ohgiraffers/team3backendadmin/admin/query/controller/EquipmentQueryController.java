@@ -23,11 +23,13 @@ public class EquipmentQueryController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<EquipmentQueryResponse>>> getEquipmentList(EquipmentSearchRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(equipmentQueryService.getEquipmentList(request)));
+        List<EquipmentQueryResponse> equipmentQueryResponses = equipmentQueryService.getEquipmentList(request);
+        return ResponseEntity.ok(ApiResponse.success(equipmentQueryResponses));
     }
 
     @GetMapping("/{equipmentId}")
     public ResponseEntity<ApiResponse<EquipmentDetailResponse>> getEquipmentDetail(@PathVariable Long equipmentId) {
-        return ResponseEntity.ok(ApiResponse.success(equipmentQueryService.getEquipmentDetail(equipmentId)));
+        EquipmentDetailResponse equipmentDetailResponse = equipmentQueryService.getEquipmentDetail(equipmentId);
+        return ResponseEntity.ok(ApiResponse.success(equipmentDetailResponse));
     }
 }
