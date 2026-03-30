@@ -11,6 +11,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
+import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -52,6 +53,9 @@ class OrganizationManageCommandServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AesEncryptor aesEncryptor;
 
     private Employee admin;
 
@@ -372,6 +376,7 @@ class OrganizationManageCommandServiceTest {
                     .willReturn(Optional.of(Department.builder().departmentId(100L).build()));
             given(idGenerator.generate()).willReturn(5000L);
             given(organizationManageDomainService.generateEmployeeCode()).willReturn("EMP2603001");
+            given(aesEncryptor.encrypt(anyString())).willAnswer(invocation -> "AES_" + invocation.getArgument(0));
             given(passwordEncoder.encode(anyString())).willAnswer(invocation -> "$2a$10$" + invocation.getArgument(0));
 
             // when
@@ -386,10 +391,10 @@ class OrganizationManageCommandServiceTest {
             assertEquals(100L, saved.getDepartmentId());
             assertEquals("EMP2603001", saved.getEmployeeCode());
             assertEquals("홍길동", saved.getEmployeeName());
-            assertEquals("hong@company.com", saved.getEmployeeEmail());
-            assertEquals("$2a$10$010-1234-5678", saved.getEmployeePhone());
-            assertEquals("$2a$10$서울시 강남구", saved.getEmployeeAddress());
-            assertEquals("$2a$10$010-9876-5432", saved.getEmployeeEmergencyContact());
+            assertEquals("AES_hong@company.com", saved.getEmployeeEmail());
+            assertEquals("AES_010-1234-5678", saved.getEmployeePhone());
+            assertEquals("AES_서울시 강남구", saved.getEmployeeAddress());
+            assertEquals("AES_010-9876-5432", saved.getEmployeeEmergencyContact());
             assertEquals("$2a$10$password123", saved.getEmployeePassword());
             assertEquals(EmployeeRole.WORKER, saved.getEmployeeRole());
             assertEquals(EmployeeStatus.ACTIVE, saved.getEmployeeStatus());
