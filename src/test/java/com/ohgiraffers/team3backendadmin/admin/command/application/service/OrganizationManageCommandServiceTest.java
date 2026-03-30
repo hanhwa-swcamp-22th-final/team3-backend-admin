@@ -3,6 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
@@ -436,6 +437,190 @@ class OrganizationManageCommandServiceTest {
             BadCredentialsException exception = assertThrows(
                     BadCredentialsException.class,
                     () -> organizationManageCommandService.insertEmployee(request, "UNKNOWN")
+            );
+            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("updateEmployee 메서드")
+    class UpdateEmployee {
+
+        private Employee targetEmployee;
+
+        @BeforeEach
+        void setUp() {
+            targetEmployee = Employee.builder()
+                    .employeeId(5000L)
+                    .departmentId(100L)
+                    .employeeCode("EMP2603001")
+                    .employeeName("홍길동")
+                    .employeeEmail("AES_hong@company.com")
+                    .employeePhone("AES_010-1234-5678")
+                    .employeeAddress("AES_서울시 강남구")
+                    .employeeEmergencyContact("AES_010-9876-5432")
+                    .employeeRole(EmployeeRole.WORKER)
+                    .employeeStatus(EmployeeStatus.ACTIVE)
+                    .employeeTier(EmployeeTier.B)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("모든 필드가 정상적으로 수정된다")
+        void updateEmployeeAllFields() {
+            // given
+            EmployeeUpdateRequest request = new EmployeeUpdateRequest(
+                    "EMP2603001", "김철수", "kim@company.com",
+                    "010-9999-8888", "부산시 해운대구", "010-1111-2222"
+            );
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("EMP2603001"))
+                    .willReturn(Optional.of(targetEmployee));
+            given(aesEncryptor.encrypt(anyString()))
+                    .willAnswer(invocation -> "AES_" + invocation.getArgument(0));
+
+            // when
+            organizationManageCommandService.updateEmployee(request, "EMP-0001");
+
+            // then
+            assertEquals("김철수", targetEmployee.getEmployeeName());
+            assertEquals("AES_kim@company.com", targetEmployee.getEmployeeEmail());
+            assertEquals("AES_010-9999-8888", targetEmployee.getEmployeePhone());
+            assertEquals("AES_부산시 해운대구", targetEmployee.getEmployeeAddress());
+            assertEquals("AES_010-1111-2222", targetEmployee.getEmployeeEmergencyContact());
+        }
+
+        @Test
+        @DisplayName("이름과 이메일만 수정하면 나머지 필드는 변경되지 않는다")
+        void updateEmployeePartialFields() {
+            // given
+            EmployeeUpdateRequest request = new EmployeeUpdateRequest(
+                    "EMP2603001", "김철수", "kim@company.com",
+                    null, null, null
+            );
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("EMP2603001"))
+                    .willReturn(Optional.of(targetEmployee));
+            given(aesEncryptor.encrypt(anyString()))
+                    .willAnswer(invocation -> "AES_" + invocation.getArgument(0));
+
+            // when
+            organizationManageCommandService.updateEmployee(request, "EMP-0001");
+
+            // then
+            assertEquals("김철수", targetEmployee.getEmployeeName());
+            assertEquals("AES_kim@company.com", targetEmployee.getEmployeeEmail());
+            assertEquals("AES_010-1234-5678", targetEmployee.getEmployeePhone());
+            assertEquals("AES_서울시 강남구", targetEmployee.getEmployeeAddress());
+            assertEquals("AES_010-9876-5432", targetEmployee.getEmployeeEmergencyContact());
+        }
+
+        @Test
+        @DisplayName("대상 사원이 존재하지 않으면 예외가 발생한다")
+        void updateEmployeeTargetNotFound() {
+            // given
+            EmployeeUpdateRequest request = new EmployeeUpdateRequest(
+                    "UNKNOWN_TARGET", "김철수", null,
+                    null, null, null
+            );
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("UNKNOWN_TARGET"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> organizationManageCommandService.updateEmployee(request, "EMP-0001")
+            );
+            assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("관리자 사원코드가 존재하지 않으면 예외가 발생한다")
+        void updateEmployeeAdminNotFound() {
+            // given
+            EmployeeUpdateRequest request = new EmployeeUpdateRequest(
+                    "EMP2603001", "김철수", null,
+                    null, null, null
+            );
+
+            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            BadCredentialsException exception = assertThrows(
+                    BadCredentialsException.class,
+                    () -> organizationManageCommandService.updateEmployee(request, "UNKNOWN")
+            );
+            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteEmployee 메서드")
+    class DeleteEmployee {
+
+        private Employee targetEmployee;
+
+        @BeforeEach
+        void setUp() {
+            targetEmployee = Employee.builder()
+                    .employeeId(5000L)
+                    .employeeCode("EMP2603001")
+                    .employeeStatus(EmployeeStatus.ACTIVE)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("사원의 상태가 ON_LEAVE로 변경된다")
+        void deleteEmployeeSuccess() {
+            // given
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("EMP2603001"))
+                    .willReturn(Optional.of(targetEmployee));
+
+            // when
+            organizationManageCommandService.deleteEmployee("EMP2603001", "EMP-0001");
+
+            // then
+            assertEquals(EmployeeStatus.ON_LEAVE, targetEmployee.getEmployeeStatus());
+        }
+
+        @Test
+        @DisplayName("대상 사원이 존재하지 않으면 예외가 발생한다")
+        void deleteEmployeeTargetNotFound() {
+            // given
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("UNKNOWN_TARGET"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> organizationManageCommandService.deleteEmployee("UNKNOWN_TARGET", "EMP-0001")
+            );
+            assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("관리자 사원코드가 존재하지 않으면 예외가 발생한다")
+        void deleteEmployeeAdminNotFound() {
+            // given
+            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            BadCredentialsException exception = assertThrows(
+                    BadCredentialsException.class,
+                    () -> organizationManageCommandService.deleteEmployee("EMP2603001", "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
         }

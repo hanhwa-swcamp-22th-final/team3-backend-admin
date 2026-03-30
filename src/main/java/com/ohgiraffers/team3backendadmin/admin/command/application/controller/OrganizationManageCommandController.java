@@ -3,6 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.OrganizationManageCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -21,6 +22,12 @@ public class OrganizationManageCommandController {
 
     private final OrganizationManageCommandService organizationManageCommandService;
 
+    /**
+     * 새로운 부서를 추가하는 Api
+     * @param request DepartmentCreateRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
     @PostMapping("/department")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> insertDepartment(
@@ -33,6 +40,12 @@ public class OrganizationManageCommandController {
                 .body(ApiResponse.success(null));
     }
 
+    /**
+     * 부서의 정보를 수정하는 Api
+     * @param request DepartmentUpdateRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
     @PutMapping("/department")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> updateDepartment(
@@ -44,6 +57,12 @@ public class OrganizationManageCommandController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    /**
+     * 부서정보를 삭제(Soft Delete)하는 Api
+     * @param departmentId departmentId
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
     @DeleteMapping("/department/{departmentId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteDepartment(
@@ -55,6 +74,12 @@ public class OrganizationManageCommandController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    /**
+     * 새로운 Employee를 추가하는 Api
+     * @param request EmployeeCreateRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
     @PostMapping("/employee")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> insertEmployee(
@@ -66,4 +91,39 @@ public class OrganizationManageCommandController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(null));
     }
+
+    /**
+     * 사원의 개인정보를 수정하는 Api
+     * @param request EmployeeUpdateRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
+    @PutMapping("/employee")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> updateEmployee(
+            @Valid @RequestBody EmployeeUpdateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        organizationManageCommandService.updateEmployee(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    /**
+     * 사원을 삭제(Soft Delete)하는 Api
+     * @param employeeCode targetCode
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
+    @DeleteMapping("/employee/{employeeCode}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteEmployee(
+            @PathVariable String employeeCode,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        organizationManageCommandService.deleteEmployee(employeeCode, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
 }
