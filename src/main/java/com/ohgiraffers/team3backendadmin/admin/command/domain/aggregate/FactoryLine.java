@@ -74,4 +74,18 @@ public class FactoryLine {
         this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
     }
+
+    public void updateInfo(String factoryLineCode, String factoryLineName){
+      if (factoryLineCode == null  || factoryLineCode.isBlank()
+          || factoryLineName == null || factoryLineName.isBlank()){
+        throw new IllegalArgumentException("Factory line code and name must not be null or blank.");
+      }
+
+      this.factoryLineCode = factoryLineCode;
+      this.factoryLineName = factoryLineName;
+    }
+
+    public void softDelete(){
+      this.isDeleted = true;
+    }
 }
