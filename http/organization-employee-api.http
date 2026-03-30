@@ -37,8 +37,8 @@ Authorization: Bearer {{accessToken}}
 
 {
   "employeeCode": "EMP2603002",
-  "employeeName": "김철수갓댐",
-  "employeeEmail": "kim3322@company.com",
+  "employeeName": "기심우",
+  "employeeEmail": "sinseon2000@company.com",
   "employeePhone": "010-9999-8888",
   "employeeAddress": "부산시 해운대구 센텀로 123",
   "employeeEmergencyContact": "010-1111-2222"
@@ -75,4 +75,16 @@ Authorization: Bearer {{accessToken}}
   "employeeStatus": "ACTIVE",
   "employeeTier": "B"
 }
+
+### 선택 사원 조회
+GET http://localhost:8080/api/v1/organization/employee/EMP2603002
+Authorization: Bearer {{accessToken}}
+
+### 전체 사원 조회
+GET http://localhost:8080/api/v1/organization/employees
+Authorization: Bearer {{accessToken}}
+
+### 사원 삭제 (Soft Delete - 상태 변경)
+DELETE http://localhost:8080/api/v1/organization/employee/EMP2603001
+Authorization: Bearer {{accessToken}}
 
