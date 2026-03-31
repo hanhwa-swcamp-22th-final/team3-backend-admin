@@ -1,11 +1,13 @@
 package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.service.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import jakarta.servlet.ServletException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,15 +27,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(EquipmentQueryController.class)
+@WebMvcTest(EquipmentManageQueryController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class EquipmentQueryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockitoBean
+    private FactoryLineQueryService factoryLineQueryService;
+
+    @MockitoBean
+    private EquipmentProcessQueryService equipmentProcessQueryService;
 
     @MockitoBean
     private EquipmentQueryService equipmentQueryService;
@@ -52,7 +56,7 @@ class EquipmentQueryControllerTest {
         when(equipmentQueryService.getEquipmentList(argThat(request -> request != null)))
             .thenReturn(List.of(response));
 
-        mockMvc.perform(get("/api/v1/equipment"))
+        mockMvc.perform(get("/api/v1/admin/equipments"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data[0].equipmentId").value(1L))
@@ -69,7 +73,7 @@ class EquipmentQueryControllerTest {
             .thenReturn(List.of());
 
         mockMvc.perform(
-                get("/api/v1/equipment")
+                get("/api/v1/admin/equipments")
                     .param("keyword", "printer")
                     .param("equipmentStatus", "OPERATING")
                     .param("equipmentGrade", "S")
@@ -99,7 +103,7 @@ class EquipmentQueryControllerTest {
         when(equipmentQueryService.getEquipmentDetail(1L))
             .thenReturn(response);
 
-        mockMvc.perform(get("/api/v1/equipment/1"))
+        mockMvc.perform(get("/api/v1/admin/equipments/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentId").value(1L))
@@ -112,11 +116,11 @@ class EquipmentQueryControllerTest {
 
     @Test
     @DisplayName("Get equipment detail API failure: propagate exception when the target does not exist")
-    void getEquipmentDetail_whenServiceThrowsNotFound_thenNotFound() throws Exception {
+    void getEquipmentDetail_whenServiceThrowsNotFound_thenNotFound() {
         when(equipmentQueryService.getEquipmentDetail(999L))
             .thenThrow(new IllegalArgumentException("Equipment not found."));
 
         assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/equipment/999")));
+            () -> mockMvc.perform(get("/api/v1/admin/equipments/999")));
     }
 }

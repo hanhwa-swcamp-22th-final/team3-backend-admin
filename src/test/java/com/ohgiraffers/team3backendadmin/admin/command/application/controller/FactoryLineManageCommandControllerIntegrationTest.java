@@ -3,7 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import jakarta.persistence.EntityManager;
@@ -72,7 +72,7 @@ class FactoryLineManageCommandControllerIntegrationTest {
             .factoryLineName("Integration Line")
             .build();
 
-        mockMvc.perform(post("/api/v1/factory-lines")
+        mockMvc.perform(post("/api/v1/admin/factory-lines")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -97,7 +97,7 @@ class FactoryLineManageCommandControllerIntegrationTest {
             .factoryLineName("Updated Line")
             .build();
 
-        mockMvc.perform(put("/api/v1/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId())
+        mockMvc.perform(put("/api/v1/admin/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -120,7 +120,7 @@ class FactoryLineManageCommandControllerIntegrationTest {
     @Test
     @DisplayName("Delete factory line API integration success: soft-delete target factory line")
     void deleteFactoryLine_success() throws Exception {
-        mockMvc.perform(delete("/api/v1/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId()))
+        mockMvc.perform(delete("/api/v1/admin/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.factoryLineId").value(factoryLine.getFactoryLineId()))

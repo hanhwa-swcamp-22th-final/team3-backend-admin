@@ -1,4 +1,4 @@
-### 로그인(accessToken 발급)
+### 로그인 후 accessToken 발급
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
@@ -12,8 +12,8 @@ Content-Type: application/json
     client.global.set("accessToken", response.body.data.accessToken);
 %}
 
-### 설비 등록
-POST http://localhost:8080/api/v1/equipment
+### 설비 생성
+POST http://localhost:8080/api/v1/admin/equipments
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -31,7 +31,7 @@ Authorization: Bearer {{accessToken}}
 }
 
 ### 설비 수정
-PUT http://localhost:8080/api/v1/equipment/4001
+PUT http://localhost:8080/api/v1/admin/equipments/4001
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -49,13 +49,13 @@ Authorization: Bearer {{accessToken}}
 }
 
 ### 설비 삭제
-DELETE http://localhost:8080/api/v1/equipment/4001
+DELETE http://localhost:8080/api/v1/admin/equipments/4001
 Authorization: Bearer {{accessToken}}
 
 ### 설비 목록 조회
-GET http://localhost:8080/api/v1/equipment?keyword=API&equipmentStatus=OPERATING&equipmentGrade=A
+GET http://localhost:8080/api/v1/admin/equipments?keyword=API&equipmentStatus=OPERATING&equipmentGrade=A
 Authorization: Bearer {{accessToken}}
 
 ### 설비 상세 조회
-GET http://localhost:8080/api/v1/equipment/4001
+GET http://localhost:8080/api/v1/admin/equipments/4001
 Authorization: Bearer {{accessToken}}

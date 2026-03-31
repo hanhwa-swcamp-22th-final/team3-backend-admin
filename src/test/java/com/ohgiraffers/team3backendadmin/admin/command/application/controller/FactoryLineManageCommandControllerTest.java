@@ -5,7 +5,9 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.F
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.FactoryLineManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(FactoryLineManageCommandController.class)
+@WebMvcTest(EquipmentManageCommandController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class FactoryLineManageCommandControllerTest {
 
@@ -37,6 +39,12 @@ class FactoryLineManageCommandControllerTest {
 
     @MockitoBean
     private FactoryLineManageCommandService factoryLineManageCommandService;
+
+    @MockitoBean
+    private EquipmentProcessManageCommandService equipmentProcessManageCommandService;
+
+    @MockitoBean
+    private EquipmentManageCommandService equipmentManageCommandService;
 
     @Test
     @DisplayName("Create factory line API success: return created JSON")
@@ -54,7 +62,7 @@ class FactoryLineManageCommandControllerTest {
 
         when(factoryLineManageCommandService.createFactoryLine(any(FactoryLineCreateRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/v1/factory-lines")
+        mockMvc.perform(post("/api/v1/admin/factory-lines")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -82,7 +90,7 @@ class FactoryLineManageCommandControllerTest {
 
         when(factoryLineManageCommandService.updateFactoryLine(eq(1L), any(FactoryLineUpdateRequest.class))).thenReturn(response);
 
-        mockMvc.perform(put("/api/v1/factory-lines/1")
+        mockMvc.perform(put("/api/v1/admin/factory-lines/1")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -105,7 +113,7 @@ class FactoryLineManageCommandControllerTest {
 
         when(factoryLineManageCommandService.deleteFactoryLine(1L)).thenReturn(response);
 
-        mockMvc.perform(delete("/api/v1/factory-lines/1"))
+        mockMvc.perform(delete("/api/v1/admin/factory-lines/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.factoryLineId").value(1L))

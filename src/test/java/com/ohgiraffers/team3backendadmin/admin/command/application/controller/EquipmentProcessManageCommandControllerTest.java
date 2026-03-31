@@ -5,7 +5,9 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.E
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.EquipmentProcessManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(EquipmentProcessManageCommandController.class)
+@WebMvcTest(EquipmentManageCommandController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class EquipmentProcessManageCommandControllerTest {
 
@@ -36,7 +38,13 @@ class EquipmentProcessManageCommandControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
+    private FactoryLineManageCommandService factoryLineManageCommandService;
+
+    @MockitoBean
     private EquipmentProcessManageCommandService equipmentProcessManageCommandService;
+
+    @MockitoBean
+    private EquipmentManageCommandService equipmentManageCommandService;
 
     @Test
     @DisplayName("Create equipment process API success: return created JSON")
@@ -56,7 +64,7 @@ class EquipmentProcessManageCommandControllerTest {
 
         when(equipmentProcessManageCommandService.createEquipmentProcess(any(EquipmentProcessCreateRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/v1/equipment-processes")
+        mockMvc.perform(post("/api/v1/admin/equipment-processes")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -87,7 +95,7 @@ class EquipmentProcessManageCommandControllerTest {
 
         when(equipmentProcessManageCommandService.updateEquipmentProcess(eq(10L), any(EquipmentProcessUpdateRequest.class))).thenReturn(response);
 
-        mockMvc.perform(put("/api/v1/equipment-processes/10")
+        mockMvc.perform(put("/api/v1/admin/equipment-processes/10")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -112,7 +120,7 @@ class EquipmentProcessManageCommandControllerTest {
 
         when(equipmentProcessManageCommandService.deleteEquipmentProcess(10L)).thenReturn(response);
 
-        mockMvc.perform(delete("/api/v1/equipment-processes/10"))
+        mockMvc.perform(delete("/api/v1/admin/equipment-processes/10"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentProcessId").value(10L))

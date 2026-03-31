@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
@@ -67,7 +67,7 @@ class EquipmentProcessQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get equipment process list API integration success: return persisted equipment process")
     void getEquipmentProcessList_success() throws Exception {
-        mockMvc.perform(get("/api/v1/equipment-processes")
+        mockMvc.perform(get("/api/v1/admin/equipment-processes")
                 .param("factoryLineId", String.valueOf(factoryLine.getFactoryLineId()))
                 .param("keyword", "Query Mixing"))
             .andExpect(status().isOk())
@@ -83,7 +83,7 @@ class EquipmentProcessQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get equipment process detail API integration success: return persisted equipment process detail")
     void getEquipmentProcessDetail_success() throws Exception {
-        mockMvc.perform(get("/api/v1/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId()))
+        mockMvc.perform(get("/api/v1/admin/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentProcessId").value(equipmentProcess.getEquipmentProcessId()))

@@ -3,8 +3,8 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
@@ -97,7 +97,7 @@ class EquipmentProcessManageCommandControllerIntegrationTest {
             .equipmentProcessName("Integration Process")
             .build();
 
-        mockMvc.perform(post("/api/v1/equipment-processes")
+        mockMvc.perform(post("/api/v1/admin/equipment-processes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -126,7 +126,7 @@ class EquipmentProcessManageCommandControllerIntegrationTest {
             .equipmentProcessName("Updated Process")
             .build();
 
-        mockMvc.perform(put("/api/v1/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId())
+        mockMvc.perform(put("/api/v1/admin/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -152,7 +152,7 @@ class EquipmentProcessManageCommandControllerIntegrationTest {
     @Test
     @DisplayName("Delete equipment process API integration success: soft-delete target process")
     void deleteEquipmentProcess_success() throws Exception {
-        mockMvc.perform(delete("/api/v1/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId()))
+        mockMvc.perform(delete("/api/v1/admin/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentProcessId").value(equipmentProcess.getEquipmentProcessId()))

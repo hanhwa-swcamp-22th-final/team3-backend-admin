@@ -1,6 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import jakarta.persistence.EntityManager;
@@ -52,7 +52,7 @@ class FactoryLineQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get factory line list API integration success: return persisted factory line")
     void getFactoryLineList_success() throws Exception {
-        mockMvc.perform(get("/api/v1/factory-lines")
+        mockMvc.perform(get("/api/v1/admin/factory-lines")
                 .param("keyword", "Query Main"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
@@ -64,7 +64,7 @@ class FactoryLineQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get factory line detail API integration success: return persisted factory line detail")
     void getFactoryLineDetail_success() throws Exception {
-        mockMvc.perform(get("/api/v1/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId()))
+        mockMvc.perform(get("/api/v1/admin/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.factoryLineId").value(factoryLine.getFactoryLineId()))

@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentStandard;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentType;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Equipment;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
@@ -108,7 +108,7 @@ class EquipmentQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get equipment list API integration success: return persisted equipment")
     void getEquipmentList_success() throws Exception {
-        mockMvc.perform(get("/api/v1/equipment")
+        mockMvc.perform(get("/api/v1/admin/equipments")
                 .param("keyword", "Query Equipment"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
@@ -122,7 +122,7 @@ class EquipmentQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get equipment detail API integration success: return persisted equipment detail")
     void getEquipmentDetail_success() throws Exception {
-        mockMvc.perform(get("/api/v1/equipment/{equipmentId}", equipment.getEquipmentId()))
+        mockMvc.perform(get("/api/v1/admin/equipments/{equipmentId}", equipment.getEquipmentId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentId").value(equipment.getEquipmentId()))

@@ -3,22 +3,22 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentStandard;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentType;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Equipment;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentAgingParam;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentBaseline;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentAgingParam;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentBaseline;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentAgingParamRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentBaselineRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
-import com.ohgiraffers.team3backendadmin.admin.query.service.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,7 +140,7 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.75)
             .build();
 
-        mockMvc.perform(post("/api/v1/equipment")
+        mockMvc.perform(post("/api/v1/admin/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -188,7 +188,7 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.85)
             .build();
 
-        mockMvc.perform(post("/api/v1/equipment")
+        mockMvc.perform(post("/api/v1/admin/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -225,7 +225,7 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.9)
             .build();
 
-        mockMvc.perform(put("/api/v1/equipment/{equipmentId}", existingEquipment.getEquipmentId())
+        mockMvc.perform(put("/api/v1/admin/equipments/{equipmentId}", existingEquipment.getEquipmentId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -252,7 +252,7 @@ class EquipmentManageCommandControllerIntegrationTest {
         Long agingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(existingEquipment.getEquipmentId());
         Long baselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(existingEquipment.getEquipmentId());
 
-        mockMvc.perform(delete("/api/v1/equipment/{equipmentId}", existingEquipment.getEquipmentId()))
+        mockMvc.perform(delete("/api/v1/admin/equipments/{equipmentId}", existingEquipment.getEquipmentId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true));
 
