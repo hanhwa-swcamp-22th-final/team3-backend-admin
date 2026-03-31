@@ -20,9 +20,9 @@ public class FactoryLineManageCommandService {
   private final IdGenerator idGenerator;
 
   /**
-   * ?앹궛 ?쇱씤 肄붾뱶 以묐났 ?щ?瑜??뺤씤?섍퀬 ?좉퇋 ?앹궛 ?쇱씤???앹꽦?쒕떎.
-   * @param factoryLineCreateRequest ?앹꽦???앹궛 ?쇱씤??肄붾뱶? ?대쫫 ?뺣낫
-   * @return ?앹꽦???꾨즺???앹궛 ?쇱씤???묐떟 ?뺣낫
+   * 생산 라인 생성 요청 정보를 기반으로 중복 코드를 확인한 뒤 생산 라인을 저장한다.
+   * @param factoryLineCreateRequest 생산 라인 생성에 필요한 코드와 이름 정보
+   * @return 생성된 생산 라인의 식별자와 기본 정보
    */
   public FactoryLineCreateResponse createFactoryLine(FactoryLineCreateRequest factoryLineCreateRequest){
     if (factoryLineRepository.findByFactoryLineCode(factoryLineCreateRequest.getFactoryLineCode()).isPresent()) {
@@ -45,10 +45,10 @@ public class FactoryLineManageCommandService {
   }
 
   /**
-   * 湲곗〈 ?앹궛 ?쇱씤??議고쉶?????붿껌 媛믪쑝濡?肄붾뱶? ?대쫫???섏젙?쒕떎.
-   * @param factoryLindId ?섏젙???앹궛 ?쇱씤???앸퀎??
-   * @param factoryLineUpdateRequest ?섏젙???앹궛 ?쇱씤??肄붾뱶? ?대쫫 ?뺣낫
-   * @return ?섏젙???꾨즺???앹궛 ?쇱씤???묐떟 ?뺣낫
+   * 기존 생산 라인을 조회한 뒤 요청 값으로 코드와 이름을 수정한다.
+   * @param factoryLindId 수정할 생산 라인의 식별자
+   * @param factoryLineUpdateRequest 수정할 생산 라인의 코드와 이름 정보
+   * @return 수정된 생산 라인의 식별자와 기본 정보
    */
   public FactoryLineUpdateResponse updateFactoryLine(Long factoryLindId, FactoryLineUpdateRequest factoryLineUpdateRequest){
 
@@ -68,9 +68,9 @@ public class FactoryLineManageCommandService {
   }
 
   /**
-   * 湲곗〈 ?앹궛 ?쇱씤??議고쉶?????뚰봽????젣 ?곹깭濡??꾪솚?쒕떎.
-   * @param factoryLindId ??젣???앹궛 ?쇱씤???앸퀎??
-   * @return ??젣 泥섎━???앹궛 ?쇱씤???묐떟 ?뺣낫
+   * 기존 생산 라인을 조회한 뒤 소프트 삭제 처리한다.
+   * @param factoryLindId 삭제할 생산 라인의 식별자
+   * @return 삭제 처리된 생산 라인의 식별자와 기본 정보
    */
   public FactoryLineUpdateResponse deleteFactoryLine(Long factoryLindId){
 

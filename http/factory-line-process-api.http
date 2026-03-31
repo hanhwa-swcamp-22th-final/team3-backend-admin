@@ -1,4 +1,4 @@
-### 嚥≪뮄???accessToken 獄쏆뮄??
+### 로그인 후 accessToken 발급
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
@@ -12,7 +12,7 @@ Content-Type: application/json
     client.global.set("accessToken", response.body.data.accessToken);
 %}
 
-### ??밴텦 ??깆뵥 ?源낆쨯
+### 생산 라인 생성
 POST http://localhost:8080/api/v1/admin/factory-lines
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -22,7 +22,7 @@ Authorization: Bearer {{accessToken}}
   "factoryLineName": "API Main Line"
 }
 
-### ??밴텦 ??깆뵥 ??륁젟
+### 생산 라인 수정
 PUT http://localhost:8080/api/v1/admin/factory-lines/1001
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -32,19 +32,19 @@ Authorization: Bearer {{accessToken}}
   "factoryLineName": "API Updated Line"
 }
 
-### ??밴텦 ??깆뵥 ????
+### 생산 라인 삭제
 DELETE http://localhost:8080/api/v1/admin/factory-lines/1001
 Authorization: Bearer {{accessToken}}
 
-### ??밴텦 ??깆뵥 筌뤴뫖以?鈺곌퀬??
+### 생산 라인 목록 조회
 GET http://localhost:8080/api/v1/admin/factory-lines?keyword=API
 Authorization: Bearer {{accessToken}}
 
-### ??밴텦 ??깆뵥 ?怨멸쉭 鈺곌퀬??
+### 생산 라인 상세 조회
 GET http://localhost:8080/api/v1/admin/factory-lines/1001
 Authorization: Bearer {{accessToken}}
 
-### ?⑤벊???源낆쨯
+### 공정 생성
 POST http://localhost:8080/api/v1/admin/equipment-processes
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -55,7 +55,7 @@ Authorization: Bearer {{accessToken}}
   "equipmentProcessName": "API Mixing Process"
 }
 
-### ?⑤벊????륁젟
+### 공정 수정
 PUT http://localhost:8080/api/v1/admin/equipment-processes/2001
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -66,14 +66,14 @@ Authorization: Bearer {{accessToken}}
   "equipmentProcessName": "API Updated Process"
 }
 
-### ?⑤벊??????
+### 공정 삭제
 DELETE http://localhost:8080/api/v1/admin/equipment-processes/2001
 Authorization: Bearer {{accessToken}}
 
-### ?⑤벊??筌뤴뫖以?鈺곌퀬??
+### 공정 목록 조회
 GET http://localhost:8080/api/v1/admin/equipment-processes?factoryLineId=1001&keyword=API
 Authorization: Bearer {{accessToken}}
 
-### ?⑤벊???怨멸쉭 鈺곌퀬??
+### 공정 상세 조회
 GET http://localhost:8080/api/v1/admin/equipment-processes/2001
 Authorization: Bearer {{accessToken}}

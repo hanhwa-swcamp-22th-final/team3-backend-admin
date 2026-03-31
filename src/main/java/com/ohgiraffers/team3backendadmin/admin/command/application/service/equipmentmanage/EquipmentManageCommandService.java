@@ -33,9 +33,9 @@ public class EquipmentManageCommandService {
   private final IdGenerator idGenerator;
 
   /**
-   * ?ㅻ퉬 肄붾뱶 以묐났怨?遺紐??곗씠??議댁옱 ?щ?瑜?寃利앺븳 ???ㅻ퉬? 愿??湲곗? ?곗씠?곕? ?④퍡 ?앹꽦?쒕떎.
-   * @param request ?ㅻ퉬 湲곕낯 ?뺣낫? ?명썑???뚮씪誘명꽣 媛믪쓣 ?댁? ?앹꽦 ?붿껌 ?뺣낫
-   * @return ?앹꽦???꾨즺???ㅻ퉬???묐떟 ?뺣낫
+   * 설비 생성 요청을 검증한 뒤 설비, 노후화 파라미터, 기준 정보를 함께 저장한다.
+   * @param request 설비 생성에 필요한 공정, 환경 기준, 코드, 이름, 상태 정보
+   * @return 생성된 설비의 식별자와 기본 정보
    */
   public EquipmentCreateResponse createEquipment(EquipmentCreateRequest request) {
 
@@ -93,10 +93,10 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * 湲곗〈 ?ㅻ퉬? ?곌껐???명썑???뚮씪誘명꽣瑜?議고쉶?????붿껌 媛믪쑝濡??섏젙?쒕떎.
-   * @param equipmentId ?섏젙???ㅻ퉬???앸퀎??
-   * @param request ?섏젙???ㅻ퉬 ?뺣낫? ?명썑???뚮씪誘명꽣 媛?
-   * @return 諛섑솚媛??놁쓬
+   * 기존 설비와 노후화 파라미터를 조회한 뒤 요청 값으로 설비 정보를 수정한다.
+   * @param equipmentId 수정할 설비의 식별자
+   * @param request 수정할 설비의 공정, 환경 기준, 코드, 이름, 상태 정보
+   * @return 반환값 없음
    */
   public void updateEquipment(Long equipmentId, EquipmentUpdateRequest request) {
     Equipment equipment = equipmentRepository.findById(equipmentId)
@@ -135,9 +135,9 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * ?ㅻ퉬瑜???젣?섎㈃???곌껐??踰좎씠?ㅻ씪?멸낵 ?명썑???뚮씪誘명꽣???④퍡 ?뺣━?쒕떎.
-   * @param equipmentId ??젣???ㅻ퉬???앸퀎??
-   * @return 諛섑솚媛??놁쓬
+   * 기존 설비를 조회한 뒤 관련 기준 데이터와 함께 설비를 삭제한다.
+   * @param equipmentId 삭제할 설비의 식별자
+   * @return 반환값 없음
    */
   public void deleteEquipment(Long equipmentId) {
     Equipment equipment = equipmentRepository.findById(equipmentId)
@@ -157,9 +157,9 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * Double ??낆쓽 留덈え 怨꾩닔瑜?BigDecimal ??낆쑝濡?蹂?섑븳??
-   * @param value 蹂?섑븷 留덈え 怨꾩닔 媛?
-   * @return BigDecimal濡?蹂?섎맂 媛? null ?낅젰 ??null
+   * Double 값을 BigDecimal 값으로 변환한다.
+   * @param value 변환할 마모 계수 값
+   * @return BigDecimal로 변환된 값, null 입력 시 null
    */
   private BigDecimal toBigDecimal(Double value) {
     return value == null ? null : BigDecimal.valueOf(value);
