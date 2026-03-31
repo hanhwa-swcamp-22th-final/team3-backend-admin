@@ -103,6 +103,10 @@ public class Employee {
         this.employeeRole = newRole;
     }
 
+    public void changePassword(String encodedPassword) {
+        this.employeePassword = encodedPassword;
+    }
+
     public void deleteEmployee() {
         this.employeeStatus = EmployeeStatus.ON_LEAVE;
     }

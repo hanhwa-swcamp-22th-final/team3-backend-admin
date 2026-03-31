@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.PasswordChangeRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.ProfileUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.AuthCommandService;
@@ -79,4 +80,14 @@ public class AuthCommandController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    @PutMapping("/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @Valid @RequestBody PasswordChangeRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        userCommandService.changePassword(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
 }
