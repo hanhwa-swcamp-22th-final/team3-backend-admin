@@ -3,8 +3,8 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "employeeEmail": "admin@seto.com",
-  "password": "admin123!"
+  "employeeEmail": "masterAdmin@company.com",
+  "password": "password123!"
 }
 
 > {%
@@ -13,7 +13,7 @@ Content-Type: application/json
 %}
 
 ### 생산 라인 생성
-POST http://localhost:8080/api/v1/admin/factory-lines
+POST http://localhost:8080/api/v1/equipment-management/factory-lines
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -23,7 +23,7 @@ Authorization: Bearer {{accessToken}}
 }
 
 ### 생산 라인 수정
-PUT http://localhost:8080/api/v1/admin/factory-lines/1001
+PUT http://localhost:8080/api/v1/equipment-management/factory-lines/1001
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -33,47 +33,47 @@ Authorization: Bearer {{accessToken}}
 }
 
 ### 생산 라인 삭제
-DELETE http://localhost:8080/api/v1/admin/factory-lines/1001
+DELETE http://localhost:8080/api/v1/equipment-management/factory-lines/1001
 Authorization: Bearer {{accessToken}}
 
 ### 생산 라인 목록 조회
-GET http://localhost:8080/api/v1/admin/factory-lines?keyword=API
+GET http://localhost:8080/api/v1/equipment-management/factory-lines?keyword=API
 Authorization: Bearer {{accessToken}}
 
 ### 생산 라인 상세 조회
-GET http://localhost:8080/api/v1/admin/factory-lines/1001
+GET http://localhost:8080/api/v1/equipment-management/factory-lines/1774944952458342
 Authorization: Bearer {{accessToken}}
 
 ### 공정 생성
-POST http://localhost:8080/api/v1/admin/equipment-processes
+POST http://localhost:8080/api/v1/equipment-management/equipment-processes
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "factoryLineId": 1001,
+  "factoryLineId": 1774944952458342,
   "equipmentProcessCode": "PROC-API-001",
   "equipmentProcessName": "API Mixing Process"
 }
 
 ### 공정 수정
-PUT http://localhost:8080/api/v1/admin/equipment-processes/2001
+PUT http://localhost:8080/api/v1/equipment-management/equipment-processes/1774945008858663
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "factoryLineId": 1002,
+  "factoryLineId": 1774944952458342,
   "equipmentProcessCode": "PROC-API-999",
   "equipmentProcessName": "API Updated Process"
 }
 
 ### 공정 삭제
-DELETE http://localhost:8080/api/v1/admin/equipment-processes/2001
+DELETE http://localhost:8080/api/v1/equipment-management/equipment-processes/1774945059570715
 Authorization: Bearer {{accessToken}}
 
 ### 공정 목록 조회
-GET http://localhost:8080/api/v1/admin/equipment-processes?factoryLineId=1001&keyword=API
+GET http://localhost:8080/api/v1/equipment-management/equipment-processes?factoryLineId=1774944952458342&keyword=API
 Authorization: Bearer {{accessToken}}
 
 ### 공정 상세 조회
-GET http://localhost:8080/api/v1/admin/equipment-processes/2001
+GET http://localhost:8080/api/v1/equipment-management/equipment-processes/1774945059570715
 Authorization: Bearer {{accessToken}}
