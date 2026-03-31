@@ -5,7 +5,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EnvironmentEven
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EnvironmentEventQueryMapper;
-
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -91,7 +94,6 @@ class EnvironmentEventQueryServiceTest {
 
         EnvironmentEventDetailResponse result = environmentEventQueryService.getEnvironmentEventDetail(1L);
 
-        assertNotNull(result);
         assertEquals(1L, result.getEnvironmentEventId());
         assertEquals(10L, result.getEquipmentId());
         assertEquals(EnvDeviationType.TEMPERATURE_DEVIATION, result.getEnvDeviationType());
@@ -99,13 +101,17 @@ class EnvironmentEventQueryServiceTest {
     }
 
     @Test
-    @DisplayName("Get environment event detail failure: return null when environment event is not found")
-    void getEnvironmentEventDetail_whenNotFound_thenNull() {
+    @DisplayName("Get environment event detail failure: throw business exception when environment event is not found")
+    void getEnvironmentEventDetail_whenNotFound_thenThrow() {
         when(environmentEventQueryMapper.selectEnvironmentEventDetailById(999L)).thenReturn(null);
 
-        EnvironmentEventDetailResponse result = environmentEventQueryService.getEnvironmentEventDetail(999L);
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> environmentEventQueryService.getEnvironmentEventDetail(999L)
+        );
 
-        assertNull(result);
+        assertEquals(ErrorCode.ENVIRONMENT_EVENT_NOT_FOUND, exception.getErrorCode());
+        assertEquals("해당 환경 이벤트를 찾을 수 없습니다.", exception.getMessage());
         verify(environmentEventQueryMapper).selectEnvironmentEventDetailById(999L);
     }
 }

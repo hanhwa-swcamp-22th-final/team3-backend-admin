@@ -3,10 +3,11 @@ package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
-
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -95,7 +95,6 @@ class EquipmentQueryServiceTest {
 
         EquipmentDetailResponse result = equipmentQueryService.getEquipmentDetail(1L);
 
-        assertNotNull(result);
         assertEquals(1L, result.getEquipmentId());
         assertEquals("EQ-001", result.getEquipmentCode());
         assertEquals("Printer", result.getEquipmentName());
@@ -103,13 +102,17 @@ class EquipmentQueryServiceTest {
     }
 
     @Test
-    @DisplayName("Get equipment detail failure: return null when equipment is not found")
+    @DisplayName("Get equipment detail failure: throw business exception when equipment is not found")
     void getEquipmentDetail_whenEquipmentNotFound_thenThrow() {
         when(equipmentQueryMapper.selectEquipmentDetailById(999L)).thenReturn(null);
 
-        EquipmentDetailResponse result = equipmentQueryService.getEquipmentDetail(999L);
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> equipmentQueryService.getEquipmentDetail(999L)
+        );
 
-        assertNull(result);
+        assertEquals(ErrorCode.EQUIPMENT_NOT_FOUND, exception.getErrorCode());
+        assertEquals("해당 설비를 찾을 수 없습니다.", exception.getMessage());
         verify(equipmentQueryMapper).selectEquipmentDetailById(999L);
     }
 

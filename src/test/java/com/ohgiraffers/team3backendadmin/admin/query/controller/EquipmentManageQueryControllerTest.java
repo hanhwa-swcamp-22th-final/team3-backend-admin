@@ -19,7 +19,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.Env
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
-import jakarta.servlet.ServletException;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -106,12 +106,15 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
-    @DisplayName("Get factory line detail API failure: propagate exception when the target does not exist")
-    void getFactoryLineDetail_whenServiceThrows_thenPropagatesServletException() {
-        when(factoryLineQueryService.getFactoryLineDetail(999L)).thenThrow(new IllegalArgumentException("Factory line not found."));
+    @DisplayName("Get factory line detail API failure: return 404 when the target does not exist")
+    void getFactoryLineDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(factoryLineQueryService.getFactoryLineDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.FACTORY_LINE_NOT_FOUND));
 
-        assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/equipment-management/factory-lines/999")));
+        mockMvc.perform(get("/api/v1/equipment-management/factory-lines/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_004"));
     }
 
     @Test
@@ -169,12 +172,15 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
-    @DisplayName("Get equipment process detail API failure: propagate exception when the target does not exist")
-    void getEquipmentProcessDetail_whenServiceThrows_thenPropagatesServletException() {
-        when(equipmentProcessQueryService.getEquipmentProcessDetail(999L)).thenThrow(new IllegalArgumentException("Equipment process not found."));
+    @DisplayName("Get equipment process detail API failure: return 404 when the target does not exist")
+    void getEquipmentProcessDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(equipmentProcessQueryService.getEquipmentProcessDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.EQUIPMENT_PROCESS_NOT_FOUND));
 
-        assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/equipment-management/equipment-processes/999")));
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-processes/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_005"));
     }
 
     @Test
@@ -228,12 +234,15 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
-    @DisplayName("Get environment standard detail failure: propagate service exception")
-    void getEnvironmentStandardDetail_whenServiceThrows_thenPropagatesServletException() {
-        when(environmentStandardQueryService.getEnvironmentStandardDetail(999L)).thenThrow(new IllegalArgumentException("Environment standard not found."));
+    @DisplayName("Get environment standard detail failure: return 404 when the target does not exist")
+    void getEnvironmentStandardDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(environmentStandardQueryService.getEnvironmentStandardDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.ENVIRONMENT_STANDARD_NOT_FOUND));
 
-        assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/equipment-management/environment-standards/999")).andReturn());
+        mockMvc.perform(get("/api/v1/equipment-management/environment-standards/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_007"));
     }
 
     @Test
@@ -291,12 +300,15 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
-    @DisplayName("Get environment event detail failure: propagate service exception")
-    void getEnvironmentEventDetail_whenServiceThrows_thenPropagatesServletException() {
-        when(environmentEventQueryService.getEnvironmentEventDetail(999L)).thenThrow(new IllegalArgumentException("Environment event not found."));
+    @DisplayName("Get environment event detail failure: return 404 when the target does not exist")
+    void getEnvironmentEventDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(environmentEventQueryService.getEnvironmentEventDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.ENVIRONMENT_EVENT_NOT_FOUND));
 
-        assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/equipment-management/environment-events/999")).andReturn());
+        mockMvc.perform(get("/api/v1/equipment-management/environment-events/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_008"));
     }
 
     @Test
@@ -357,11 +369,14 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
-    @DisplayName("Get equipment detail API failure: propagate exception when the target does not exist")
-    void getEquipmentDetail_whenServiceThrows_thenPropagatesServletException() {
-        when(equipmentQueryService.getEquipmentDetail(999L)).thenThrow(new IllegalArgumentException("Equipment not found."));
+    @DisplayName("Get equipment detail API failure: return 404 when the target does not exist")
+    void getEquipmentDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(equipmentQueryService.getEquipmentDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND));
 
-        assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/equipment-management/equipments/999")));
+        mockMvc.perform(get("/api/v1/equipment-management/equipments/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_006"));
     }
 }

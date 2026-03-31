@@ -149,6 +149,15 @@ class EquipmentManageQueryControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Get factory line detail API integration failure: return 404 when ID does not exist")
+    void getFactoryLineDetail_whenNotFound_thenReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/factory-lines/{factoryLineId}", Long.MAX_VALUE))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_004"));
+    }
+
+    @Test
     @DisplayName("Get equipment process list API integration success: return persisted equipment process")
     void getEquipmentProcessList_success() throws Exception {
         mockMvc.perform(get("/api/v1/equipment-management/equipment-processes")
@@ -166,6 +175,15 @@ class EquipmentManageQueryControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentProcessId").value(equipmentProcess.getEquipmentProcessId()));
+    }
+
+    @Test
+    @DisplayName("Get equipment process detail API integration failure: return 404 when ID does not exist")
+    void getEquipmentProcessDetail_whenNotFound_thenReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-processes/{equipmentProcessId}", Long.MAX_VALUE))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_005"));
     }
 
     @Test
@@ -189,6 +207,15 @@ class EquipmentManageQueryControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Get environment standard detail API integration failure: return 404 when ID does not exist")
+    void getEnvironmentStandardDetail_whenNotFound_thenReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/environment-standards/{environmentStandardId}", Long.MAX_VALUE))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_007"));
+    }
+
+    @Test
     @DisplayName("Get environment event list API integration success: return persisted event")
     void getEnvironmentEventList_success() throws Exception {
         mockMvc.perform(get("/api/v1/equipment-management/environment-events")
@@ -209,6 +236,15 @@ class EquipmentManageQueryControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Get environment event detail API integration failure: return 404 when ID does not exist")
+    void getEnvironmentEventDetail_whenNotFound_thenReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/environment-events/{environmentEventId}", Long.MAX_VALUE))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_008"));
+    }
+
+    @Test
     @DisplayName("Get equipment list API integration success: return persisted equipment")
     void getEquipmentList_success() throws Exception {
         mockMvc.perform(get("/api/v1/equipment-management/equipments")
@@ -225,5 +261,14 @@ class EquipmentManageQueryControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentId").value(equipment.getEquipmentId()));
+    }
+
+    @Test
+    @DisplayName("Get equipment detail API integration failure: return 404 when ID does not exist")
+    void getEquipmentDetail_whenNotFound_thenReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/equipments/{equipmentId}", Long.MAX_VALUE))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_006"));
     }
 }

@@ -5,7 +5,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EnvironmentStan
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EnvironmentStandardQueryMapper;
-
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -87,7 +91,6 @@ class EnvironmentStandardQueryServiceTest {
 
         EnvironmentStandardDetailResponse result = environmentStandardQueryService.getEnvironmentStandardDetail(1L);
 
-        assertNotNull(result);
         assertEquals(1L, result.getEnvironmentStandardId());
         assertEquals(EnvironmentType.DRYROOM, result.getEnvironmentType());
         assertEquals("ENV-001", result.getEnvironmentCode());
@@ -95,13 +98,17 @@ class EnvironmentStandardQueryServiceTest {
     }
 
     @Test
-    @DisplayName("Get environment standard detail failure: return null when environment standard is not found")
-    void getEnvironmentStandardDetail_whenNotFound_thenNull() {
+    @DisplayName("Get environment standard detail failure: throw business exception when environment standard is not found")
+    void getEnvironmentStandardDetail_whenNotFound_thenThrow() {
         when(environmentStandardQueryMapper.selectEnvironmentStandardDetailById(999L)).thenReturn(null);
 
-        EnvironmentStandardDetailResponse result = environmentStandardQueryService.getEnvironmentStandardDetail(999L);
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> environmentStandardQueryService.getEnvironmentStandardDetail(999L)
+        );
 
-        assertNull(result);
+        assertEquals(ErrorCode.ENVIRONMENT_STANDARD_NOT_FOUND, exception.getErrorCode());
+        assertEquals("해당 환경 기준을 찾을 수 없습니다.", exception.getMessage());
         verify(environmentStandardQueryMapper).selectEnvironmentStandardDetailById(999L);
     }
 

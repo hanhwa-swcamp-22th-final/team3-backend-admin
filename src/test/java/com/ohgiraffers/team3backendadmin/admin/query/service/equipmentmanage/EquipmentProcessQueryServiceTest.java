@@ -1,10 +1,11 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentProcessSearchRequest;
-
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentProcessQueryMapper;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +92,6 @@ class EquipmentProcessQueryServiceTest {
 
         EquipmentProcessDetailResponse result = equipmentProcessQueryService.getEquipmentProcessDetail(1L);
 
-        assertNotNull(result);
         assertEquals(1L, result.getEquipmentProcessId());
         assertEquals("PROC-001", result.getEquipmentProcessCode());
         assertEquals("Mixing Process", result.getEquipmentProcessName());
@@ -97,13 +99,17 @@ class EquipmentProcessQueryServiceTest {
     }
 
     @Test
-    @DisplayName("Get equipment process detail failure: return null when equipment process is not found")
-    void getEquipmentProcessDetail_whenNotFound_thenNull() {
+    @DisplayName("Get equipment process detail failure: throw business exception when equipment process is not found")
+    void getEquipmentProcessDetail_whenNotFound_thenThrow() {
         when(equipmentProcessQueryMapper.selectEquipmentProcessDetailById(999L)).thenReturn(null);
 
-        EquipmentProcessDetailResponse result = equipmentProcessQueryService.getEquipmentProcessDetail(999L);
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> equipmentProcessQueryService.getEquipmentProcessDetail(999L)
+        );
 
-        assertNull(result);
+        assertEquals(ErrorCode.EQUIPMENT_PROCESS_NOT_FOUND, exception.getErrorCode());
+        assertEquals("해당 공정을 찾을 수 없습니다.", exception.getMessage());
         verify(equipmentProcessQueryMapper).selectEquipmentProcessDetailById(999L);
     }
 
@@ -125,7 +131,7 @@ class EquipmentProcessQueryServiceTest {
 
         boolean result = equipmentProcessQueryService.existsByEquipmentProcessCode("PROC-404");
 
-        assertFalse(result);
+        org.junit.jupiter.api.Assertions.assertFalse(result);
         verify(equipmentProcessQueryMapper).selectEquipmentProcessIdByCode("PROC-404");
     }
 }
