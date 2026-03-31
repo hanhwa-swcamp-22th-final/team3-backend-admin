@@ -3,7 +3,7 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "employeeEmail": "sinseon2000@company.com",
+  "employeeEmail": "masterAdmin@company.com",
   "password": "password123!"
 }
 
@@ -18,14 +18,14 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "departmentId": 1774590584056408,
-  "employeeName": "고길동",
-  "employeeEmail": "sample990@company.com",
-  "employeePhone": "010-5541-0981",
-  "employeeAddress": "서울시 강남구 테헤란로 7189",
-  "employeeEmergencyContact": "010-7664-9364",
+  "departmentId": 1774590557453239,
+  "employeeName": "최상위관리자",
+  "employeeEmail": "masterAdmin@company.com",
+  "employeePhone": "010-9999-9999",
+  "employeeAddress": "서울시 강남구 테헤란로 999",
+  "employeeEmergencyContact": "010-9999-8888",
   "employeePassword": "password123!",
-  "employeeRole": "DL",
+  "employeeRole": "ADMIN",
   "employeeStatus": "ACTIVE",
   "employeeTier": "S"
 }

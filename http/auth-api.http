@@ -3,8 +3,8 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "employeeEmail": "admin@seto.com",
-  "password": "admin123!"
+  "employeeEmail": "sinseon2000@company.com",
+  "password": "password123!"
 }
 
 > {%
@@ -38,17 +38,17 @@ Authorization: Bearer {{accessToken}}
   "employeeEmergencyContact": "010-1111-2222"
 }
 
-### 프로필 수정 - 이름과 이메일만 수정
+### 프로필 수정 - 특정 필드만 수정
 PUT http://localhost:8080/api/v1/auth/profile
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "employeeName": "관리자수정1",
-  "employeeEmail": "kim123@company.com",
+  "employeeName": "김신우의아이디다",
+  "employeeEmail": null,
   "employeePhone": null,
-  "employeeAddress": null,
-  "employeeEmergencyContact": null
+  "employeeAddress": "신검단중앙",
+  "employeeEmergencyContact": "112-112-112"
 }
 
 ### 비밀번호 변경
@@ -57,6 +57,6 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "currentPassword": "newPassword12345!",
+  "currentPassword": "password1237!",
   "newPassword": "password123!"
 }

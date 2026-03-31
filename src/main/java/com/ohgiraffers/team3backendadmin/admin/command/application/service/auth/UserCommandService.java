@@ -70,6 +70,10 @@ public class UserCommandService {
             throw new PasswordMismatchException();
         }
 
+        if (passwordEncoder.matches(request.getNewPassword(), employee.getEmployeePassword())) {
+            throw new DuplicateFieldException("새 비밀번호는 현재 비밀번호와 같을 수 없습니다");
+        }
+
         List<PasswordHistory> histories = passwordHistoryRepository
                 .findByEmployeeIdOrderByPasswordChangedAtAsc(employee.getEmployeeId());
 

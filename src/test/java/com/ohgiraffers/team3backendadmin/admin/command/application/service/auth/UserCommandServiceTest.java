@@ -283,6 +283,8 @@ class UserCommandServiceTest {
                     .willReturn(Optional.of(loginUser));
             given(passwordEncoder.matches("currentPw", "$2a$10$encodedCurrentPassword"))
                     .willReturn(true);
+            given(passwordEncoder.matches("newPw123", "$2a$10$encodedCurrentPassword"))
+                    .willReturn(false);
             given(passwordHistoryRepository.findByEmployeeIdOrderByPasswordChangedAtAsc(5000L))
                     .willReturn(Collections.emptyList());
             given(idGenerator.generate()).willReturn(9000L);
@@ -326,6 +328,8 @@ class UserCommandServiceTest {
                     .willReturn(Optional.of(loginUser));
             given(passwordEncoder.matches("currentPw", "$2a$10$encodedCurrentPassword"))
                     .willReturn(true);
+            given(passwordEncoder.matches("newPw123", "$2a$10$encodedCurrentPassword"))
+                    .willReturn(false);
             given(passwordHistoryRepository.findByEmployeeIdOrderByPasswordChangedAtAsc(5000L))
                     .willReturn(List.of(oldest, middle, newest));
             given(passwordEncoder.matches("newPw123", "$2a$10$old1")).willReturn(false);
@@ -362,6 +366,8 @@ class UserCommandServiceTest {
                     .willReturn(Optional.of(loginUser));
             given(passwordEncoder.matches("currentPw", "$2a$10$encodedCurrentPassword"))
                     .willReturn(true);
+            given(passwordEncoder.matches("oldPw", "$2a$10$encodedCurrentPassword"))
+                    .willReturn(false);
             given(passwordHistoryRepository.findByEmployeeIdOrderByPasswordChangedAtAsc(5000L))
                     .willReturn(List.of(history));
             given(passwordEncoder.matches("oldPw", "$2a$10$encodedOldPw"))
@@ -373,6 +379,25 @@ class UserCommandServiceTest {
                     () -> userCommandService.changePassword(request, "EMP2603001")
             );
             assertEquals("이전에 사용한 비밀번호는 사용할 수 없습니다", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("새 비밀번호가 현재 비밀번호와 동일하면 예외가 발생한다")
+        void changePasswordSameAsCurrent() {
+            // given
+            PasswordChangeRequest request = new PasswordChangeRequest("currentPw", "currentPw");
+
+            given(employeeRepository.findByEmployeeCode("EMP2603001"))
+                    .willReturn(Optional.of(loginUser));
+            given(passwordEncoder.matches("currentPw", "$2a$10$encodedCurrentPassword"))
+                    .willReturn(true);
+
+            // when & then
+            DuplicateFieldException exception = assertThrows(
+                    DuplicateFieldException.class,
+                    () -> userCommandService.changePassword(request, "EMP2603001")
+            );
+            assertEquals("새 비밀번호는 현재 비밀번호와 같을 수 없습니다", exception.getMessage());
         }
 
         @Test
