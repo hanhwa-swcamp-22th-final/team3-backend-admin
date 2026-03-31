@@ -18,6 +18,8 @@ public enum ErrorCode {
     ENVIRONMENT_STANDARD_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_007", "해당 환경 기준을 찾을 수 없습니다."),
     ENVIRONMENT_EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_008", "해당 환경 이벤트를 찾을 수 없습니다."),
     EQUIPMENT_AGING_PARAM_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_009", "해당 설비 노후 파라미터를 찾을 수 없습니다."),
+    MAINTENANCE_ITEM_STANDARD_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_010", "해당 유지보수 항목 기준을 찾을 수 없습니다."),
+    MAINTENANCE_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_011", "해당 유지보수 이력을 찾을 수 없습니다."),
 
     ENVIRONMENT_STANDARD_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "CONFLICT_001", "이미 사용 중인 환경 기준 코드입니다."),
     FACTORY_LINE_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "CONFLICT_002", "이미 사용 중인 생산 라인 코드입니다."),
