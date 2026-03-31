@@ -130,6 +130,29 @@ class AuthCommandServiceTest {
         }
 
         @Test
+        @DisplayName("사원이 휴가 중(ON_LEAVE)일 경우 로그인이 차단된다")
+        void loginFailOnLeave() {
+            // given
+            LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
+            Employee onLeaveEmployee = Employee.builder()
+                    .employeeId(1L)
+                    .employeeEmail("admin@company.com")
+                    .employeeStatus(EmployeeStatus.ON_LEAVE)
+                    .build();
+
+            given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
+            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
+                    .willReturn(Optional.of(onLeaveEmployee));
+
+            // when & then
+            BadCredentialsException exception = assertThrows(
+                    BadCredentialsException.class,
+                    () -> authCommandService.login(request)
+            );
+            assertEquals("Employee is on leave", exception.getMessage());
+        }
+
+        @Test
         @DisplayName("비밀번호 불일치 시 예외가 발생한다")
         void loginFailPasswordMismatch() {
             // given

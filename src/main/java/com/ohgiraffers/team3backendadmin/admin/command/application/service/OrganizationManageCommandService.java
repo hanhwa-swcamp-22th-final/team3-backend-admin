@@ -3,6 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
@@ -106,8 +107,35 @@ public class OrganizationManageCommandService {
         employeeRepository.save(employee);
     }
 
-    // Update employee
+    // Update Employee
+    @Transactional
+    public void updateEmployee(EmployeeUpdateRequest request, String employeeCode) {
+
+        employeeRepository.findByEmployeeCode(employeeCode)
+                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+
+        Employee target = employeeRepository.findByEmployeeCode(request.getEmployeeCode())
+                .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다"));
+
+        target.updatePersonalInfo(
+                request.getEmployeeName(),
+                request.getEmployeeEmail() != null ? aesEncryptor.encrypt(request.getEmployeeEmail()) : null,
+                request.getEmployeePhone() != null ? aesEncryptor.encrypt(request.getEmployeePhone()) : null,
+                request.getEmployeeAddress() != null ? aesEncryptor.encrypt(request.getEmployeeAddress()) : null,
+                request.getEmployeeEmergencyContact() != null ? aesEncryptor.encrypt(request.getEmployeeEmergencyContact()) : null
+        );
+    }
 
     // Delete employee
+    @Transactional
+    public void deleteEmployee(String targetCode, String adminCode) {
 
+        employeeRepository.findByEmployeeCode(adminCode)
+                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+
+        Employee target = employeeRepository.findByEmployeeCode(targetCode)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다"));
+
+        target.deleteEmployee();
+    }
 }

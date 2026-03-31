@@ -89,4 +89,17 @@ public class Employee {
     @LastModifiedBy
     @Column(name = "updated_by")
     private Long updatedBy;
+
+    public void updatePersonalInfo(String name, String email, String phone,
+                                   String address, String emergencyContact) {
+        if (name != null) this.employeeName = name;
+        if (email != null) this.employeeEmail = email;
+        if (phone != null) this.employeePhone = phone;
+        if (address != null) this.employeeAddress = address;
+        if (emergencyContact != null) this.employeeEmergencyContact = emergencyContact;
+    }
+
+    public void deleteEmployee() {
+        this.employeeStatus = EmployeeStatus.ON_LEAVE;
+    }
 }

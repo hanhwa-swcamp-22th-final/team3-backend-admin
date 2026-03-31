@@ -5,6 +5,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.L
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
@@ -34,7 +35,12 @@ public class AuthCommandService {
         Employee employee = this.employeeRepository.findByEmployeeEmail(aesEncryptor.encrypt(loginRequest.getEmployeeEmail()))
                 .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다"));
 
-        // 2. 비밀번호 매칭 확인
+        // 2. 사원 상태 확인 (ON_LEAVE인 경우 로그인 차단)
+        if (employee.getEmployeeStatus() == EmployeeStatus.ON_LEAVE) {
+            throw new BadCredentialsException("Employee is on leave");
+        }
+
+        // 3. 비밀번호 매칭 확인
         if(!this.passwordEncoder.matches(loginRequest.getPassword(), employee.getEmployeePassword())) {
             throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다");
         }
