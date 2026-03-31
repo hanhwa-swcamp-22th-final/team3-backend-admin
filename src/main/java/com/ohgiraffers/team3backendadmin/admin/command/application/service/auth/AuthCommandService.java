@@ -10,13 +10,18 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshT
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Date;
 
 @Service
@@ -127,6 +132,36 @@ public class AuthCommandService {
 
         // TokenResponse 반환
         return TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
+
+    /* accessToken 과 refreshToken을 body와 쿠키에 담아 반환 */
+    public ResponseEntity<ApiResponse<TokenResponse>> buildTokenResponse(TokenResponse tokenResponse) {
+        ResponseCookie cookie = createRefreshTokenCookie(tokenResponse.getRefreshToken());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(ApiResponse.success(tokenResponse));
+    }
+
+    /* refreshToken 쿠키 생성 */
+    public ResponseCookie createRefreshTokenCookie(String refreshToken) {
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                // .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Strict")
+                .build();
+    }
+
+    /* refreshToken 쿠키를 삭제하는 delete cookie 생성 */
+    public ResponseCookie createDeleteRefreshTokenCookie() {
+        return ResponseCookie.from("refreshToken")
+                .httpOnly(true)
+                // .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
     }
 
 }

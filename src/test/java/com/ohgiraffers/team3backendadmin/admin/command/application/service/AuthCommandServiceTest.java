@@ -11,6 +11,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +22,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 
@@ -324,6 +330,74 @@ class AuthCommandServiceTest {
                     () -> authCommandService.refreshToken(provideRefreshToken)
             );
             assertEquals("refresh token 기간 만료", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("buildTokenResponse 메서드")
+    class BuildTokenResponse {
+
+        @Test
+        @DisplayName("토큰 응답에 accessToken과 refreshToken 쿠키가 포함된다")
+        void buildTokenResponseSuccess() {
+            // given
+            TokenResponse tokenResponse = TokenResponse.builder()
+                    .accessToken("test-access-token")
+                    .refreshToken("test-refresh-token")
+                    .build();
+
+            // when
+            ResponseEntity<ApiResponse<TokenResponse>> response =
+                    authCommandService.buildTokenResponse(tokenResponse);
+
+            // then
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertTrue(response.getBody().getSuccess());
+            assertEquals("test-access-token", response.getBody().getData().getAccessToken());
+
+            String setCookie = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
+            assertNotNull(setCookie);
+            assertTrue(setCookie.contains("refreshToken=test-refresh-token"));
+        }
+    }
+
+    @Nested
+    @DisplayName("createRefreshTokenCookie 메서드")
+    class CreateRefreshTokenCookie {
+
+        @Test
+        @DisplayName("refreshToken 쿠키가 올바른 속성으로 생성된다")
+        void createRefreshTokenCookieSuccess() {
+            // when
+            ResponseCookie cookie = authCommandService.createRefreshTokenCookie("my-refresh-token");
+
+            // then
+            assertEquals("refreshToken", cookie.getName());
+            assertEquals("my-refresh-token", cookie.getValue());
+            assertTrue(cookie.isHttpOnly());
+            assertEquals("/", cookie.getPath());
+            assertEquals(Duration.ofDays(7), cookie.getMaxAge());
+            assertEquals("Strict", cookie.getSameSite());
+        }
+    }
+
+    @Nested
+    @DisplayName("createDeleteRefreshTokenCookie 메서드")
+    class CreateDeleteRefreshTokenCookie {
+
+        @Test
+        @DisplayName("삭제용 쿠키가 maxAge=0으로 생성된다")
+        void createDeleteRefreshTokenCookieSuccess() {
+            // when
+            ResponseCookie cookie = authCommandService.createDeleteRefreshTokenCookie();
+
+            // then
+            assertEquals("refreshToken", cookie.getName());
+            assertTrue(cookie.isHttpOnly());
+            assertEquals("/", cookie.getPath());
+            assertEquals(Duration.ZERO, cookie.getMaxAge());
+            assertEquals("Strict", cookie.getSameSite());
         }
     }
 }
