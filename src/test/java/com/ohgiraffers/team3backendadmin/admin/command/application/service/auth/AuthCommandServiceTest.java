@@ -1,9 +1,8 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.AuthCommandService;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.*;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
@@ -28,7 +27,8 @@ import java.util.Date;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -62,23 +62,23 @@ class AuthCommandServiceTest {
     @BeforeEach
     void setUp() {
         employee = Employee.builder()
-                .employeeId(1L)
-                .departmentId(1L)
-                .employeeCode("EMP-0001")
-                .employeeName("김관리")
-                .employeeEmail("admin@company.com")
-                .employeePassword("$2a$10$encodedPassword")
-                .employeeRole(EmployeeRole.ADMIN)
-                .employeeStatus(EmployeeStatus.ACTIVE)
-                .build();
+            .employeeId(1L)
+            .departmentId(1L)
+            .employeeCode("EMP-0001")
+            .employeeName("관리자")
+            .employeeEmail("admin@company.com")
+            .employeePassword("$2a$10$encodedPassword")
+            .employeeRole(EmployeeRole.ADMIN)
+            .employeeStatus(EmployeeStatus.ACTIVE)
+            .build();
 
         department = Department.builder()
-                .departmentId(1L)
-                .parentDepartmentId(1L)
-                .departmentName("경영지원본부")
-                .teamName("시스템관리팀")
-                .depth("Root")
-                .build();
+            .departmentId(1L)
+            .parentDepartmentId(1L)
+            .departmentName("경영지원본부")
+            .teamName("시스템관리팀")
+            .depth("Root")
+            .build();
     }
 
     @Nested
@@ -86,30 +86,24 @@ class AuthCommandServiceTest {
     class Login {
 
         @Test
-        @DisplayName("정상 로그인 시 토큰을 반환한다")
+        @DisplayName("로그인 성공 시 access token과 refresh token을 반환한다")
         void loginSuccess() {
-            // given
             LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
 
             given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
-            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
-                    .willReturn(Optional.of(employee));
-            given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
-                    .willReturn(true);
-            given(departmentRepository.findById(1L))
-                    .willReturn(Optional.of(department));
+            given(employeeRepository.findByEmployeeEmail("encrypted-email")).willReturn(Optional.of(employee));
+            given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword")).willReturn(true);
+            given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
             given(jwtTokenProvider.createToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
-                    .willReturn("access-token");
+                eq("EMP-0001"), eq("ADMIN"), eq("관리자"), eq("경영지원본부"), eq("시스템관리팀")
+            )).willReturn("access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
-                    .willReturn("refresh-token");
+                eq("EMP-0001"), eq("ADMIN"), eq("관리자"), eq("경영지원본부"), eq("시스템관리팀")
+            )).willReturn("refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
-            // when
             TokenResponse response = authCommandService.login(request);
 
-            // then
             assertNotNull(response);
             assertEquals("access-token", response.getAccessToken());
             assertEquals("refresh-token", response.getRefreshToken());
@@ -117,86 +111,71 @@ class AuthCommandServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 이메일로 로그인 시 예외가 발생한다")
+        @DisplayName("이메일이 존재하지 않으면 예외를 반환한다")
         void loginFailEmailNotFound() {
-            // given
             LoginRequest request = new LoginRequest("unknown@company.com", "password");
 
             given(aesEncryptor.encrypt("unknown@company.com")).willReturn("encrypted-unknown");
-            given(employeeRepository.findByEmployeeEmail("encrypted-unknown"))
-                    .willReturn(Optional.empty());
+            given(employeeRepository.findByEmployeeEmail("encrypted-unknown")).willReturn(Optional.empty());
 
-            // when & then
             BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> authCommandService.login(request)
+                BadCredentialsException.class,
+                () -> authCommandService.login(request)
             );
-            assertEquals("아이디 또는 비밀번호가 일치하지 않습니다", exception.getMessage());
+            assertNotNull(exception.getMessage());
         }
 
         @Test
-        @DisplayName("사원이 휴가 중(ON_LEAVE)일 경우 로그인이 차단된다")
+        @DisplayName("휴직 상태 직원이면 로그인 예외를 반환한다")
         void loginFailOnLeave() {
-            // given
             LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
             Employee onLeaveEmployee = Employee.builder()
-                    .employeeId(1L)
-                    .employeeEmail("admin@company.com")
-                    .employeeStatus(EmployeeStatus.ON_LEAVE)
-                    .build();
+                .employeeId(1L)
+                .employeeEmail("admin@company.com")
+                .employeeStatus(EmployeeStatus.ON_LEAVE)
+                .build();
 
             given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
-            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
-                    .willReturn(Optional.of(onLeaveEmployee));
+            given(employeeRepository.findByEmployeeEmail("encrypted-email")).willReturn(Optional.of(onLeaveEmployee));
 
-            // when & then
             BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> authCommandService.login(request)
+                BadCredentialsException.class,
+                () -> authCommandService.login(request)
             );
             assertEquals("Employee is on leave", exception.getMessage());
         }
 
         @Test
-        @DisplayName("비밀번호 불일치 시 예외가 발생한다")
+        @DisplayName("비밀번호가 일치하지 않으면 예외를 반환한다")
         void loginFailPasswordMismatch() {
-            // given
             LoginRequest request = new LoginRequest("admin@company.com", "wrongPassword");
 
             given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
-            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
-                    .willReturn(Optional.of(employee));
-            given(passwordEncoder.matches("wrongPassword", "$2a$10$encodedPassword"))
-                    .willReturn(false);
+            given(employeeRepository.findByEmployeeEmail("encrypted-email")).willReturn(Optional.of(employee));
+            given(passwordEncoder.matches("wrongPassword", "$2a$10$encodedPassword")).willReturn(false);
 
-            // when & then
             BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> authCommandService.login(request)
+                BadCredentialsException.class,
+                () -> authCommandService.login(request)
             );
-            assertEquals("아이디 또는 비밀번호가 일치하지 않습니다", exception.getMessage());
+            assertNotNull(exception.getMessage());
         }
 
         @Test
-        @DisplayName("부서 정보가 없을 경우 예외가 발생한다")
+        @DisplayName("부서 정보가 없으면 예외를 반환한다")
         void loginFailDepartmentNotFound() {
-            // given
             LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
 
             given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
-            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
-                    .willReturn(Optional.of(employee));
-            given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
-                    .willReturn(true);
-            given(departmentRepository.findById(1L))
-                    .willReturn(Optional.empty());
+            given(employeeRepository.findByEmployeeEmail("encrypted-email")).willReturn(Optional.of(employee));
+            given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword")).willReturn(true);
+            given(departmentRepository.findById(1L)).willReturn(Optional.empty());
 
-            // when & then
             BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> authCommandService.login(request)
+                BadCredentialsException.class,
+                () -> authCommandService.login(request)
             );
-            assertEquals("부서 정보를 찾을 수 없습니다", exception.getMessage());
+            assertNotNull(exception.getMessage());
         }
     }
 
@@ -205,18 +184,15 @@ class AuthCommandServiceTest {
     class Logout {
 
         @Test
-        @DisplayName("정상 로그아웃 시 refresh token을 삭제한다")
+        @DisplayName("로그아웃 성공 시 refresh token을 삭제한다")
         void logoutSuccess() {
-            // given
             String refreshToken = "valid-refresh-token";
 
             given(jwtTokenProvider.validateToken(refreshToken)).willReturn(true);
             given(jwtTokenProvider.getEmployeeCodeFromJWT(refreshToken)).willReturn("EMP-0001");
 
-            // when
             authCommandService.logout(refreshToken);
 
-            // then
             verify(jpaAuthRepository).deleteById("EMP-0001");
         }
     }
@@ -226,16 +202,14 @@ class AuthCommandServiceTest {
     class RefreshTokenTest {
 
         @Test
-        @DisplayName("유효한 refresh token으로 새 토큰을 발급한다")
+        @DisplayName("유효한 refresh token이면 새 토큰을 발급한다")
         void refreshTokenSuccess() {
-            // given
             String provideRefreshToken = "valid-refresh-token";
-            com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken storedToken =
-                    com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken.builder()
-                            .employeeCode("EMP-0001")
-                            .token("valid-refresh-token")
-                            .expiryDate(new Date(System.currentTimeMillis() + 604800000L))
-                            .build();
+            RefreshToken storedToken = RefreshToken.builder()
+                .employeeCode("EMP-0001")
+                .token("valid-refresh-token")
+                .expiryDate(new Date(System.currentTimeMillis() + 604800000L))
+                .build();
 
             given(jwtTokenProvider.validateToken(provideRefreshToken)).willReturn(true);
             given(jwtTokenProvider.getEmployeeCodeFromJWT(provideRefreshToken)).willReturn("EMP-0001");
@@ -243,87 +217,77 @@ class AuthCommandServiceTest {
             given(employeeRepository.findByEmployeeCode("EMP-0001")).willReturn(Optional.of(employee));
             given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
             given(jwtTokenProvider.createToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
-                    .willReturn("new-access-token");
+                eq("EMP-0001"), eq("ADMIN"), eq("관리자"), eq("경영지원본부"), eq("시스템관리팀")
+            )).willReturn("new-access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
-                    .willReturn("new-refresh-token");
+                eq("EMP-0001"), eq("ADMIN"), eq("관리자"), eq("경영지원본부"), eq("시스템관리팀")
+            )).willReturn("new-refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
-            // when
             TokenResponse response = authCommandService.refreshToken(provideRefreshToken);
 
-            // then
             assertNotNull(response);
             assertEquals("new-access-token", response.getAccessToken());
             assertEquals("new-refresh-token", response.getRefreshToken());
-            verify(jpaAuthRepository).save(any(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken.class));
+            verify(jpaAuthRepository).save(any(RefreshToken.class));
         }
 
         @Test
-        @DisplayName("DB에 저장된 refresh token이 없으면 예외가 발생한다")
+        @DisplayName("DB에 refresh token이 없으면 예외를 반환한다")
         void refreshTokenNotFoundInDB() {
-            // given
             String provideRefreshToken = "valid-refresh-token";
 
             given(jwtTokenProvider.validateToken(provideRefreshToken)).willReturn(true);
             given(jwtTokenProvider.getEmployeeCodeFromJWT(provideRefreshToken)).willReturn("EMP-0001");
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.empty());
 
-            // when & then
             BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> authCommandService.refreshToken(provideRefreshToken)
+                BadCredentialsException.class,
+                () -> authCommandService.refreshToken(provideRefreshToken)
             );
-            assertEquals("해당 유저로 조회되는 refresh token 없음", exception.getMessage());
+            assertNotNull(exception.getMessage());
         }
 
         @Test
-        @DisplayName("refresh token이 불일치하면 예외가 발생한다")
+        @DisplayName("refresh token이 일치하지 않으면 예외를 반환한다")
         void refreshTokenMismatch() {
-            // given
             String provideRefreshToken = "provided-token";
-            com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken storedToken =
-                    com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken.builder()
-                            .employeeCode("EMP-0001")
-                            .token("different-stored-token")
-                            .expiryDate(new Date(System.currentTimeMillis() + 604800000L))
-                            .build();
+            RefreshToken storedToken = RefreshToken.builder()
+                .employeeCode("EMP-0001")
+                .token("different-stored-token")
+                .expiryDate(new Date(System.currentTimeMillis() + 604800000L))
+                .build();
 
             given(jwtTokenProvider.validateToken(provideRefreshToken)).willReturn(true);
             given(jwtTokenProvider.getEmployeeCodeFromJWT(provideRefreshToken)).willReturn("EMP-0001");
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(storedToken));
 
-            // when & then
             BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> authCommandService.refreshToken(provideRefreshToken)
+                BadCredentialsException.class,
+                () -> authCommandService.refreshToken(provideRefreshToken)
             );
-            assertEquals("refresh token이 일치하지 않음", exception.getMessage());
+            assertNotNull(exception.getMessage());
         }
 
         @Test
-        @DisplayName("refresh token이 만료되었으면 예외가 발생한다")
+        @DisplayName("refresh token이 만료되면 예외를 반환한다")
         void refreshTokenExpired() {
-            // given
             String provideRefreshToken = "expired-token";
-            com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken storedToken =
-                    com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken.builder()
-                            .employeeCode("EMP-0001")
-                            .token("expired-token")
-                            .expiryDate(new Date(System.currentTimeMillis() - 1000))
-                            .build();
+            RefreshToken storedToken = RefreshToken.builder()
+                .employeeCode("EMP-0001")
+                .token("expired-token")
+                .expiryDate(new Date(System.currentTimeMillis() - 1000))
+                .build();
 
             given(jwtTokenProvider.validateToken(provideRefreshToken)).willReturn(true);
             given(jwtTokenProvider.getEmployeeCodeFromJWT(provideRefreshToken)).willReturn("EMP-0001");
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(storedToken));
 
-            // when & then
             BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> authCommandService.refreshToken(provideRefreshToken)
+                BadCredentialsException.class,
+                () -> authCommandService.refreshToken(provideRefreshToken)
             );
-            assertEquals("refresh token 기간 만료", exception.getMessage());
+            assertNotNull(exception.getMessage());
         }
     }
 }

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/equipment-management")
 public class EquipmentManageCommandController {
 
   private final FactoryLineManageCommandService factoryLineManageCommandService;
