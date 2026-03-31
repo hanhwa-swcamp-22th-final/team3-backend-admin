@@ -21,12 +21,22 @@ public class EquipmentQueryController {
 
     private final EquipmentQueryService equipmentQueryService;
 
+    /**
+     * 검색 조건에 맞는 설비 목록을 조회한다.
+     * @param request 공정, 상태, 등급, 키워드 등 목록 조회 조건 값
+     * @return 조회 조건에 맞는 설비 목록을 담은 API 응답
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<List<EquipmentQueryResponse>>> getEquipmentList(EquipmentSearchRequest request) {
         List<EquipmentQueryResponse> equipmentQueryResponses = equipmentQueryService.getEquipmentList(request);
         return ResponseEntity.ok(ApiResponse.success(equipmentQueryResponses));
     }
 
+    /**
+     * 특정 설비의 상세 정보를 조회한다.
+     * @param equipmentId 조회 대상 설비의 식별자
+     * @return 조회된 설비 상세 정보를 담은 API 응답
+     */
     @GetMapping("/{equipmentId}")
     public ResponseEntity<ApiResponse<EquipmentDetailResponse>> getEquipmentDetail(@PathVariable Long equipmentId) {
         EquipmentDetailResponse equipmentDetailResponse = equipmentQueryService.getEquipmentDetail(equipmentId);
