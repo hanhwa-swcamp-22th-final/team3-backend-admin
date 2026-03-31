@@ -19,43 +19,15 @@ Authorization: Bearer {{accessToken}}
 
 {
   "departmentId": 1774590584056408,
-  "employeeName": "박길동",
-  "employeeEmail": "sample456@company.com",
-  "employeePhone": "010-1234-5678",
-  "employeeAddress": "서울시 강남구 테헤란로 123",
-  "employeeEmergencyContact": "010-9876-5432",
+  "employeeName": "고길동",
+  "employeeEmail": "sample990@company.com",
+  "employeePhone": "010-5541-0981",
+  "employeeAddress": "서울시 강남구 테헤란로 7189",
+  "employeeEmergencyContact": "010-7664-9364",
   "employeePassword": "password123!",
-  "employeeRole": "ADMIN",
+  "employeeRole": "DL",
   "employeeStatus": "ACTIVE",
-  "employeeTier": "C"
-}
-
-### 사원 수정 - 전체 필드 수정
-PUT http://localhost:8080/api/v1/organization/employee
-Content-Type: application/json
-Authorization: Bearer {{accessToken}}
-
-{
-  "employeeCode": "EMP2603002",
-  "employeeName": "기심우",
-  "employeeEmail": "sinseon2000@company.com",
-  "employeePhone": "010-9999-8888",
-  "employeeAddress": "부산시 해운대구 센텀로 123",
-  "employeeEmergencyContact": "010-1111-2222"
-}
-
-### 사원 수정 - 이름과 이메일만 수정
-PUT http://localhost:8080/api/v1/organization/employee
-Content-Type: application/json
-Authorization: Bearer {{accessToken}}
-
-{
-  "employeeCode": "EMP2603002",
-  "employeeName": "김철수수정123",
-  "employeeEmail": "kim123@company.com",
-  "employeePhone": null,
-  "employeeAddress": null,
-  "employeeEmergencyContact": null
+  "employeeTier": "S"
 }
 
 ### 사원 등록 실패 - 필수 항목 누락 (400 Bad Request)

@@ -24,3 +24,29 @@ Cookie: refreshToken={{refreshToken}}
 ### 로그아웃 (refreshToken 쿠키 필요)
 POST http://localhost:8080/api/v1/auth/logout
 Cookie: refreshToken={{refreshToken}}
+
+### 프로필 수정 - 전체 필드 수정
+PUT http://localhost:8080/api/v1/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeName": "김신우",
+  "employeeEmail": "admin@seto.com",
+  "employeePhone": "010-1333-1111",
+  "employeeAddress": "부산시 해운대구 센텀로 123",
+  "employeeEmergencyContact": "010-1111-2222"
+}
+
+### 프로필 수정 - 이름과 이메일만 수정
+PUT http://localhost:8080/api/v1/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeName": "관리자수정1",
+  "employeeEmail": "kim123@company.com",
+  "employeePhone": null,
+  "employeeAddress": null,
+  "employeeEmergencyContact": null
+}

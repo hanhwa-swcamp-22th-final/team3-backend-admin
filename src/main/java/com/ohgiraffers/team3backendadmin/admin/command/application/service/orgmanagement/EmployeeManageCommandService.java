@@ -1,7 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
@@ -12,6 +11,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.service.Organizati
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
 import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.DuplicateFieldException;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +45,16 @@ public class EmployeeManageCommandService {
         departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(DepartmentNotFoundException::new);
 
+        String encryptedEmail = aesEncryptor.encrypt(request.getEmployeeEmail());
+        if (employeeRepository.existsByEmployeeEmail(encryptedEmail)) {
+            throw new DuplicateFieldException("이미 사용중인 이메일 입니다");
+        }
+
+        String encryptedPhone = aesEncryptor.encrypt(request.getEmployeePhone());
+        if (employeeRepository.existsByEmployeePhone(encryptedPhone)) {
+            throw new DuplicateFieldException("이미 사용중인 전화번호 입니다");
+        }
+
         String generatedCode = organizationManageDomainService.generateEmployeeCode();
 
         Employee employee = Employee.builder()
@@ -52,8 +62,8 @@ public class EmployeeManageCommandService {
                 .departmentId(request.getDepartmentId())
                 .employeeCode(generatedCode)
                 .employeeName(request.getEmployeeName())
-                .employeeEmail(aesEncryptor.encrypt(request.getEmployeeEmail()))
-                .employeePhone(aesEncryptor.encrypt(request.getEmployeePhone()))
+                .employeeEmail(encryptedEmail)
+                .employeePhone(encryptedPhone)
                 .employeeAddress(aesEncryptor.encrypt(request.getEmployeeAddress()))
                 .employeeEmergencyContact(aesEncryptor.encrypt(request.getEmployeeEmergencyContact()))
                 .employeePassword(passwordEncoder.encode(request.getEmployeePassword()))
@@ -76,25 +86,6 @@ public class EmployeeManageCommandService {
                             .build();
                     skillRepository.save(defaultSkill);
                 });
-    }
-
-    // Update Employee
-    @Transactional
-    public void updateEmployee(EmployeeUpdateRequest request, String employeeCode) {
-
-        employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(AdminAccessDeniedException::new);
-
-        Employee target = employeeRepository.findByEmployeeCode(request.getEmployeeCode())
-                .orElseThrow(EmployeeNotFoundException::new);
-
-        target.updatePersonalInfo(
-                request.getEmployeeName(),
-                request.getEmployeeEmail() != null ? aesEncryptor.encrypt(request.getEmployeeEmail()) : null,
-                request.getEmployeePhone() != null ? aesEncryptor.encrypt(request.getEmployeePhone()) : null,
-                request.getEmployeeAddress() != null ? aesEncryptor.encrypt(request.getEmployeeAddress()) : null,
-                request.getEmployeeEmergencyContact() != null ? aesEncryptor.encrypt(request.getEmployeeEmergencyContact()) : null
-        );
     }
 
     // Delete employee

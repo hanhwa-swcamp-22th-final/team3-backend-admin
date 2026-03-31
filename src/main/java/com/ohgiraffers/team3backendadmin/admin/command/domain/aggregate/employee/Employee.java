@@ -35,7 +35,7 @@ public class Employee {
     @Column(name = "employee_email", unique = true)
     private String employeeEmail;
 
-    @Column(name = "employee_phone")
+    @Column(name = "employee_phone", unique = true)
     private String employeePhone;
 
     @Column(name = "employee_address")

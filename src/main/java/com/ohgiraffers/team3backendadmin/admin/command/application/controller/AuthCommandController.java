@@ -2,8 +2,10 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.ProfileUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.AuthCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.UserCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthCommandController {
 
     private final AuthCommandService authCommandService;
+    private final UserCommandService userCommandService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -54,6 +60,23 @@ public class AuthCommandController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
                 .body(ApiResponse.success(null));
+    }
+
+    /**
+     * 로그인한 사원 본인의 개인정보를 수정하는 Api
+     * @param request ProfileUpdateRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<Void>>
+     */
+    @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> updateProfile(
+            @Valid @RequestBody ProfileUpdateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        userCommandService.updateProfile(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
 }
