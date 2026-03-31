@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.MaintenanceLogQueryMapper">
+
+    <select id="selectMaintenanceLogList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogQueryResponse">
+        SELECT
+            ml.maintenance_log_id AS maintenanceLogId,
+            ml.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ml.maintenance_item_standard_id AS maintenanceItemStandardId,
+            mis.maintenance_item AS maintenanceItem,
+            ml.maintenance_type AS maintenanceType,
+            ml.maintenance_date AS maintenanceDate,
+            ml.maintenance_score AS maintenanceScore,
+            ml.eta_maint_delta AS etaMaintDelta,
+            ml.maintenance_result AS maintenanceResult
+        FROM maintenance_log ml
+        INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
+        INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
+        WHERE 1 = 1
+        <if test="equipmentId != null">
+            AND ml.equipment_id = #{equipmentId}
+        </if>
+        <if test="maintenanceType != null">
+            AND ml.maintenance_type = #{maintenanceType}
+        </if>
+        <if test="maintenanceResult != null">
+            AND ml.maintenance_result = #{maintenanceResult}
+        </if>
+        ORDER BY ml.maintenance_log_id DESC
+    </select>
+
+    <select id="selectMaintenanceLogDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+        SELECT
+            ml.maintenance_log_id AS maintenanceLogId,
+            ml.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ml.maintenance_item_standard_id AS maintenanceItemStandardId,
+            mis.maintenance_item AS maintenanceItem,
+            ml.maintenance_type AS maintenanceType,
+            ml.maintenance_date AS maintenanceDate,
+            ml.maintenance_score AS maintenanceScore,
+            ml.eta_maint_delta AS etaMaintDelta,
+            ml.maintenance_result AS maintenanceResult
+        FROM maintenance_log ml
+        INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
+        INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
+        WHERE ml.maintenance_log_id = #{maintenanceLogId}
+    </select>
+</mapper>
