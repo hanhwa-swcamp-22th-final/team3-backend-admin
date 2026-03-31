@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EnvironmentStandardQueryMapper">
+
+    <select id="selectEnvironmentStandardList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardQueryResponse">
+        SELECT
+            environment_standard_id AS environmentStandardId,
+            environment_type AS environmentType,
+            environment_code AS environmentCode,
+            environment_name AS environmentName,
+            env_temp_min AS envTempMin,
+            env_temp_max AS envTempMax,
+            env_humidity_min AS envHumidityMin,
+            env_humidity_max AS envHumidityMax,
+            env_particle_limit AS envParticleLimit
+        FROM environment_standard
+        WHERE is_deleted = false
+        <if test="request != null and request.keyword != null and request.keyword != ''">
+            AND (
+                environment_code LIKE CONCAT('%', #{request.keyword}, '%')
+                OR environment_name LIKE CONCAT('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request != null and request.environmentType != null">
+            AND environment_type = #{request.environmentType}
+        </if>
+        ORDER BY environment_standard_id DESC
+    </select>
+
+    <select id="selectEnvironmentStandardDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardDetailResponse">
+        SELECT
+            environment_standard_id AS environmentStandardId,
+            environment_type AS environmentType,
+            environment_code AS environmentCode,
+            environment_name AS environmentName,
+            env_temp_min AS envTempMin,
+            env_temp_max AS envTempMax,
+            env_humidity_min AS envHumidityMin,
+            env_humidity_max AS envHumidityMax,
+            env_particle_limit AS envParticleLimit
+        FROM environment_standard
+        WHERE environment_standard_id = #{environmentStandardId}
+          AND is_deleted = false
+    </select>
+
+    <select id="selectEnvironmentStandardIdByCode" resultType="java.lang.Long">
+        SELECT environment_standard_id
+        FROM environment_standard
+        WHERE environment_code = #{environmentCode}
+          AND is_deleted = false
+        LIMIT 1
+    </select>
+</mapper>
