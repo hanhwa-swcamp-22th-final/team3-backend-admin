@@ -108,7 +108,7 @@ class EquipmentQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get equipment list API integration success: return persisted equipment")
     void getEquipmentList_success() throws Exception {
-        mockMvc.perform(get("/api/v1/admin/equipments")
+        mockMvc.perform(get("/api/v1/equipment-management/equipments")
                 .param("keyword", "Query Equipment"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
@@ -122,7 +122,7 @@ class EquipmentQueryControllerIntegrationTest {
     @Test
     @DisplayName("Get equipment detail API integration success: return persisted equipment detail")
     void getEquipmentDetail_success() throws Exception {
-        mockMvc.perform(get("/api/v1/admin/equipments/{equipmentId}", equipment.getEquipmentId()))
+        mockMvc.perform(get("/api/v1/equipment-management/equipments/{equipmentId}", equipment.getEquipmentId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentId").value(equipment.getEquipmentId()))

@@ -4,6 +4,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProce
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentEventQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentStandardQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +42,12 @@ class EquipmentProcessQueryControllerTest {
     @MockitoBean
     private EquipmentQueryService equipmentQueryService;
 
+    @MockitoBean
+    private EnvironmentStandardQueryService environmentStandardQueryService;
+
+    @MockitoBean
+    private EnvironmentEventQueryService environmentEventQueryService;
+
     @Test
     @DisplayName("Get equipment process list API success: return list JSON")
     void getEquipmentProcessList_success() throws Exception {
@@ -54,7 +62,7 @@ class EquipmentProcessQueryControllerTest {
         when(equipmentProcessQueryService.getEquipmentProcessList(argThat(request -> request != null)))
             .thenReturn(List.of(response));
 
-        mockMvc.perform(get("/api/v1/admin/equipment-processes"))
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-processes"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data[0].equipmentProcessId").value(1L))
@@ -69,7 +77,7 @@ class EquipmentProcessQueryControllerTest {
             .thenReturn(List.of());
 
         mockMvc.perform(
-                get("/api/v1/admin/equipment-processes")
+                get("/api/v1/equipment-management/equipment-processes")
                     .param("factoryLineId", "10")
                     .param("keyword", "mix"))
             .andExpect(status().isOk())
@@ -95,7 +103,7 @@ class EquipmentProcessQueryControllerTest {
         when(equipmentProcessQueryService.getEquipmentProcessDetail(1L))
             .thenReturn(response);
 
-        mockMvc.perform(get("/api/v1/admin/equipment-processes/1"))
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-processes/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentProcessId").value(1L))
@@ -110,6 +118,6 @@ class EquipmentProcessQueryControllerTest {
             .thenThrow(new IllegalArgumentException("Equipment process not found."));
 
         assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/admin/equipment-processes/999")));
+            () -> mockMvc.perform(get("/api/v1/equipment-management/equipment-processes/999")));
     }
 }

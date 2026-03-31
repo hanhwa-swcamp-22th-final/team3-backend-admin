@@ -6,6 +6,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetai
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentEventQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentStandardQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +45,12 @@ class EquipmentQueryControllerTest {
     @MockitoBean
     private EquipmentQueryService equipmentQueryService;
 
+    @MockitoBean
+    private EnvironmentStandardQueryService environmentStandardQueryService;
+
+    @MockitoBean
+    private EnvironmentEventQueryService environmentEventQueryService;
+
     @Test
     @DisplayName("Get equipment list API success: return list JSON")
     void getEquipments_success() throws Exception {
@@ -56,7 +64,7 @@ class EquipmentQueryControllerTest {
         when(equipmentQueryService.getEquipmentList(argThat(request -> request != null)))
             .thenReturn(List.of(response));
 
-        mockMvc.perform(get("/api/v1/admin/equipments"))
+        mockMvc.perform(get("/api/v1/equipment-management/equipments"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data[0].equipmentId").value(1L))
@@ -73,7 +81,7 @@ class EquipmentQueryControllerTest {
             .thenReturn(List.of());
 
         mockMvc.perform(
-                get("/api/v1/admin/equipments")
+                get("/api/v1/equipment-management/equipments")
                     .param("keyword", "printer")
                     .param("equipmentStatus", "OPERATING")
                     .param("equipmentGrade", "S")
@@ -103,7 +111,7 @@ class EquipmentQueryControllerTest {
         when(equipmentQueryService.getEquipmentDetail(1L))
             .thenReturn(response);
 
-        mockMvc.perform(get("/api/v1/admin/equipments/1"))
+        mockMvc.perform(get("/api/v1/equipment-management/equipments/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentId").value(1L))
@@ -121,6 +129,6 @@ class EquipmentQueryControllerTest {
             .thenThrow(new IllegalArgumentException("Equipment not found."));
 
         assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/admin/equipments/999")));
+            () -> mockMvc.perform(get("/api/v1/equipment-management/equipments/999")));
     }
 }
