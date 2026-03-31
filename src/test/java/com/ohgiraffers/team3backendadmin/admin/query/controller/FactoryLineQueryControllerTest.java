@@ -2,7 +2,9 @@ package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.service.FactoryLineQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(FactoryLineQueryController.class)
+@WebMvcTest(EquipmentManageQueryController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class FactoryLineQueryControllerTest {
 
@@ -31,6 +33,12 @@ class FactoryLineQueryControllerTest {
 
     @MockitoBean
     private FactoryLineQueryService factoryLineQueryService;
+
+    @MockitoBean
+    private EquipmentProcessQueryService equipmentProcessQueryService;
+
+    @MockitoBean
+    private EquipmentQueryService equipmentQueryService;
 
     @Test
     @DisplayName("Get factory line list API success: return list JSON")
@@ -43,7 +51,7 @@ class FactoryLineQueryControllerTest {
         when(factoryLineQueryService.getFactoryLineList(argThat(request -> request != null)))
             .thenReturn(List.of(response));
 
-        mockMvc.perform(get("/api/v1/factory-lines"))
+        mockMvc.perform(get("/api/v1/admin/factory-lines"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data[0].factoryLineId").value(1L))
@@ -57,7 +65,7 @@ class FactoryLineQueryControllerTest {
         when(factoryLineQueryService.getFactoryLineList(argThat(request -> request != null)))
             .thenReturn(List.of());
 
-        mockMvc.perform(get("/api/v1/factory-lines").param("keyword", "main"))
+        mockMvc.perform(get("/api/v1/admin/factory-lines").param("keyword", "main"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true));
 
@@ -77,7 +85,7 @@ class FactoryLineQueryControllerTest {
         when(factoryLineQueryService.getFactoryLineDetail(1L))
             .thenReturn(response);
 
-        mockMvc.perform(get("/api/v1/factory-lines/1"))
+        mockMvc.perform(get("/api/v1/admin/factory-lines/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.factoryLineId").value(1L))
@@ -92,6 +100,6 @@ class FactoryLineQueryControllerTest {
             .thenThrow(new IllegalArgumentException("Factory line not found."));
 
         assertThrows(ServletException.class,
-            () -> mockMvc.perform(get("/api/v1/factory-lines/999")));
+            () -> mockMvc.perform(get("/api/v1/admin/factory-lines/999")));
     }
 }

@@ -3,6 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.query.service;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;

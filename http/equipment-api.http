@@ -1,4 +1,4 @@
-### 로그인(accessToken 발급)
+### 嚥≪뮄???accessToken 獄쏆뮄??
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
@@ -12,8 +12,8 @@ Content-Type: application/json
     client.global.set("accessToken", response.body.data.accessToken);
 %}
 
-### 설비 등록
-POST http://localhost:8080/api/v1/equipment
+### ??삵돩 ?源낆쨯
+POST http://localhost:8080/api/v1/admin/equipments
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -30,8 +30,8 @@ Authorization: Bearer {{accessToken}}
   "equipmentWearCoefficient": 0.75
 }
 
-### 설비 수정
-PUT http://localhost:8080/api/v1/equipment/4001
+### ??삵돩 ??륁젟
+PUT http://localhost:8080/api/v1/admin/equipments/4001
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -48,14 +48,14 @@ Authorization: Bearer {{accessToken}}
   "equipmentWearCoefficient": 0.9
 }
 
-### 설비 삭제
-DELETE http://localhost:8080/api/v1/equipment/4001
+### ??삵돩 ????
+DELETE http://localhost:8080/api/v1/admin/equipments/4001
 Authorization: Bearer {{accessToken}}
 
-### 설비 목록 조회
-GET http://localhost:8080/api/v1/equipment?keyword=API&equipmentStatus=OPERATING&equipmentGrade=A
+### ??삵돩 筌뤴뫖以?鈺곌퀬??
+GET http://localhost:8080/api/v1/admin/equipments?keyword=API&equipmentStatus=OPERATING&equipmentGrade=A
 Authorization: Bearer {{accessToken}}
 
-### 설비 상세 조회
-GET http://localhost:8080/api/v1/equipment/4001
+### ??삵돩 ?怨멸쉭 鈺곌퀬??
+GET http://localhost:8080/api/v1/admin/equipments/4001
 Authorization: Bearer {{accessToken}}

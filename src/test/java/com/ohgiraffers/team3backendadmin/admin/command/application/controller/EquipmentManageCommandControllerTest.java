@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.EquipmentManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
 import jakarta.servlet.ServletException;
@@ -43,6 +45,12 @@ class EquipmentManageCommandControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
+    private FactoryLineManageCommandService factoryLineManageCommandService;
+
+    @MockitoBean
+    private EquipmentProcessManageCommandService equipmentProcessManageCommandService;
+
+    @MockitoBean
     private EquipmentManageCommandService equipmentManageCommandService;
 
     @Test
@@ -60,7 +68,7 @@ class EquipmentManageCommandControllerTest {
 
         when(equipmentManageCommandService.createEquipment(any(EquipmentCreateRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/v1/equipment")
+        mockMvc.perform(post("/api/v1/admin/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -79,7 +87,7 @@ class EquipmentManageCommandControllerTest {
     void createEquipment_whenInvalidRequest_thenBadRequest() throws Exception {
         String invalidJson = "{\"equipmentProcessId\":2001,\"equipmentCode\":";
 
-        mockMvc.perform(post("/api/v1/equipment")
+        mockMvc.perform(post("/api/v1/admin/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidJson))
             .andExpect(status().isBadRequest());
@@ -92,7 +100,7 @@ class EquipmentManageCommandControllerTest {
 
         doNothing().when(equipmentManageCommandService).updateEquipment(eq(4001L), any(EquipmentUpdateRequest.class));
 
-        mockMvc.perform(put("/api/v1/equipment/4001")
+        mockMvc.perform(put("/api/v1/admin/equipments/4001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -111,7 +119,7 @@ class EquipmentManageCommandControllerTest {
             .when(equipmentManageCommandService).updateEquipment(eq(4001L), any(EquipmentUpdateRequest.class));
 
         ServletException exception = assertThrows(ServletException.class,
-            () -> mockMvc.perform(put("/api/v1/equipment/4001")
+            () -> mockMvc.perform(put("/api/v1/admin/equipments/4001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))));
 
@@ -124,7 +132,7 @@ class EquipmentManageCommandControllerTest {
     void deleteEquipment_success() throws Exception {
         doNothing().when(equipmentManageCommandService).deleteEquipment(4001L);
 
-        mockMvc.perform(delete("/api/v1/equipment/4001"))
+        mockMvc.perform(delete("/api/v1/admin/equipments/4001"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data").doesNotExist());

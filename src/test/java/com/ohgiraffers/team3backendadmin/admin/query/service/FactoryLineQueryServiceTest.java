@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.FactoryLineSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.FactoryLineQueryMapper;

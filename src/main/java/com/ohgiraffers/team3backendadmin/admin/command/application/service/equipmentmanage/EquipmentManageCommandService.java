@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
@@ -11,7 +11,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Equipme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentBaselineRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
-import com.ohgiraffers.team3backendadmin.admin.query.service.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,9 +33,9 @@ public class EquipmentManageCommandService {
   private final IdGenerator idGenerator;
 
   /**
-   * 설비 코드 중복과 부모 데이터 존재 여부를 검증한 뒤 설비와 연관 기준 데이터를 함께 생성한다.
-   * @param request 설비 기본 정보와 노후화 파라미터 값을 담은 생성 요청 값
-   * @return 생성 완료된 설비 정보를 담은 응답 값
+   * 설비 코드 중복과 부모 데이터 존재 여부를 검증한 뒤 설비와 관련 기준 데이터를 함께 생성한다.
+   * @param request 설비 기본 정보와 노후도 파라미터 값을 담은 생성 요청 정보
+   * @return 생성이 완료된 설비의 응답 정보
    */
   public EquipmentCreateResponse createEquipment(EquipmentCreateRequest request) {
 
@@ -93,9 +93,9 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * 기존 설비와 연결된 노후화 파라미터를 함께 조회한 뒤 요청 값으로 수정한다.
-   * @param equipmentId 수정 대상 설비의 식별자
-   * @param request 수정할 설비 정보와 노후화 파라미터 값
+   * 기존 설비와 연결된 노후도 파라미터를 조회한 뒤 요청 값으로 수정한다.
+   * @param equipmentId 수정할 설비의 식별자
+   * @param request 수정할 설비 정보와 노후도 파라미터 값
    * @return 반환값 없음
    */
   public void updateEquipment(Long equipmentId, EquipmentUpdateRequest request) {
@@ -135,9 +135,8 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * 메소드 의도
-   * 설비를 삭제하면서 연결된 베이스라인과 노후화 파라미터도 함께 정리한다.
-   * @param equipmentId 삭제 대상 설비의 식별자
+   * 설비를 삭제하면서 연결된 베이스라인과 노후도 파라미터도 함께 정리한다.
+   * @param equipmentId 삭제할 설비의 식별자
    * @return 반환값 없음
    */
   public void deleteEquipment(Long equipmentId) {

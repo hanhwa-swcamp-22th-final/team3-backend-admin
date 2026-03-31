@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.query.service;
+package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.FactoryLineSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
@@ -19,7 +19,7 @@ public class FactoryLineQueryService {
 
     /**
      * 검색 조건에 맞는 생산 라인 목록을 조회한다.
-     * @param request 키워드 등 목록 조회 조건 값
+     * @param request 키워드를 포함한 목록 조회 조건 정보
      * @return 조회 조건에 맞는 생산 라인 목록
      */
     public List<FactoryLineQueryResponse> getFactoryLineList(FactoryLineSearchRequest request) {
@@ -28,7 +28,7 @@ public class FactoryLineQueryService {
 
     /**
      * 특정 생산 라인의 상세 정보를 조회한다.
-     * @param factoryLineId 조회 대상 생산 라인의 식별자
+     * @param factoryLineId 조회할 생산 라인의 식별자
      * @return 조회된 생산 라인의 상세 정보
      */
     public FactoryLineDetailResponse getFactoryLineDetail(Long factoryLineId) {

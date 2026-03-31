@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.query.service;
+package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
@@ -19,7 +19,7 @@ public class EquipmentQueryService {
 
     /**
      * 검색 조건에 맞는 설비 목록을 조회한다.
-     * @param request 공정, 상태, 등급, 키워드 등 목록 조회 조건 값
+     * @param request 공정, 상태, 등급, 키워드를 포함한 조회 조건 정보
      * @return 조회 조건에 맞는 설비 목록
      */
     public List<EquipmentQueryResponse> getEquipmentList(EquipmentSearchRequest request) {
@@ -28,8 +28,8 @@ public class EquipmentQueryService {
 
     /**
      * 특정 설비의 상세 정보를 조회한다.
-     * @param equipmentId 조회 대상 설비의 식별자
-     * @return 조회된 설비 상세 정보
+     * @param equipmentId 조회할 설비의 식별자
+     * @return 조회된 설비의 상세 정보
      */
     public EquipmentDetailResponse getEquipmentDetail(Long equipmentId) {
         return equipmentQueryMapper.selectEquipmentDetailById(equipmentId);
@@ -45,9 +45,9 @@ public class EquipmentQueryService {
     }
 
     /**
-     * 특정 설비에 연결된 노후화 파라미터 식별자를 조회한다.
-     * @param equipmentId 조회 대상 설비의 식별자
-     * @return 연결된 노후화 파라미터 식별자
+     * 특정 설비에 연결된 노후도 파라미터 식별자를 조회한다.
+     * @param equipmentId 조회할 설비의 식별자
+     * @return 연결된 노후도 파라미터 식별자
      */
     public Long getEquipmentAgingParamIdByEquipmentId(Long equipmentId) {
         return equipmentQueryMapper.selectEquipmentAgingParamIdByEquipmentId(equipmentId);
@@ -55,7 +55,7 @@ public class EquipmentQueryService {
 
     /**
      * 특정 설비에 연결된 베이스라인 식별자를 조회한다.
-     * @param equipmentId 조회 대상 설비의 식별자
+     * @param equipmentId 조회할 설비의 식별자
      * @return 연결된 베이스라인 식별자
      */
     public Long getEquipmentBaselineIdByEquipmentId(Long equipmentId) {

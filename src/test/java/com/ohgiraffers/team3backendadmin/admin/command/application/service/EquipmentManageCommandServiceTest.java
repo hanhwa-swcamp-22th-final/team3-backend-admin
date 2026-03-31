@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentStandard;
@@ -17,7 +18,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Equipme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentBaselineRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
-import com.ohgiraffers.team3backendadmin.admin.query.service.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

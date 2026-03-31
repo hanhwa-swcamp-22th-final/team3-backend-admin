@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentProcessSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentProcessQueryMapper;

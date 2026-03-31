@@ -18,7 +18,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Equipme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
-import com.ohgiraffers.team3backendadmin.admin.query.service.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,7 +140,7 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.75)
             .build();
 
-        mockMvc.perform(post("/api/v1/equipment")
+        mockMvc.perform(post("/api/v1/admin/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -188,7 +188,7 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.85)
             .build();
 
-        mockMvc.perform(post("/api/v1/equipment")
+        mockMvc.perform(post("/api/v1/admin/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -225,7 +225,7 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.9)
             .build();
 
-        mockMvc.perform(put("/api/v1/equipment/{equipmentId}", existingEquipment.getEquipmentId())
+        mockMvc.perform(put("/api/v1/admin/equipments/{equipmentId}", existingEquipment.getEquipmentId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -252,7 +252,7 @@ class EquipmentManageCommandControllerIntegrationTest {
         Long agingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(existingEquipment.getEquipmentId());
         Long baselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(existingEquipment.getEquipmentId());
 
-        mockMvc.perform(delete("/api/v1/equipment/{equipmentId}", existingEquipment.getEquipmentId()))
+        mockMvc.perform(delete("/api/v1/admin/equipments/{equipmentId}", existingEquipment.getEquipmentId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true));
 

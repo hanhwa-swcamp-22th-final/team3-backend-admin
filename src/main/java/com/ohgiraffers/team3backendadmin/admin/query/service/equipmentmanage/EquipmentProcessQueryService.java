@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.query.service;
+package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentProcessSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse;
@@ -19,7 +19,7 @@ public class EquipmentProcessQueryService {
 
     /**
      * 검색 조건에 맞는 공정 목록을 조회한다.
-     * @param request 생산 라인 식별자와 키워드 등 목록 조회 조건 값
+     * @param request 생산 라인 식별자와 키워드를 포함한 조회 조건 정보
      * @return 조회 조건에 맞는 공정 목록
      */
     public List<EquipmentProcessQueryResponse> getEquipmentProcessList(EquipmentProcessSearchRequest request) {
@@ -28,7 +28,7 @@ public class EquipmentProcessQueryService {
 
     /**
      * 특정 공정의 상세 정보를 조회한다.
-     * @param equipmentProcessId 조회 대상 공정의 식별자
+     * @param equipmentProcessId 조회할 공정의 식별자
      * @return 조회된 공정의 상세 정보
      */
     public EquipmentProcessDetailResponse getEquipmentProcessDetail(Long equipmentProcessId) {
