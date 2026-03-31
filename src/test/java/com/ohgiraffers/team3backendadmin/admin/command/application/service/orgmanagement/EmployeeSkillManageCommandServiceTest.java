@@ -16,7 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
+import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.SkillNotFoundException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -192,8 +194,8 @@ class EmployeeSkillManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            EmployeeNotFoundException exception = assertThrows(
+                    EmployeeNotFoundException.class,
                     () -> employeeSkillManageCommandService.updateEmployeeSkill(request, "EMP-0001")
             );
             assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
@@ -213,8 +215,8 @@ class EmployeeSkillManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
                     () -> employeeSkillManageCommandService.updateEmployeeSkill(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
@@ -238,8 +240,8 @@ class EmployeeSkillManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            SkillNotFoundException exception = assertThrows(
+                    SkillNotFoundException.class,
                     () -> employeeSkillManageCommandService.updateEmployeeSkill(request, "EMP-0001")
             );
             assertTrue(exception.getMessage().contains("해당 스킬 레코드를 찾을 수 없습니다"));

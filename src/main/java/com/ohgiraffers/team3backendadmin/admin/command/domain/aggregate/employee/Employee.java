@@ -99,6 +99,10 @@ public class Employee {
         if (emergencyContact != null) this.employeeEmergencyContact = emergencyContact;
     }
 
+    public void updateRole(EmployeeRole newRole) {
+        this.employeeRole = newRole;
+    }
+
     public void deleteEmployee() {
         this.employeeStatus = EmployeeStatus.ON_LEAVE;
     }

@@ -10,9 +10,11 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Employe
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
+import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,10 +40,10 @@ public class EmployeeManageCommandService {
     public void insertEmployee(EmployeeCreateRequest request, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+                .orElseThrow(AdminAccessDeniedException::new);
 
         departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 부서를 찾을 수 없습니다"));
+                .orElseThrow(DepartmentNotFoundException::new);
 
         String generatedCode = organizationManageDomainService.generateEmployeeCode();
 
@@ -81,10 +83,10 @@ public class EmployeeManageCommandService {
     public void updateEmployee(EmployeeUpdateRequest request, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+                .orElseThrow(AdminAccessDeniedException::new);
 
         Employee target = employeeRepository.findByEmployeeCode(request.getEmployeeCode())
-                .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다"));
+                .orElseThrow(EmployeeNotFoundException::new);
 
         target.updatePersonalInfo(
                 request.getEmployeeName(),
@@ -100,10 +102,10 @@ public class EmployeeManageCommandService {
     public void deleteEmployee(String targetCode, String adminCode) {
 
         employeeRepository.findByEmployeeCode(adminCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+                .orElseThrow(AdminAccessDeniedException::new);
 
         Employee target = employeeRepository.findByEmployeeCode(targetCode)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다"));
+                .orElseThrow(EmployeeNotFoundException::new);
 
         target.deleteEmployee();
     }

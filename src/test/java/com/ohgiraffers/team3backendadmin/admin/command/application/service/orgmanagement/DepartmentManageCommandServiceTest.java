@@ -19,7 +19,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
+import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 
 import java.util.Optional;
 
@@ -133,8 +134,8 @@ class DepartmentManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
                     () -> departmentManageCommandService.insertDepartment(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
@@ -243,8 +244,8 @@ class DepartmentManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> departmentManageCommandService.updateDepartment(request, "EMP-0001")
             );
             assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
@@ -262,8 +263,8 @@ class DepartmentManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
                     () -> departmentManageCommandService.updateDepartment(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
@@ -311,8 +312,8 @@ class DepartmentManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> departmentManageCommandService.deleteDepartment(9999L, "EMP-0001")
             );
             assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
@@ -326,8 +327,8 @@ class DepartmentManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
                     () -> departmentManageCommandService.deleteDepartment(1000L, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());

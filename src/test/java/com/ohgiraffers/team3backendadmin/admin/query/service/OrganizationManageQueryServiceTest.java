@@ -5,6 +5,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeRespon
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.DepartmentMapper;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EmployeeMapper;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -60,8 +62,8 @@ class OrganizationManageQueryServiceTest {
             given(departmentMapper.findById(9999L)).willReturn(null);
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> organizationManageQueryService.getDepartmentById(9999L)
             );
             assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
@@ -137,8 +139,8 @@ class OrganizationManageQueryServiceTest {
             given(employeeMapper.findByEmployeeCode("UNKNOWN")).willReturn(null);
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            EmployeeNotFoundException exception = assertThrows(
+                    EmployeeNotFoundException.class,
                     () -> organizationManageQueryService.getEmployeeByCode("UNKNOWN")
             );
             assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());

@@ -6,9 +6,10 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.departme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
+import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ public class DepartmentManageCommandService {
     public void insertDepartment(DepartmentCreateRequest request, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+                .orElseThrow(AdminAccessDeniedException::new);
 
         Department department = Department.builder()
                 .departmentId(idGenerator.generate())
@@ -46,10 +47,10 @@ public class DepartmentManageCommandService {
     public void updateDepartment(DepartmentUpdateRequest request, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+                .orElseThrow(AdminAccessDeniedException::new);
 
         Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 부서를 찾을 수 없습니다"));
+                .orElseThrow(DepartmentNotFoundException::new);
 
         department.updateNames(
                 request.getDepartmentName(),
@@ -62,10 +63,10 @@ public class DepartmentManageCommandService {
     public void deleteDepartment(Long departmentId, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+                .orElseThrow(AdminAccessDeniedException::new);
 
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 부서를 찾을 수 없습니다"));
+                .orElseThrow(DepartmentNotFoundException::new);
 
         department.softDelete();
     }

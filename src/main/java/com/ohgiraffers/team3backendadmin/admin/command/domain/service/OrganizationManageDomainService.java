@@ -3,6 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.domain.service;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class OrganizationManageDomainService {
         }
 
         Department parentDepartment = departmentRepository.findById(parentDepartmentId)
-                .orElseThrow(() -> new IllegalArgumentException("상위 부서를 찾을 수 없습니다"));
+                .orElseThrow(() -> new DepartmentNotFoundException("상위 부서를 찾을 수 없습니다"));
 
         int parentLevel = Integer.parseInt(parentDepartment.getDepth().substring(1));
         String depth = "L" + (parentLevel + 1);

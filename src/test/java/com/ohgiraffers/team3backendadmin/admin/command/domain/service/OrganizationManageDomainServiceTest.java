@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -124,8 +126,8 @@ class OrganizationManageDomainServiceTest {
             given(departmentRepository.findById(999L)).willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> organizationManageDomainService.buildVerifiedDepartment(input)
             );
             assertEquals("상위 부서를 찾을 수 없습니다", exception.getMessage());
