@@ -2,6 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.equi
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventUpdateResponse;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvDeviationType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentEvent;
@@ -102,7 +104,7 @@ class EnvironmentEventManageCommandServiceTest {
         when(environmentEventRepository.save(any(EnvironmentEvent.class)))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = environmentEventManageCommandService.createEnvironmentEvent(createRequest);
+        EnvironmentEventCreateResponse response = environmentEventManageCommandService.createEnvironmentEvent(createRequest);
 
         ArgumentCaptor<EnvironmentEvent> captor = ArgumentCaptor.forClass(EnvironmentEvent.class);
         verify(environmentEventRepository).save(captor.capture());
@@ -140,7 +142,7 @@ class EnvironmentEventManageCommandServiceTest {
         when(equipmentRepository.findById(4001L))
             .thenReturn(Optional.of(equipment));
 
-        var response = environmentEventManageCommandService.updateEnvironmentEvent(5001L, updateRequest);
+        EnvironmentEventUpdateResponse response = environmentEventManageCommandService.updateEnvironmentEvent(5001L, updateRequest);
 
         assertEquals(4001L, environmentEvent.getEquipmentId());
         assertEquals(EnvDeviationType.HUMIDITY_DEVIATION, environmentEvent.getEnvDeviationType());
@@ -167,7 +169,7 @@ class EnvironmentEventManageCommandServiceTest {
         when(environmentEventRepository.findById(5001L))
             .thenReturn(Optional.of(environmentEvent));
 
-        var response = environmentEventManageCommandService.deleteEnvironmentEvent(5001L);
+        EnvironmentEventUpdateResponse response = environmentEventManageCommandService.deleteEnvironmentEvent(5001L);
 
         verify(environmentEventRepository).delete(environmentEvent);
         assertEquals(5001L, response.getEnvironmentEventId());

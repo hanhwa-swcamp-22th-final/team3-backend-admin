@@ -2,6 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.equi
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardUpdateResponse;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
@@ -86,7 +88,7 @@ class EnvironmentStandardManageCommandServiceTest {
         when(environmentStandardRepository.save(any(EnvironmentStandard.class)))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = environmentStandardManageCommandService.createEnvironmentStandard(createRequest);
+        EnvironmentStandardCreateResponse response = environmentStandardManageCommandService.createEnvironmentStandard(createRequest);
 
         ArgumentCaptor<EnvironmentStandard> captor = ArgumentCaptor.forClass(EnvironmentStandard.class);
         verify(environmentStandardRepository).save(captor.capture());
@@ -123,7 +125,7 @@ class EnvironmentStandardManageCommandServiceTest {
         when(environmentStandardRepository.findById(3001L))
             .thenReturn(Optional.of(environmentStandard));
 
-        var response = environmentStandardManageCommandService.updateEnvironmentStandard(3001L, updateRequest);
+        EnvironmentStandardUpdateResponse response = environmentStandardManageCommandService.updateEnvironmentStandard(3001L, updateRequest);
 
         assertEquals(EnvironmentType.CLEANROOM, environmentStandard.getEnvironmentType());
         assertEquals("ENV-999", environmentStandard.getEnvironmentCode());
@@ -150,7 +152,7 @@ class EnvironmentStandardManageCommandServiceTest {
         when(environmentStandardRepository.findById(3001L))
             .thenReturn(Optional.of(environmentStandard));
 
-        var response = environmentStandardManageCommandService.deleteEnvironmentStandard(3001L);
+        EnvironmentStandardUpdateResponse response = environmentStandardManageCommandService.deleteEnvironmentStandard(3001L);
 
         assertTrue(environmentStandard.getIsDeleted());
         assertEquals(3001L, response.getEnvironmentStandardId());

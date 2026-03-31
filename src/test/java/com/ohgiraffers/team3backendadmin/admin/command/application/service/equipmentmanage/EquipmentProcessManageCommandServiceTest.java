@@ -2,6 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.equi
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
@@ -83,7 +85,7 @@ class EquipmentProcessManageCommandServiceTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // when
-    var response = equipmentProcessManageCommandService.createEquipmentProcess(createRequest);
+    EquipmentProcessCreateResponse response = equipmentProcessManageCommandService.createEquipmentProcess(createRequest);
 
     // then
     ArgumentCaptor<EquipmentProcess> captor = ArgumentCaptor.forClass(EquipmentProcess.class);
@@ -151,7 +153,7 @@ class EquipmentProcessManageCommandServiceTest {
             .build()));
 
     // when
-    var response = equipmentProcessManageCommandService.updateEquipmentProcess(2001L, updateRequest);
+    EquipmentProcessUpdateResponse response = equipmentProcessManageCommandService.updateEquipmentProcess(2001L, updateRequest);
 
     // then
     assertEquals(1002L, equipmentProcess.getFactoryLineId());
@@ -186,7 +188,7 @@ class EquipmentProcessManageCommandServiceTest {
         .thenReturn(Optional.of(equipmentProcess));
 
     // when
-    var response = equipmentProcessManageCommandService.deleteEquipmentProcess(2001L);
+    EquipmentProcessUpdateResponse response = equipmentProcessManageCommandService.deleteEquipmentProcess(2001L);
 
     // then
     assertTrue(equipmentProcess.getIsDeleted());

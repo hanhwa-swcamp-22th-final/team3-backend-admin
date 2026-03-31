@@ -2,6 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.equi
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
@@ -67,7 +69,7 @@ class FactoryLineManageCommandServiceTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // when
-    var response = factoryLineManageCommandService.createFactoryLine(createRequest);
+    FactoryLineCreateResponse response = factoryLineManageCommandService.createFactoryLine(createRequest);
 
     // then
     ArgumentCaptor<FactoryLine> captor = ArgumentCaptor.forClass(FactoryLine.class);
@@ -107,7 +109,7 @@ class FactoryLineManageCommandServiceTest {
         .thenReturn(Optional.of(factoryLine));
 
     // when
-    var response = factoryLineManageCommandService.updateFactoryLine(1001L, updateRequest);
+    FactoryLineUpdateResponse response = factoryLineManageCommandService.updateFactoryLine(1001L, updateRequest);
 
     // then
     assertEquals("LINE-999", factoryLine.getFactoryLineCode());
@@ -139,7 +141,7 @@ class FactoryLineManageCommandServiceTest {
         .thenReturn(Optional.of(factoryLine));
 
     // when
-    var response = factoryLineManageCommandService.deleteFactoryLine(1001L);
+    FactoryLineUpdateResponse response = factoryLineManageCommandService.deleteFactoryLine(1001L);
 
     // then
     assertTrue(factoryLine.getIsDeleted());
