@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate;
+package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,32 +8,34 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "department")
+@Table(name = "skill")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Department {
+public class Skill {
 
     @Id
-    @Column(name = "department_id")
-    private Long departmentId;
+    @Column(name = "skill_id")
+    private Long skillId;
 
-    @Column(name = "parent_department_id")
-    private Long parentDepartmentId;
+    @Column(name = "employee_id", nullable = false)
+    private Long employeeId;
 
-    @Column(name = "department_name", length = 30)
-    private String departmentName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "skill_category")
+    private SkillCategory skillCategory;
 
-    @Column(name = "team_name")
-    private String teamName;
+    @Column(name = "skill_score", precision = 10, scale = 2)
+    private BigDecimal skillScore;
 
-    @Column(name = "depth")
-    private String depth;
+    @Column(name = "evaluated_at")
+    private LocalDateTime evaluatedAt;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -51,19 +53,8 @@ public class Department {
     @Column(name = "updated_by")
     private Long updatedBy;
 
-    public void updateNames(String departmentName, String teamName) {
-        if (departmentName != null) {
-            this.departmentName = departmentName;
-        }
-        if (teamName != null) {
-            this.teamName = teamName;
-        }
-    }
-
-    public void softDelete() {
-        this.departmentName = "삭제됨";
-        this.teamName = "삭제됨";
-        this.parentDepartmentId = null;
-        this.depth = null;
+    public void updateScore(BigDecimal score) {
+        this.skillScore = score;
+        this.evaluatedAt = LocalDateTime.now();
     }
 }

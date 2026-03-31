@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.domain.service;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import org.junit.jupiter.api.DisplayName;

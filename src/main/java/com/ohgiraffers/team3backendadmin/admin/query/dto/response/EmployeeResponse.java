@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.query.dto.response;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeRole;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeTier;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,16 +1,16 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeRole;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -32,13 +32,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class OrganizationManageCommandServiceTest {
+class EmployeeManageCommandServiceTest {
 
     @InjectMocks
-    private OrganizationManageCommandService organizationManageCommandService;
+    private EmployeeManageCommandService employeeManageCommandService;
 
     @Mock
     private OrganizationManageDomainService organizationManageDomainService;
@@ -48,6 +49,9 @@ class OrganizationManageCommandServiceTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
+
+    @Mock
+    private SkillRepository skillRepository;
 
     @Mock
     private IdGenerator idGenerator;
@@ -69,281 +73,6 @@ class OrganizationManageCommandServiceTest {
                 .employeeRole(EmployeeRole.ADMIN)
                 .employeeStatus(EmployeeStatus.ACTIVE)
                 .build();
-    }
-
-    @Nested
-    @DisplayName("insertDepartment 메서드")
-    class InsertDepartment {
-
-        @Test
-        @DisplayName("도메인 서비스에서 검증된 부서가 저장된다")
-        void insertDepartmentSavesVerifiedDepartment() {
-            // given
-            DepartmentCreateRequest request = new DepartmentCreateRequest(
-                    null, "경영지원본부", "시스템관리팀", "null"
-            );
-
-            Department verifiedDepartment = Department.builder()
-                    .departmentId(1000L)
-                    .parentDepartmentId(null)
-                    .departmentName("경영지원본부")
-                    .teamName(null)
-                    .depth("L0")
-                    .build();
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(idGenerator.generate()).willReturn(1000L);
-            given(organizationManageDomainService.buildVerifiedDepartment(any(Department.class)))
-                    .willReturn(verifiedDepartment);
-
-            // when
-            organizationManageCommandService.insertDepartment(request, "EMP-0001");
-
-            // then
-            verify(organizationManageDomainService).buildVerifiedDepartment(any(Department.class));
-            verify(departmentRepository).save(verifiedDepartment);
-        }
-
-        @Test
-        @DisplayName("도메인 서비스에 전달되는 부서에 요청 정보가 포함된다")
-        void insertDepartmentPassesRequestInfo() {
-            // given
-            DepartmentCreateRequest request = new DepartmentCreateRequest(
-                    50L, "개발본부", "백엔드팀", "L1"
-            );
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(idGenerator.generate()).willReturn(2000L);
-            given(organizationManageDomainService.buildVerifiedDepartment(any(Department.class)))
-                    .willAnswer(invocation -> invocation.getArgument(0));
-
-            // when
-            organizationManageCommandService.insertDepartment(request, "EMP-0001");
-
-            // then
-            ArgumentCaptor<Department> captor = ArgumentCaptor.forClass(Department.class);
-            verify(organizationManageDomainService).buildVerifiedDepartment(captor.capture());
-
-            Department passed = captor.getValue();
-            assertEquals(2000L, passed.getDepartmentId());
-            assertEquals(50L, passed.getParentDepartmentId());
-            assertEquals("개발본부", passed.getDepartmentName());
-            assertEquals("백엔드팀", passed.getTeamName());
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 사원코드이면 예외가 발생한다")
-        void insertDepartmentFailEmployeeNotFound() {
-            // given
-            DepartmentCreateRequest request = new DepartmentCreateRequest(
-                    null, "개발본부", "백엔드팀", "L1"
-            );
-
-            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
-                    .willReturn(Optional.empty());
-
-            // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> organizationManageCommandService.insertDepartment(request, "UNKNOWN")
-            );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
-        }
-    }
-
-    @Nested
-    @DisplayName("updateDepartment 메서드")
-    class UpdateDepartment {
-
-        @Test
-        @DisplayName("부서명과 팀명이 모두 수정된다")
-        void updateDepartmentBothNames() {
-            // given
-            DepartmentUpdateRequest request = new DepartmentUpdateRequest(
-                    1000L, "경영지원본부-수정", "시스템관리팀-수정"
-            );
-
-            Department existing = Department.builder()
-                    .departmentId(1000L)
-                    .departmentName("경영지원본부")
-                    .teamName("시스템관리팀")
-                    .depth("L0")
-                    .build();
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(1000L))
-                    .willReturn(Optional.of(existing));
-
-            // when
-            organizationManageCommandService.updateDepartment(request, "EMP-0001");
-
-            // then
-            assertEquals("경영지원본부-수정", existing.getDepartmentName());
-            assertEquals("시스템관리팀-수정", existing.getTeamName());
-        }
-
-        @Test
-        @DisplayName("부서명만 수정하면 팀명은 변경되지 않는다")
-        void updateDepartmentOnlyDepartmentName() {
-            // given
-            DepartmentUpdateRequest request = new DepartmentUpdateRequest(
-                    1000L, "경영지원본부-수정", null
-            );
-
-            Department existing = Department.builder()
-                    .departmentId(1000L)
-                    .departmentName("경영지원본부")
-                    .teamName("시스템관리팀")
-                    .depth("L0")
-                    .build();
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(1000L))
-                    .willReturn(Optional.of(existing));
-
-            // when
-            organizationManageCommandService.updateDepartment(request, "EMP-0001");
-
-            // then
-            assertEquals("경영지원본부-수정", existing.getDepartmentName());
-            assertEquals("시스템관리팀", existing.getTeamName());
-        }
-
-        @Test
-        @DisplayName("팀명만 수정하면 부서명은 변경되지 않는다")
-        void updateDepartmentOnlyTeamName() {
-            // given
-            DepartmentUpdateRequest request = new DepartmentUpdateRequest(
-                    1000L, null, "시스템관리팀-수정"
-            );
-
-            Department existing = Department.builder()
-                    .departmentId(1000L)
-                    .departmentName("경영지원본부")
-                    .teamName("시스템관리팀")
-                    .depth("L0")
-                    .build();
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(1000L))
-                    .willReturn(Optional.of(existing));
-
-            // when
-            organizationManageCommandService.updateDepartment(request, "EMP-0001");
-
-            // then
-            assertEquals("경영지원본부", existing.getDepartmentName());
-            assertEquals("시스템관리팀-수정", existing.getTeamName());
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 부서이면 예외가 발생한다")
-        void updateDepartmentNotFound() {
-            // given
-            DepartmentUpdateRequest request = new DepartmentUpdateRequest(
-                    9999L, "새부서명", null
-            );
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(9999L))
-                    .willReturn(Optional.empty());
-
-            // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
-                    () -> organizationManageCommandService.updateDepartment(request, "EMP-0001")
-            );
-            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 사원코드이면 예외가 발생한다")
-        void updateDepartmentEmployeeNotFound() {
-            // given
-            DepartmentUpdateRequest request = new DepartmentUpdateRequest(
-                    1000L, "새부서명", null
-            );
-
-            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
-                    .willReturn(Optional.empty());
-
-            // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> organizationManageCommandService.updateDepartment(request, "UNKNOWN")
-            );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
-        }
-    }
-
-    @Nested
-    @DisplayName("deleteDepartment 메서드")
-    class DeleteDepartment {
-
-        @Test
-        @DisplayName("부서가 소프트 삭제된다")
-        void deleteDepartmentSuccess() {
-            // given
-            Department existing = Department.builder()
-                    .departmentId(1000L)
-                    .parentDepartmentId(50L)
-                    .departmentName("경영지원본부")
-                    .teamName("시스템관리팀")
-                    .depth("L1")
-                    .build();
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(1000L))
-                    .willReturn(Optional.of(existing));
-
-            // when
-            organizationManageCommandService.deleteDepartment(1000L, "EMP-0001");
-
-            // then
-            assertEquals("삭제됨", existing.getDepartmentName());
-            assertEquals("삭제됨", existing.getTeamName());
-            assertNull(existing.getParentDepartmentId());
-            assertNull(existing.getDepth());
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 부서이면 예외가 발생한다")
-        void deleteDepartmentNotFound() {
-            // given
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(9999L))
-                    .willReturn(Optional.empty());
-
-            // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
-                    () -> organizationManageCommandService.deleteDepartment(9999L, "EMP-0001")
-            );
-            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 사원코드이면 예외가 발생한다")
-        void deleteDepartmentEmployeeNotFound() {
-            // given
-            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
-                    .willReturn(Optional.empty());
-
-            // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
-                    () -> organizationManageCommandService.deleteDepartment(1000L, "UNKNOWN")
-            );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
-        }
     }
 
     @Nested
@@ -381,7 +110,7 @@ class OrganizationManageCommandServiceTest {
             given(passwordEncoder.encode(anyString())).willAnswer(invocation -> "$2a$10$" + invocation.getArgument(0));
 
             // when
-            organizationManageCommandService.insertEmployee(request, "EMP-0001");
+            employeeManageCommandService.insertEmployee(request, "EMP-0001");
 
             // then
             ArgumentCaptor<Employee> captor = ArgumentCaptor.forClass(Employee.class);
@@ -403,6 +132,9 @@ class OrganizationManageCommandServiceTest {
             assertFalse(saved.getMfaEnabled());
             assertEquals(0, saved.getLoginFailCount());
             assertFalse(saved.getIsLocked());
+
+            // 6개의 기본 스킬 레코드가 생성되는지 확인
+            verify(skillRepository, times(6)).save(any(Skill.class));
         }
 
         @Test
@@ -419,7 +151,7 @@ class OrganizationManageCommandServiceTest {
             // when & then
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> organizationManageCommandService.insertEmployee(request, "EMP-0001")
+                    () -> employeeManageCommandService.insertEmployee(request, "EMP-0001")
             );
             assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
         }
@@ -436,7 +168,7 @@ class OrganizationManageCommandServiceTest {
             // when & then
             BadCredentialsException exception = assertThrows(
                     BadCredentialsException.class,
-                    () -> organizationManageCommandService.insertEmployee(request, "UNKNOWN")
+                    () -> employeeManageCommandService.insertEmployee(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
         }
@@ -482,7 +214,7 @@ class OrganizationManageCommandServiceTest {
                     .willAnswer(invocation -> "AES_" + invocation.getArgument(0));
 
             // when
-            organizationManageCommandService.updateEmployee(request, "EMP-0001");
+            employeeManageCommandService.updateEmployee(request, "EMP-0001");
 
             // then
             assertEquals("김철수", targetEmployee.getEmployeeName());
@@ -509,7 +241,7 @@ class OrganizationManageCommandServiceTest {
                     .willAnswer(invocation -> "AES_" + invocation.getArgument(0));
 
             // when
-            organizationManageCommandService.updateEmployee(request, "EMP-0001");
+            employeeManageCommandService.updateEmployee(request, "EMP-0001");
 
             // then
             assertEquals("김철수", targetEmployee.getEmployeeName());
@@ -536,7 +268,7 @@ class OrganizationManageCommandServiceTest {
             // when & then
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> organizationManageCommandService.updateEmployee(request, "EMP-0001")
+                    () -> employeeManageCommandService.updateEmployee(request, "EMP-0001")
             );
             assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
         }
@@ -556,7 +288,7 @@ class OrganizationManageCommandServiceTest {
             // when & then
             BadCredentialsException exception = assertThrows(
                     BadCredentialsException.class,
-                    () -> organizationManageCommandService.updateEmployee(request, "UNKNOWN")
+                    () -> employeeManageCommandService.updateEmployee(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
         }
@@ -587,7 +319,7 @@ class OrganizationManageCommandServiceTest {
                     .willReturn(Optional.of(targetEmployee));
 
             // when
-            organizationManageCommandService.deleteEmployee("EMP2603001", "EMP-0001");
+            employeeManageCommandService.deleteEmployee("EMP2603001", "EMP-0001");
 
             // then
             assertEquals(EmployeeStatus.ON_LEAVE, targetEmployee.getEmployeeStatus());
@@ -605,7 +337,7 @@ class OrganizationManageCommandServiceTest {
             // when & then
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> organizationManageCommandService.deleteEmployee("UNKNOWN_TARGET", "EMP-0001")
+                    () -> employeeManageCommandService.deleteEmployee("UNKNOWN_TARGET", "EMP-0001")
             );
             assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
         }
@@ -620,7 +352,7 @@ class OrganizationManageCommandServiceTest {
             // when & then
             BadCredentialsException exception = assertThrows(
                     BadCredentialsException.class,
-                    () -> organizationManageCommandService.deleteEmployee("EMP2603001", "UNKNOWN")
+                    () -> employeeManageCommandService.deleteEmployee("EMP2603001", "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
         }
