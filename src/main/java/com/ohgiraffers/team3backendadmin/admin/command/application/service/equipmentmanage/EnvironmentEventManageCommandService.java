@@ -7,6 +7,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentEvent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentEventRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,13 +24,13 @@ public class EnvironmentEventManageCommandService {
     private final IdGenerator idGenerator;
 
     /**
-     * 설비 존재 여부를 확인한 뒤 환경 이벤트 측정 정보를 저장한다.
+     * 설비 존재 여부를 확인한 뒤 측정값을 기반으로 환경 이벤트를 생성한다.
      * @param request 환경 이벤트 생성에 필요한 설비 식별자와 측정 결과 정보
      * @return 생성된 환경 이벤트의 식별자와 기본 정보
      */
     public EnvironmentEventCreateResponse createEnvironmentEvent(EnvironmentEventCreateRequest request) {
         equipmentRepository.findById(request.getEquipmentId())
-            .orElseThrow(() -> new IllegalArgumentException("Equipment not found."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND));
 
         EnvironmentEvent environmentEvent = EnvironmentEvent.builder()
             .environmentEventId(idGenerator.generate())
@@ -52,17 +54,17 @@ public class EnvironmentEventManageCommandService {
     }
 
     /**
-     * 기존 환경 이벤트와 설비를 확인한 뒤 요청 값으로 측정 정보를 수정한다.
-     * @param environmentEventId 수정할 환경 이벤트의 식별자
+     * 기존 환경 이벤트와 설비 존재 여부를 확인한 뒤 요청 정보로 수정한다.
+     * @param environmentEventId 수정할 환경 이벤트 식별자
      * @param request 수정할 환경 이벤트 정보
      * @return 수정된 환경 이벤트의 식별자와 기본 정보
      */
     public EnvironmentEventUpdateResponse updateEnvironmentEvent(Long environmentEventId, EnvironmentEventUpdateRequest request) {
         EnvironmentEvent environmentEvent = environmentEventRepository.findById(environmentEventId)
-            .orElseThrow(() -> new IllegalArgumentException("Environment event not found."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.ENVIRONMENT_EVENT_NOT_FOUND));
 
         equipmentRepository.findById(request.getEquipmentId())
-            .orElseThrow(() -> new IllegalArgumentException("Equipment not found."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND));
 
         environmentEvent.updateInfo(
             request.getEquipmentId(),
@@ -84,12 +86,12 @@ public class EnvironmentEventManageCommandService {
 
     /**
      * 기존 환경 이벤트를 조회한 뒤 삭제 처리한다.
-     * @param environmentEventId 삭제할 환경 이벤트의 식별자
-     * @return 삭제 처리된 환경 이벤트의 식별자와 기본 정보
+     * @param environmentEventId 삭제할 환경 이벤트 식별자
+     * @return 삭제된 환경 이벤트의 식별자와 기본 정보
      */
     public EnvironmentEventUpdateResponse deleteEnvironmentEvent(Long environmentEventId) {
         EnvironmentEvent environmentEvent = environmentEventRepository.findById(environmentEventId)
-            .orElseThrow(() -> new IllegalArgumentException("Environment event not found."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.ENVIRONMENT_EVENT_NOT_FOUND));
 
         environmentEventRepository.delete(environmentEvent);
 

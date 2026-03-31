@@ -4,7 +4,6 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.E
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventUpdateResponse;
-
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvDeviationType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentEvent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
@@ -12,6 +11,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipmen
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentEventRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,8 +27,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EnvironmentEventManageCommandServiceTest {
@@ -122,14 +129,17 @@ class EnvironmentEventManageCommandServiceTest {
     }
 
     @Test
-    @DisplayName("Create environment event failure: throw exception when equipment does not exist")
+    @DisplayName("Create environment event failure: throw business exception when equipment does not exist")
     void createEnvironmentEvent_whenEquipmentNotFound_thenThrow() {
         when(equipmentRepository.findById(4001L))
             .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
-            () -> environmentEventManageCommandService.createEnvironmentEvent(createRequest));
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> environmentEventManageCommandService.createEnvironmentEvent(createRequest)
+        );
 
+        assertEquals(ErrorCode.EQUIPMENT_NOT_FOUND, exception.getErrorCode());
         verify(environmentEventRepository, never()).save(any(EnvironmentEvent.class));
         verify(idGenerator, never()).generate();
     }
@@ -154,13 +164,17 @@ class EnvironmentEventManageCommandServiceTest {
     }
 
     @Test
-    @DisplayName("Update environment event failure: throw exception when environment event does not exist")
+    @DisplayName("Update environment event failure: throw business exception when environment event does not exist")
     void updateEnvironmentEvent_whenNotFound_thenThrow() {
         when(environmentEventRepository.findById(9999L))
             .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
-            () -> environmentEventManageCommandService.updateEnvironmentEvent(9999L, updateRequest));
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> environmentEventManageCommandService.updateEnvironmentEvent(9999L, updateRequest)
+        );
+
+        assertEquals(ErrorCode.ENVIRONMENT_EVENT_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
@@ -179,12 +193,16 @@ class EnvironmentEventManageCommandServiceTest {
     }
 
     @Test
-    @DisplayName("Delete environment event failure: throw exception when environment event does not exist")
+    @DisplayName("Delete environment event failure: throw business exception when environment event does not exist")
     void deleteEnvironmentEvent_whenNotFound_thenThrow() {
         when(environmentEventRepository.findById(9999L))
             .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
-            () -> environmentEventManageCommandService.deleteEnvironmentEvent(9999L));
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> environmentEventManageCommandService.deleteEnvironmentEvent(9999L)
+        );
+
+        assertEquals(ErrorCode.ENVIRONMENT_EVENT_NOT_FOUND, exception.getErrorCode());
     }
 }

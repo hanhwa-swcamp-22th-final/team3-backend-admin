@@ -12,6 +12,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Equipme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,21 +35,21 @@ public class EquipmentManageCommandService {
   private final IdGenerator idGenerator;
 
   /**
-   * 설비 생성 요청을 검증한 뒤 설비, 노후화 파라미터, 기준 정보를 함께 저장한다.
+   * 설비 생성 요청을 검증한 뒤 설비, 노후 파라미터, 기준 정보를 함께 저장한다.
    * @param request 설비 생성에 필요한 공정, 환경 기준, 코드, 이름, 상태 정보
    * @return 생성된 설비의 식별자와 기본 정보
    */
   public EquipmentCreateResponse createEquipment(EquipmentCreateRequest request) {
 
     if (equipmentQueryService.existsByEquipmentCode(request.getEquipmentCode())) {
-      throw new IllegalArgumentException("Equipment code already exists.");
+      throw new BusinessException(ErrorCode.EQUIPMENT_CODE_ALREADY_EXISTS);
     }
 
     equipmentProcessRepository.findById(request.getEquipmentProcessId()).orElseThrow(
-        () -> new IllegalArgumentException("Equipment process not found.")
+        () -> new BusinessException(ErrorCode.EQUIPMENT_PROCESS_NOT_FOUND)
     );
     environmentStandardRepository.findById(request.getEnvironmentStandardId()).orElseThrow(
-        () -> new IllegalArgumentException("Environment standard not found.")
+        () -> new BusinessException(ErrorCode.ENVIRONMENT_STANDARD_NOT_FOUND)
     );
 
     Long equipmentId = idGenerator.generate();
@@ -93,29 +95,36 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * 기존 설비와 노후화 파라미터를 조회한 뒤 요청 값으로 설비 정보를 수정한다.
+   * 기존 설비와 노후 파라미터를 조회한 뒤 요청 값으로 설비 정보를 수정한다.
+   * 수정 시에는 동일한 설비를 제외하고 설비 코드 중복 여부를 확인한다.
    * @param equipmentId 수정할 설비의 식별자
    * @param request 수정할 설비의 공정, 환경 기준, 코드, 이름, 상태 정보
    * @return 반환값 없음
    */
   public void updateEquipment(Long equipmentId, EquipmentUpdateRequest request) {
     Equipment equipment = equipmentRepository.findById(equipmentId)
-        .orElseThrow(() -> new IllegalArgumentException("Equipment not found."));
+        .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND));
+
+    equipmentRepository.findByEquipmentCode(request.getEquipmentCode())
+        .filter(found -> !found.getEquipmentId().equals(equipmentId))
+        .ifPresent(found -> {
+          throw new BusinessException(ErrorCode.EQUIPMENT_CODE_ALREADY_EXISTS);
+        });
 
     equipmentProcessRepository.findById(request.getEquipmentProcessId()).orElseThrow(
-        () -> new IllegalArgumentException("Equipment process not found.")
+        () -> new BusinessException(ErrorCode.EQUIPMENT_PROCESS_NOT_FOUND)
     );
     environmentStandardRepository.findById(request.getEnvironmentStandardId()).orElseThrow(
-        () -> new IllegalArgumentException("Environment standard not found.")
+        () -> new BusinessException(ErrorCode.ENVIRONMENT_STANDARD_NOT_FOUND)
     );
 
     Long equipmentAgingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(equipmentId);
     if (equipmentAgingParamId == null) {
-      throw new IllegalArgumentException("Equipment aging parameter not found.");
+      throw new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND);
     }
 
     EquipmentAgingParam equipmentAgingParam = equipmentAgingParamRepository.findById(equipmentAgingParamId)
-        .orElseThrow(() -> new IllegalArgumentException("Equipment aging parameter not found."));
+        .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND));
 
     equipment.update(
         request.getEquipmentProcessId(),
@@ -135,13 +144,13 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * 기존 설비를 조회한 뒤 관련 기준 데이터와 함께 설비를 삭제한다.
+   * 기존 설비를 조회한 뒤 관련 기준 데이터를 함께 삭제하고 설비를 제거한다.
    * @param equipmentId 삭제할 설비의 식별자
    * @return 반환값 없음
    */
   public void deleteEquipment(Long equipmentId) {
     Equipment equipment = equipmentRepository.findById(equipmentId)
-        .orElseThrow(() -> new IllegalArgumentException("Equipment not found."));
+        .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND));
 
     Long equipmentBaselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(equipmentId);
     if (equipmentBaselineId != null) {
@@ -159,7 +168,7 @@ public class EquipmentManageCommandService {
   /**
    * Double 값을 BigDecimal 값으로 변환한다.
    * @param value 변환할 마모 계수 값
-   * @return BigDecimal로 변환된 값, null 입력 시 null
+   * @return BigDecimal로 변환한 값, null 입력 시 null
    */
   private BigDecimal toBigDecimal(Double value) {
     return value == null ? null : BigDecimal.valueOf(value);

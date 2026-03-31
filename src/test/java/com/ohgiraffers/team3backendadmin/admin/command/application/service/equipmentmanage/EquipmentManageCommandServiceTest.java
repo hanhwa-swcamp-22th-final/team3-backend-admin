@@ -1,7 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
-
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
@@ -19,7 +18,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Equipme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
-
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -197,10 +197,10 @@ class EquipmentManageCommandServiceTest {
     void createEquipment_whenDuplicateEquipmentCode_thenThrow() {
         when(equipmentQueryService.existsByEquipmentCode("EQ-001")).thenReturn(true);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
             () -> equipmentCommandService.createEquipment(equipmentCreateRequest));
 
-        assertEquals("Equipment code already exists.", exception.getMessage());
+        assertEquals(ErrorCode.EQUIPMENT_CODE_ALREADY_EXISTS, exception.getErrorCode());
         verify(equipmentRepository, never()).save(any(Equipment.class));
         verify(equipmentAgingParamRepository, never()).save(any(EquipmentAgingParam.class));
         verify(equipmentBaselineRepository, never()).save(any(EquipmentBaseline.class));
@@ -213,10 +213,10 @@ class EquipmentManageCommandServiceTest {
         when(equipmentQueryService.existsByEquipmentCode("EQ-001")).thenReturn(false);
         when(equipmentProcessRepository.findById(equipmentProcess.getEquipmentProcessId())).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
             () -> equipmentCommandService.createEquipment(equipmentCreateRequest));
 
-        assertEquals("Equipment process not found.", exception.getMessage());
+        assertEquals(ErrorCode.EQUIPMENT_PROCESS_NOT_FOUND, exception.getErrorCode());
         verify(environmentStandardRepository, never()).findById(any());
         verify(equipmentRepository, never()).save(any(Equipment.class));
         verify(equipmentAgingParamRepository, never()).save(any(EquipmentAgingParam.class));
@@ -231,10 +231,10 @@ class EquipmentManageCommandServiceTest {
         when(equipmentProcessRepository.findById(equipmentProcess.getEquipmentProcessId())).thenReturn(Optional.of(equipmentProcess));
         when(environmentStandardRepository.findById(environmentStandard.getEnvironmentStandardId())).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
             () -> equipmentCommandService.createEquipment(equipmentCreateRequest));
 
-        assertEquals("Environment standard not found.", exception.getMessage());
+        assertEquals(ErrorCode.ENVIRONMENT_STANDARD_NOT_FOUND, exception.getErrorCode());
         verify(equipmentRepository, never()).save(any(Equipment.class));
         verify(equipmentAgingParamRepository, never()).save(any(EquipmentAgingParam.class));
         verify(equipmentBaselineRepository, never()).save(any(EquipmentBaseline.class));
@@ -245,6 +245,7 @@ class EquipmentManageCommandServiceTest {
     @DisplayName("Update equipment success: update equipment and aging parameters together")
     void updateEquipment_success() {
         when(equipmentRepository.findById(4001L)).thenReturn(Optional.of(existingEquipment));
+        when(equipmentRepository.findByEquipmentCode("EQ-002")).thenReturn(Optional.empty());
         when(equipmentProcessRepository.findById(equipmentUpdateRequest.getEquipmentProcessId())).thenReturn(Optional.of(equipmentProcess));
         when(environmentStandardRepository.findById(equipmentUpdateRequest.getEnvironmentStandardId())).thenReturn(Optional.of(environmentStandard));
         when(equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(4001L)).thenReturn(5001L);
@@ -269,10 +270,50 @@ class EquipmentManageCommandServiceTest {
     void updateEquipment_whenEquipmentNotFound_thenThrow() {
         when(equipmentRepository.findById(4001L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
             () -> equipmentCommandService.updateEquipment(4001L, equipmentUpdateRequest));
 
-        assertEquals("Equipment not found.", exception.getMessage());
+        assertEquals(ErrorCode.EQUIPMENT_NOT_FOUND, exception.getErrorCode());
+        verify(equipmentAgingParamRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("Update equipment failure: throw exception when equipment code is duplicated")
+    void updateEquipment_whenDuplicateEquipmentCode_thenThrow() {
+        Equipment otherEquipment = Equipment.builder()
+            .equipmentId(4002L)
+            .equipmentProcessId(equipmentProcess.getEquipmentProcessId())
+            .environmentStandardId(environmentStandard.getEnvironmentStandardId())
+            .equipmentCode("EQ-002")
+            .equipmentName("Other Equipment")
+            .equipmentStatus(EquipmentStatus.OPERATING)
+            .equipmentGrade(EquipmentGrade.A)
+            .equipmentDescription("Other")
+            .build();
+
+        when(equipmentRepository.findById(4001L)).thenReturn(Optional.of(existingEquipment));
+        when(equipmentRepository.findByEquipmentCode("EQ-002")).thenReturn(Optional.of(otherEquipment));
+
+        BusinessException exception = assertThrows(BusinessException.class,
+            () -> equipmentCommandService.updateEquipment(4001L, equipmentUpdateRequest));
+
+        assertEquals(ErrorCode.EQUIPMENT_CODE_ALREADY_EXISTS, exception.getErrorCode());
+        verify(equipmentAgingParamRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("Update equipment failure: throw exception when aging parameter id is missing")
+    void updateEquipment_whenAgingParamIdIsMissing_thenThrow() {
+        when(equipmentRepository.findById(4001L)).thenReturn(Optional.of(existingEquipment));
+        when(equipmentRepository.findByEquipmentCode("EQ-002")).thenReturn(Optional.empty());
+        when(equipmentProcessRepository.findById(equipmentUpdateRequest.getEquipmentProcessId())).thenReturn(Optional.of(equipmentProcess));
+        when(environmentStandardRepository.findById(equipmentUpdateRequest.getEnvironmentStandardId())).thenReturn(Optional.of(environmentStandard));
+        when(equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(4001L)).thenReturn(null);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+            () -> equipmentCommandService.updateEquipment(4001L, equipmentUpdateRequest));
+
+        assertEquals(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND, exception.getErrorCode());
         verify(equipmentAgingParamRepository, never()).findById(any());
     }
 
@@ -295,10 +336,10 @@ class EquipmentManageCommandServiceTest {
     void deleteEquipment_whenEquipmentNotFound_thenThrow() {
         when(equipmentRepository.findById(4001L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
             () -> equipmentCommandService.deleteEquipment(4001L));
 
-        assertEquals("Equipment not found.", exception.getMessage());
+        assertEquals(ErrorCode.EQUIPMENT_NOT_FOUND, exception.getErrorCode());
         verify(equipmentBaselineRepository, never()).deleteById(any());
         verify(equipmentAgingParamRepository, never()).deleteById(any());
     }
