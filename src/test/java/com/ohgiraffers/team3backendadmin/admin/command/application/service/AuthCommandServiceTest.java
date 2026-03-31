@@ -6,6 +6,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.*;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +48,9 @@ class AuthCommandServiceTest {
     @Mock
     private AuthRepository jpaAuthRepository;
 
+    @Mock
+    private AesEncryptor aesEncryptor;
+
     private Employee employee;
     private Department department;
 
@@ -82,7 +86,8 @@ class AuthCommandServiceTest {
             // given
             LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
 
-            given(employeeRepository.findByEmployeeEmail("admin@company.com"))
+            given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
+            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
                     .willReturn(Optional.of(employee));
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);
@@ -112,7 +117,8 @@ class AuthCommandServiceTest {
             // given
             LoginRequest request = new LoginRequest("unknown@company.com", "password");
 
-            given(employeeRepository.findByEmployeeEmail("unknown@company.com"))
+            given(aesEncryptor.encrypt("unknown@company.com")).willReturn("encrypted-unknown");
+            given(employeeRepository.findByEmployeeEmail("encrypted-unknown"))
                     .willReturn(Optional.empty());
 
             // when & then
@@ -124,12 +130,36 @@ class AuthCommandServiceTest {
         }
 
         @Test
+        @DisplayName("사원이 휴가 중(ON_LEAVE)일 경우 로그인이 차단된다")
+        void loginFailOnLeave() {
+            // given
+            LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
+            Employee onLeaveEmployee = Employee.builder()
+                    .employeeId(1L)
+                    .employeeEmail("admin@company.com")
+                    .employeeStatus(EmployeeStatus.ON_LEAVE)
+                    .build();
+
+            given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
+            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
+                    .willReturn(Optional.of(onLeaveEmployee));
+
+            // when & then
+            BadCredentialsException exception = assertThrows(
+                    BadCredentialsException.class,
+                    () -> authCommandService.login(request)
+            );
+            assertEquals("Employee is on leave", exception.getMessage());
+        }
+
+        @Test
         @DisplayName("비밀번호 불일치 시 예외가 발생한다")
         void loginFailPasswordMismatch() {
             // given
             LoginRequest request = new LoginRequest("admin@company.com", "wrongPassword");
 
-            given(employeeRepository.findByEmployeeEmail("admin@company.com"))
+            given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
+            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
                     .willReturn(Optional.of(employee));
             given(passwordEncoder.matches("wrongPassword", "$2a$10$encodedPassword"))
                     .willReturn(false);
@@ -148,7 +178,8 @@ class AuthCommandServiceTest {
             // given
             LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
 
-            given(employeeRepository.findByEmployeeEmail("admin@company.com"))
+            given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
+            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
                     .willReturn(Optional.of(employee));
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);

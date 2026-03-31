@@ -1,0 +1,90 @@
+### 로그인 (accessToken 획득)
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "employeeEmail": "sinseon2000@company.com",
+  "password": "password123!"
+}
+
+> {%
+    client.global.set("accessToken", response.body.data.accessToken);
+    client.global.set("refreshToken", response.body.data.refreshToken);
+%}
+
+### 사원 등록
+POST http://localhost:8080/api/v1/organization/employee
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "departmentId": 1774590584056408,
+  "employeeName": "김신우",
+  "employeeEmail": "sinseon2000@company.com",
+  "employeePhone": "010-1234-5678",
+  "employeeAddress": "서울시 강남구 테헤란로 123",
+  "employeeEmergencyContact": "010-9876-5432",
+  "employeePassword": "password123!",
+  "employeeRole": "ADMIN",
+  "employeeStatus": "ACTIVE",
+  "employeeTier": "S"
+}
+
+### 사원 수정 - 전체 필드 수정
+PUT http://localhost:8080/api/v1/organization/employee
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeCode": "EMP2603002",
+  "employeeName": "기심우",
+  "employeeEmail": "sinseon2000@company.com",
+  "employeePhone": "010-9999-8888",
+  "employeeAddress": "부산시 해운대구 센텀로 123",
+  "employeeEmergencyContact": "010-1111-2222"
+}
+
+### 사원 수정 - 이름과 이메일만 수정
+PUT http://localhost:8080/api/v1/organization/employee
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeCode": "EMP2603002",
+  "employeeName": "김철수수정123",
+  "employeeEmail": "kim123@company.com",
+  "employeePhone": null,
+  "employeeAddress": null,
+  "employeeEmergencyContact": null
+}
+
+### 사원 등록 실패 - 필수 항목 누락 (400 Bad Request)
+POST http://localhost:8080/api/v1/organization/employee
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "departmentId": 1000000000000002,
+  "employeeName": "",
+  "employeeEmail": "hong@company.com",
+  "employeePhone": "010-1234-5678",
+  "employeeAddress": "서울시 강남구",
+  "employeeEmergencyContact": "010-9876-5432",
+  "employeePassword": "password123!",
+  "employeeRole": "WORKER",
+  "employeeStatus": "ACTIVE",
+  "employeeTier": "B"
+}
+
+### 선택 사원 조회
+GET http://localhost:8080/api/v1/organization/employee/EMP2603002
+Authorization: Bearer {{accessToken}}
+
+### 전체 사원 조회
+GET http://localhost:8080/api/v1/organization/employees
+Authorization: Bearer {{accessToken}}
+
+### 사원 삭제 (Soft Delete - 상태 변경)
+DELETE http://localhost:8080/api/v1/organization/employee/EMP2603001
+Authorization: Bearer {{accessToken}}
+

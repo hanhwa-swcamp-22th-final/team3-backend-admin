@@ -32,7 +32,7 @@ public class Employee {
     @Column(name = "employee_name")
     private String employeeName;
 
-    @Column(name = "employee_email")
+    @Column(name = "employee_email", unique = true)
     private String employeeEmail;
 
     @Column(name = "employee_phone")
@@ -59,14 +59,17 @@ public class Employee {
     @Column(name = "employee_tier")
     private EmployeeTier employeeTier;
 
+    @Builder.Default
     @Column(name = "mfa_enabled")
-    private Boolean mfaEnabled;
+    private Boolean mfaEnabled = false;
 
+    @Builder.Default
     @Column(name = "login_fail_count")
-    private Integer loginFailCount;
+    private Integer loginFailCount = 0;
 
+    @Builder.Default
     @Column(name = "is_locked")
-    private Boolean isLocked;
+    private Boolean isLocked = false;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -86,4 +89,17 @@ public class Employee {
     @LastModifiedBy
     @Column(name = "updated_by")
     private Long updatedBy;
+
+    public void updatePersonalInfo(String name, String email, String phone,
+                                   String address, String emergencyContact) {
+        if (name != null) this.employeeName = name;
+        if (email != null) this.employeeEmail = email;
+        if (phone != null) this.employeePhone = phone;
+        if (address != null) this.employeeAddress = address;
+        if (emergencyContact != null) this.employeeEmergencyContact = emergencyContact;
+    }
+
+    public void deleteEmployee() {
+        this.employeeStatus = EmployeeStatus.ON_LEAVE;
+    }
 }
