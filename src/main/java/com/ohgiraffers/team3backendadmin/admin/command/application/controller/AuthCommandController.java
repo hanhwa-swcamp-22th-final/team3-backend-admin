@@ -2,8 +2,11 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.PasswordChangeRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.ProfileUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.AuthCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.UserCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +14,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Duration;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,11 +25,12 @@ import java.time.Duration;
 public class AuthCommandController {
 
     private final AuthCommandService authCommandService;
+    private final UserCommandService userCommandService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         TokenResponse tokenResponse = this.authCommandService.login(loginRequest);
-        return buildTokenResponse(tokenResponse);
+        return authCommandService.buildTokenResponse(tokenResponse);
     }
 
     /* refresh token을 요청 시 전달 받아 인증된 token 이면 새 access/refresh token을 발급해서 반환 */
@@ -40,7 +45,7 @@ public class AuthCommandController {
 
         // refresh token이 문제가 없다면 새로운 access, refresh token 발급 후 반환
         TokenResponse tokenResponse = this.authCommandService.refreshToken(refreshToken);
-        return buildTokenResponse(tokenResponse);
+        return authCommandService.buildTokenResponse(tokenResponse);
     }
 
     @PostMapping("/logout")
@@ -52,40 +57,37 @@ public class AuthCommandController {
             this.authCommandService.logout(refreshToken); // DB refresh token 삭제
         }
 
-        ResponseCookie deleteCookie = createDeleteRefreshTokenCookie();
+        ResponseCookie deleteCookie = authCommandService.createDeleteRefreshTokenCookie();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
                 .body(ApiResponse.success(null));
     }
 
-    /* refreshToken 쿠키를 삭제하는 delete cookie 생성 */
-    private ResponseCookie createDeleteRefreshTokenCookie() {
-        return ResponseCookie.from("refreshToken")
-                .httpOnly(true)                     // HttpOnly 속성 설정 (JavaScript 에서 접근 불가)
-                // .secure(true)                    // HTTPS 환경일 때만 전송 (운영 환경에서 활성화 권장)
-                .path("/")                          // 쿠키 범위 : 전체 경로
-                .maxAge(0)            // 쿠키 만료 기간 : 0초
-                .sameSite("Strict")                 // CSRF 공격 방어를 위한 SameSite 설정
-                .build();
+    /**
+     * 로그인한 사원 본인의 개인정보를 수정하는 Api
+     * @param request ProfileUpdateRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<Void>>
+     */
+    @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> updateProfile(
+            @Valid @RequestBody ProfileUpdateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        userCommandService.updateProfile(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    /* accessToken 과 refreshToken을 body와 쿠키에 담아 반환 */
-    private ResponseEntity<ApiResponse<TokenResponse>> buildTokenResponse(TokenResponse tokenResponse) {
-        ResponseCookie cookie = createRefreshTokenCookie(tokenResponse.getRefreshToken());  // refreshToken 쿠키 생성
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(ApiResponse.success(tokenResponse));
-    }
+    @PutMapping("/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @Valid @RequestBody PasswordChangeRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        userCommandService.changePassword(request, userDetails.getUsername());
 
-    /* refreshToken 쿠키 생성 */
-    private ResponseCookie createRefreshTokenCookie(String refreshToken) {
-        return ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)                     // HttpOnly 속성 설정 (JavaScript 에서 접근 불가)
-                // .secure(true)                    // HTTPS 환경일 때만 전송 (운영 환경에서 활성화 권장)
-                .path("/")                          // 쿠키 범위 : 전체 경로
-                .maxAge(Duration.ofDays(7))         // 쿠키 만료 기간 : 7일
-                .sameSite("Strict")                 // CSRF 공격 방어를 위한 SameSite 설정
-                .build();
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
-
 }
