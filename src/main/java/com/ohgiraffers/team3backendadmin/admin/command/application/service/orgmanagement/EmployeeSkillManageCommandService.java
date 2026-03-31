@@ -6,8 +6,10 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Sk
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
+import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.SkillNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +28,10 @@ public class EmployeeSkillManageCommandService {
     public void updateEmployeeSkill(EmployeeSkillUpdateRequest request, String adminCode) {
 
         employeeRepository.findByEmployeeCode(adminCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
+                .orElseThrow(AdminAccessDeniedException::new);
 
         Employee target = employeeRepository.findByEmployeeCode(request.getEmployeeCode())
-                .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다"));
+                .orElseThrow(EmployeeNotFoundException::new);
 
         Map<SkillCategory, BigDecimal> scoreMap = new LinkedHashMap<>();
         scoreMap.put(SkillCategory.EQUIPMENT_RESPONSE, request.getEquipmentResponse());
@@ -43,7 +45,7 @@ public class EmployeeSkillManageCommandService {
             if (score != null) {
                 Skill skill = skillRepository.findByEmployeeIdAndSkillCategory(
                         target.getEmployeeId(), category
-                ).orElseThrow(() -> new IllegalArgumentException(
+                ).orElseThrow(() -> new SkillNotFoundException(
                         "해당 스킬 레코드를 찾을 수 없습니다: " + category
                 ));
                 skill.updateScore(score);

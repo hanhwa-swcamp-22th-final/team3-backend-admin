@@ -5,6 +5,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeRespon
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.DepartmentMapper;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EmployeeMapper;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,7 @@ public class OrganizationManageQueryService {
     public DepartmentResponse getDepartmentById(Long departmentId) {
         DepartmentResponse department = departmentMapper.findById(departmentId);
         if (department == null) {
-            throw new IllegalArgumentException("해당 부서를 찾을 수 없습니다");
+            throw new DepartmentNotFoundException();
         }
         return department;
     }
@@ -33,7 +35,7 @@ public class OrganizationManageQueryService {
     public EmployeeResponse getEmployeeByCode(String employeeCode) {
         EmployeeResponse employee = employeeMapper.findByEmployeeCode(employeeCode);
         if (employee == null) {
-            throw new IllegalArgumentException("해당 사원을 찾을 수 없습니다");
+            throw new EmployeeNotFoundException();
         }
         return decryptEmployeeInfo(employee);
     }

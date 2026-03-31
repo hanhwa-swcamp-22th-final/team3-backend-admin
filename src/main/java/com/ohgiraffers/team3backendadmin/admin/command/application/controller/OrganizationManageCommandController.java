@@ -3,10 +3,12 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeRoleChangeRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeSkillUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.DepartmentManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeRoleManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeSkillManageCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -29,6 +31,7 @@ public class OrganizationManageCommandController {
     private final DepartmentManageCommandService departmentManageCommandService;
     private final EmployeeManageCommandService employeeManageCommandService;
     private final EmployeeSkillManageCommandService employeeSkillManageCommandService;
+    private final EmployeeRoleManageCommandService employeeRoleManageCommandService;
 
     /**
      * 새로운 부서를 추가하는 Api
@@ -147,6 +150,23 @@ public class OrganizationManageCommandController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         employeeSkillManageCommandService.updateEmployeeSkill(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    /**
+     * 사원의 역할(Role)을 변경하는 Api
+     * @param request EmployeeRoleChangeRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
+    @PutMapping("/employee/role")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> changeEmployeeRole(
+            @Valid @RequestBody EmployeeRoleChangeRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        employeeRoleManageCommandService.changeEmployeeRole(request, userDetails.getUsername());
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }

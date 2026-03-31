@@ -23,7 +23,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
+import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -149,8 +151,8 @@ class EmployeeManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> employeeManageCommandService.insertEmployee(request, "EMP-0001")
             );
             assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
@@ -166,8 +168,8 @@ class EmployeeManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.insertEmployee(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
@@ -266,8 +268,8 @@ class EmployeeManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            EmployeeNotFoundException exception = assertThrows(
+                    EmployeeNotFoundException.class,
                     () -> employeeManageCommandService.updateEmployee(request, "EMP-0001")
             );
             assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
@@ -286,8 +288,8 @@ class EmployeeManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.updateEmployee(request, "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
@@ -335,8 +337,8 @@ class EmployeeManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            EmployeeNotFoundException exception = assertThrows(
+                    EmployeeNotFoundException.class,
                     () -> employeeManageCommandService.deleteEmployee("UNKNOWN_TARGET", "EMP-0001")
             );
             assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
@@ -350,8 +352,8 @@ class EmployeeManageCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.deleteEmployee("EMP2603001", "UNKNOWN")
             );
             assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
