@@ -12,6 +12,7 @@
             maintenance_score_max AS maintenanceScoreMax
         FROM maintenance_item_standard
         WHERE 1 = 1
+        AND is_deleted = false
         <if test="keyword != null and keyword != ''">
             AND maintenance_item LIKE CONCAT('%', #{keyword}, '%')
         </if>
@@ -26,5 +27,6 @@
             maintenance_score_max AS maintenanceScoreMax
         FROM maintenance_item_standard
         WHERE maintenance_item_standard_id = #{maintenanceItemStandardId}
+          AND is_deleted = false
     </select>
 </mapper>

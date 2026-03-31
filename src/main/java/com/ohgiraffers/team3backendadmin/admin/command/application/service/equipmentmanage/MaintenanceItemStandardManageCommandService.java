@@ -21,6 +21,11 @@ public class MaintenanceItemStandardManageCommandService {
     private final MaintenanceItemStandardRepository maintenanceItemStandardRepository;
     private final IdGenerator idGenerator;
 
+    /**
+     * 유지보수 항목 기준을 생성한다.
+     * @param request 생성할 유지보수 항목 기준 정보
+     * @return 생성된 유지보수 항목 기준 응답
+     */
     public MaintenanceItemStandardCreateResponse createMaintenanceItemStandard(MaintenanceItemStandardCreateRequest request) {
         MaintenanceItemStandard maintenanceItemStandard = MaintenanceItemStandard.builder()
             .maintenanceItemStandardId(idGenerator.generate())
@@ -39,8 +44,15 @@ public class MaintenanceItemStandardManageCommandService {
             .build();
     }
 
+    /**
+     * 유지보수 항목 기준 정보를 수정한다.
+     * @param maintenanceItemStandardId 수정할 유지보수 항목 기준 ID
+     * @param request 수정할 유지보수 항목 기준 정보
+     * @return 수정된 유지보수 항목 기준 응답
+     */
     public MaintenanceItemStandardUpdateResponse updateMaintenanceItemStandard(Long maintenanceItemStandardId, MaintenanceItemStandardUpdateRequest request) {
         MaintenanceItemStandard maintenanceItemStandard = maintenanceItemStandardRepository.findById(maintenanceItemStandardId)
+            .filter(item -> !Boolean.TRUE.equals(item.getIsDeleted()))
             .orElseThrow(() -> new BusinessException(ErrorCode.MAINTENANCE_ITEM_STANDARD_NOT_FOUND));
 
         maintenanceItemStandard.updateInfo(
@@ -57,11 +69,17 @@ public class MaintenanceItemStandardManageCommandService {
             .build();
     }
 
+    /**
+     * 유지보수 항목 기준을 삭제한다.
+     * @param maintenanceItemStandardId 삭제할 유지보수 항목 기준 ID
+     * @return 삭제된 유지보수 항목 기준 응답
+     */
     public MaintenanceItemStandardUpdateResponse deleteMaintenanceItemStandard(Long maintenanceItemStandardId) {
         MaintenanceItemStandard maintenanceItemStandard = maintenanceItemStandardRepository.findById(maintenanceItemStandardId)
+            .filter(item -> !Boolean.TRUE.equals(item.getIsDeleted()))
             .orElseThrow(() -> new BusinessException(ErrorCode.MAINTENANCE_ITEM_STANDARD_NOT_FOUND));
 
-        maintenanceItemStandardRepository.delete(maintenanceItemStandard);
+        maintenanceItemStandard.softDelete();
 
         return MaintenanceItemStandardUpdateResponse.builder()
             .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())

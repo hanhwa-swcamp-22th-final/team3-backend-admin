@@ -36,19 +36,31 @@ class MaintenanceItemStandardQueryMapperTest {
     private String uniqueSuffix;
     private Long maintenanceItemStandardId;
     private String maintenanceItem;
+    private Long deletedMaintenanceItemStandardId;
 
     @BeforeEach
     void setUp() {
         uniqueSuffix = String.valueOf(idGenerator.generate());
         maintenanceItemStandardId = idGenerator.generate();
+        deletedMaintenanceItemStandardId = idGenerator.generate();
         maintenanceItem = "Bearing Inspection " + uniqueSuffix;
 
         jdbcTemplate.update(
-            "INSERT INTO maintenance_item_standard (maintenance_item_standard_id, maintenance_item, maintenance_weight, maintenance_score_max) VALUES (?, ?, ?, ?)",
+            "INSERT INTO maintenance_item_standard (maintenance_item_standard_id, maintenance_item, maintenance_weight, maintenance_score_max, is_deleted) VALUES (?, ?, ?, ?, ?)",
             maintenanceItemStandardId,
             maintenanceItem,
             BigDecimal.valueOf(2),
-            BigDecimal.valueOf(10)
+            BigDecimal.valueOf(10),
+            false
+        );
+
+        jdbcTemplate.update(
+            "INSERT INTO maintenance_item_standard (maintenance_item_standard_id, maintenance_item, maintenance_weight, maintenance_score_max, is_deleted) VALUES (?, ?, ?, ?, ?)",
+            deletedMaintenanceItemStandardId,
+            "Deleted Item " + uniqueSuffix,
+            BigDecimal.valueOf(1),
+            BigDecimal.valueOf(5),
+            true
         );
     }
 
@@ -98,6 +110,25 @@ class MaintenanceItemStandardQueryMapperTest {
     @DisplayName("select maintenance item standard detail by id when unknown id then null")
     void selectMaintenanceItemStandardDetailById_whenUnknownId_thenNull() {
         MaintenanceItemStandardDetailResponse result = maintenanceItemStandardQueryMapper.selectMaintenanceItemStandardDetailById(-1L);
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("select maintenance item standard list excludes deleted rows")
+    void selectMaintenanceItemStandardList_excludesDeletedRows() {
+        List<MaintenanceItemStandardQueryResponse> result = maintenanceItemStandardQueryMapper.selectMaintenanceItemStandardList(
+            MaintenanceItemStandardSearchRequest.builder().build()
+        );
+
+        assertTrue(result.stream().noneMatch(item -> deletedMaintenanceItemStandardId.equals(item.getMaintenanceItemStandardId())));
+    }
+
+    @Test
+    @DisplayName("select maintenance item standard detail by id when deleted then null")
+    void selectMaintenanceItemStandardDetailById_whenDeleted_thenNull() {
+        MaintenanceItemStandardDetailResponse result =
+            maintenanceItemStandardQueryMapper.selectMaintenanceItemStandardDetailById(deletedMaintenanceItemStandardId);
 
         assertNull(result);
     }

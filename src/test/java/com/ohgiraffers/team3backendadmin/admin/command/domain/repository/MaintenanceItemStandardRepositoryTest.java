@@ -53,6 +53,7 @@ class MaintenanceItemStandardRepositoryTest {
         assertEquals(maintenanceItemStandardId, savedMaintenanceItemStandard.getMaintenanceItemStandardId());
         assertEquals(maintenanceItem, savedMaintenanceItemStandard.getMaintenanceItem());
         assertEquals(BigDecimal.valueOf(1.5), savedMaintenanceItemStandard.getMaintenanceWeight());
+        assertFalse(savedMaintenanceItemStandard.getIsDeleted());
     }
 
     @Test
@@ -72,5 +73,18 @@ class MaintenanceItemStandardRepositoryTest {
         Optional<MaintenanceItemStandard> result = maintenanceItemStandardRepository.findById(idGenerator.generate());
 
         assertFalse(result.isPresent());
+    }
+
+    @Test
+    @DisplayName("Soft delete maintenance item standard success: deleted flag is persisted")
+    void softDelete_success() {
+        MaintenanceItemStandard savedMaintenanceItemStandard = maintenanceItemStandardRepository.save(maintenanceItemStandard);
+
+        savedMaintenanceItemStandard.softDelete();
+
+        Optional<MaintenanceItemStandard> result = maintenanceItemStandardRepository.findById(maintenanceItemStandardId);
+
+        assertTrue(result.isPresent());
+        assertTrue(result.get().getIsDeleted());
     }
 }

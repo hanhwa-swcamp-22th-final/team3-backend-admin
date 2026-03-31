@@ -19,10 +19,20 @@ public class MaintenanceLogQueryService {
 
     private final MaintenanceLogQueryMapper maintenanceLogQueryMapper;
 
+    /**
+     * 유지보수 이력 목록을 조회한다.
+     * @param request 조회 조건 정보
+     * @return 유지보수 이력 목록
+     */
     public List<MaintenanceLogQueryResponse> getMaintenanceLogList(MaintenanceLogSearchRequest request) {
         return maintenanceLogQueryMapper.selectMaintenanceLogList(request);
     }
 
+    /**
+     * 유지보수 이력 상세를 조회한다.
+     * @param maintenanceLogId 조회할 유지보수 이력 ID
+     * @return 유지보수 이력 상세 응답
+     */
     public MaintenanceLogDetailResponse getMaintenanceLogDetail(Long maintenanceLogId) {
         MaintenanceLogDetailResponse response = maintenanceLogQueryMapper.selectMaintenanceLogDetailById(maintenanceLogId);
         if (response == null) {

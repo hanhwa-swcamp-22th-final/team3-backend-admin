@@ -25,6 +25,11 @@ public class MaintenanceLogManageCommandService {
     private final MaintenanceItemStandardRepository maintenanceItemStandardRepository;
     private final IdGenerator idGenerator;
 
+    /**
+     * 유지보수 이력을 생성한다.
+     * @param request 생성할 유지보수 이력 정보
+     * @return 생성된 유지보수 이력 응답
+     */
     public MaintenanceLogCreateResponse createMaintenanceLog(MaintenanceLogCreateRequest request) {
         equipmentRepository.findById(request.getEquipmentId())
             .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND));
@@ -53,6 +58,12 @@ public class MaintenanceLogManageCommandService {
             .build();
     }
 
+    /**
+     * 유지보수 이력 정보를 수정한다.
+     * @param maintenanceLogId 수정할 유지보수 이력 ID
+     * @param request 수정할 유지보수 이력 정보
+     * @return 수정된 유지보수 이력 응답
+     */
     public MaintenanceLogUpdateResponse updateMaintenanceLog(Long maintenanceLogId, MaintenanceLogUpdateRequest request) {
         MaintenanceLog maintenanceLog = maintenanceLogRepository.findById(maintenanceLogId)
             .orElseThrow(() -> new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND));
@@ -81,6 +92,11 @@ public class MaintenanceLogManageCommandService {
             .build();
     }
 
+    /**
+     * 유지보수 이력을 삭제한다.
+     * @param maintenanceLogId 삭제할 유지보수 이력 ID
+     * @return 삭제된 유지보수 이력 응답
+     */
     public MaintenanceLogUpdateResponse deleteMaintenanceLog(Long maintenanceLogId) {
         MaintenanceLog maintenanceLog = maintenanceLogRepository.findById(maintenanceLogId)
             .orElseThrow(() -> new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND));

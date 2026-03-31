@@ -10,6 +10,10 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.E
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
@@ -19,17 +23,26 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceItemStandardCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceItemStandardUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentEventManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentStandardManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.MaintenanceItemStandardManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.MaintenanceLogManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvDeviationType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceResult;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
-import jakarta.servlet.ServletException;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +55,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -83,6 +93,12 @@ class EquipmentManageCommandControllerTest {
 
     @MockitoBean
     private EnvironmentEventManageCommandService environmentEventManageCommandService;
+
+    @MockitoBean
+    private MaintenanceItemStandardManageCommandService maintenanceItemStandardManageCommandService;
+
+    @MockitoBean
+    private MaintenanceLogManageCommandService maintenanceLogManageCommandService;
 
     @Test
     @DisplayName("Create factory line API success: return a successful response")
@@ -353,6 +369,161 @@ class EquipmentManageCommandControllerTest {
     }
 
     @Test
+    @DisplayName("Create maintenance item standard API success: return a successful response")
+    void createMaintenanceItemStandard_success() throws Exception {
+        MaintenanceItemStandardCreateRequest request = MaintenanceItemStandardCreateRequest.builder()
+            .maintenanceItem("Bearing Check")
+            .maintenanceWeight(new BigDecimal("0.30"))
+            .maintenanceScoreMax(new BigDecimal("100.00"))
+            .build();
+
+        MaintenanceItemStandardCreateResponse response = MaintenanceItemStandardCreateResponse.builder()
+            .maintenanceItemStandardId(6001L)
+            .maintenanceItem("Bearing Check")
+            .maintenanceWeight(new BigDecimal("0.30"))
+            .maintenanceScoreMax(new BigDecimal("100.00"))
+            .build();
+
+        when(maintenanceItemStandardManageCommandService.createMaintenanceItemStandard(any(MaintenanceItemStandardCreateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(post(BASE_URL + "/maintenance-item-standards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceItemStandardId").value(6001L));
+    }
+
+    @Test
+    @DisplayName("Update maintenance item standard API success: return a successful response")
+    void updateMaintenanceItemStandard_success() throws Exception {
+        MaintenanceItemStandardUpdateRequest request = MaintenanceItemStandardUpdateRequest.builder()
+            .maintenanceItem("Sensor Check")
+            .maintenanceWeight(new BigDecimal("0.45"))
+            .maintenanceScoreMax(new BigDecimal("120.00"))
+            .build();
+
+        MaintenanceItemStandardUpdateResponse response = MaintenanceItemStandardUpdateResponse.builder()
+            .maintenanceItemStandardId(6001L)
+            .maintenanceItem("Sensor Check")
+            .maintenanceWeight(new BigDecimal("0.45"))
+            .maintenanceScoreMax(new BigDecimal("120.00"))
+            .build();
+
+        when(maintenanceItemStandardManageCommandService.updateMaintenanceItemStandard(eq(6001L), any(MaintenanceItemStandardUpdateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(put(BASE_URL + "/maintenance-item-standards/6001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceItemStandardId").value(6001L));
+    }
+
+    @Test
+    @DisplayName("Delete maintenance item standard API success: return a successful response")
+    void deleteMaintenanceItemStandard_success() throws Exception {
+        MaintenanceItemStandardUpdateResponse response = MaintenanceItemStandardUpdateResponse.builder()
+            .maintenanceItemStandardId(6001L)
+            .maintenanceItem("Bearing Check")
+            .maintenanceWeight(new BigDecimal("0.30"))
+            .maintenanceScoreMax(new BigDecimal("100.00"))
+            .build();
+
+        when(maintenanceItemStandardManageCommandService.deleteMaintenanceItemStandard(6001L)).thenReturn(response);
+
+        mockMvc.perform(delete(BASE_URL + "/maintenance-item-standards/6001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceItemStandardId").value(6001L));
+    }
+
+    @Test
+    @DisplayName("Create maintenance log API success: return a successful response")
+    void createMaintenanceLog_success() throws Exception {
+        MaintenanceLogCreateRequest request = MaintenanceLogCreateRequest.builder()
+            .equipmentId(4001L)
+            .maintenanceItemStandardId(6001L)
+            .maintenanceType(MaintenanceType.REGULAR)
+            .maintenanceDate(java.time.LocalDate.of(2026, 4, 1))
+            .maintenanceScore(new BigDecimal("91.50"))
+            .etaMaintDelta(new BigDecimal("3.50"))
+            .maintenanceResult(MaintenanceResult.NORMAL)
+            .build();
+
+        MaintenanceLogCreateResponse response = MaintenanceLogCreateResponse.builder()
+            .maintenanceLogId(7001L)
+            .equipmentId(4001L)
+            .maintenanceItemStandardId(6001L)
+            .maintenanceType(MaintenanceType.REGULAR)
+            .maintenanceResult(MaintenanceResult.NORMAL)
+            .build();
+
+        when(maintenanceLogManageCommandService.createMaintenanceLog(any(MaintenanceLogCreateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(post(BASE_URL + "/maintenance-logs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(7001L));
+    }
+
+    @Test
+    @DisplayName("Update maintenance log API success: return a successful response")
+    void updateMaintenanceLog_success() throws Exception {
+        MaintenanceLogUpdateRequest request = MaintenanceLogUpdateRequest.builder()
+            .equipmentId(4001L)
+            .maintenanceItemStandardId(6001L)
+            .maintenanceType(MaintenanceType.IRREGULAR)
+            .maintenanceDate(java.time.LocalDate.of(2026, 4, 2))
+            .maintenanceScore(new BigDecimal("82.00"))
+            .etaMaintDelta(new BigDecimal("5.00"))
+            .maintenanceResult(MaintenanceResult.REPAIR_REQUIRED)
+            .build();
+
+        MaintenanceLogUpdateResponse response = MaintenanceLogUpdateResponse.builder()
+            .maintenanceLogId(7001L)
+            .equipmentId(4001L)
+            .maintenanceItemStandardId(6001L)
+            .maintenanceType(MaintenanceType.IRREGULAR)
+            .maintenanceResult(MaintenanceResult.REPAIR_REQUIRED)
+            .build();
+
+        when(maintenanceLogManageCommandService.updateMaintenanceLog(eq(7001L), any(MaintenanceLogUpdateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(put(BASE_URL + "/maintenance-logs/7001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(7001L));
+    }
+
+    @Test
+    @DisplayName("Delete maintenance log API success: return a successful response")
+    void deleteMaintenanceLog_success() throws Exception {
+        MaintenanceLogUpdateResponse response = MaintenanceLogUpdateResponse.builder()
+            .maintenanceLogId(7001L)
+            .equipmentId(4001L)
+            .maintenanceItemStandardId(6001L)
+            .maintenanceType(MaintenanceType.REGULAR)
+            .maintenanceResult(MaintenanceResult.NORMAL)
+            .build();
+
+        when(maintenanceLogManageCommandService.deleteMaintenanceLog(7001L)).thenReturn(response);
+
+        mockMvc.perform(delete(BASE_URL + "/maintenance-logs/7001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(7001L));
+    }
+
+    @Test
     @DisplayName("Create equipment API success: return a successful response")
     void createEquipment_success() throws Exception {
         EquipmentCreateRequest request = createEquipmentRequest();
@@ -402,20 +573,19 @@ class EquipmentManageCommandControllerTest {
     }
 
     @Test
-    @DisplayName("Update equipment API failure: propagate service exception")
-    void updateEquipment_whenServiceThrows_thenPropagatesServletException() throws Exception {
+    @DisplayName("Update equipment API failure: return 404 when the target does not exist")
+    void updateEquipment_whenServiceThrows_thenReturn404() throws Exception {
         EquipmentUpdateRequest request = createEquipmentUpdateRequest();
 
-        doThrow(new IllegalArgumentException("Equipment not found."))
+        doThrow(new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND))
             .when(equipmentManageCommandService).updateEquipment(eq(4001L), any(EquipmentUpdateRequest.class));
 
-        ServletException exception = assertThrows(ServletException.class,
-            () -> mockMvc.perform(put(BASE_URL + "/equipments/4001")
+        mockMvc.perform(put(BASE_URL + "/equipments/4001")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))));
-
-        assertTrue(exception.getCause() instanceof IllegalArgumentException);
-        assertEquals("Equipment not found.", exception.getCause().getMessage());
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_006"));
     }
 
     @Test

@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MaintenanceItemStandardTest {
 
@@ -96,5 +97,13 @@ class MaintenanceItemStandardTest {
                 BigDecimal.valueOf(-1.0)
             )
         );
+    }
+
+    @Test
+    @DisplayName("Soft delete maintenance item standard success: isDeleted is changed to true")
+    void softDelete_success() {
+        maintenanceItemStandard.softDelete();
+
+        assertTrue(maintenanceItemStandard.getIsDeleted());
     }
 }

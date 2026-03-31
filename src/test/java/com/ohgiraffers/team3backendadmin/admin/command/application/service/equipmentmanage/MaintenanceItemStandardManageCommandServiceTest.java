@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -116,7 +117,7 @@ class MaintenanceItemStandardManageCommandServiceTest {
 
         MaintenanceItemStandardUpdateResponse response = maintenanceItemStandardManageCommandService.deleteMaintenanceItemStandard(7001L);
 
-        verify(maintenanceItemStandardRepository).delete(maintenanceItemStandard);
+        assertTrue(maintenanceItemStandard.getIsDeleted());
         assertEquals(7001L, response.getMaintenanceItemStandardId());
         assertEquals("Bearing Inspection", response.getMaintenanceItem());
     }

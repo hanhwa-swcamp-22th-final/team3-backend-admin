@@ -39,6 +39,9 @@ public class MaintenanceItemStandard {
     @Column(name = "maintenance_score_max", nullable = false)
     private BigDecimal maintenanceScoreMax;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -60,6 +63,7 @@ public class MaintenanceItemStandard {
                                    String maintenanceItem,
                                    BigDecimal maintenanceWeight,
                                    BigDecimal maintenanceScoreMax,
+                                   Boolean isDeleted,
                                    LocalDateTime createdAt,
                                    Long createdBy,
                                    LocalDateTime updatedAt,
@@ -68,6 +72,7 @@ public class MaintenanceItemStandard {
         this.maintenanceItem = maintenanceItem;
         this.maintenanceWeight = maintenanceWeight;
         this.maintenanceScoreMax = maintenanceScoreMax;
+        this.isDeleted = isDeleted == null ? false : isDeleted;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.updatedAt = updatedAt;
@@ -82,6 +87,10 @@ public class MaintenanceItemStandard {
         this.maintenanceItem = maintenanceItem;
         this.maintenanceWeight = maintenanceWeight;
         this.maintenanceScoreMax = maintenanceScoreMax;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
     }
 
     private void validate(String maintenanceItem,
