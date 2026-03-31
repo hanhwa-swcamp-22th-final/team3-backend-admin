@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate;
+package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.workerdeployment;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

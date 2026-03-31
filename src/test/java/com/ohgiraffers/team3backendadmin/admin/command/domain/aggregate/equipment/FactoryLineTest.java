@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate;
+package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

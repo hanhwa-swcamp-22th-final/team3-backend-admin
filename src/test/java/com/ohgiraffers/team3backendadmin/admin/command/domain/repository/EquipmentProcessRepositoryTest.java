@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.domain.repository;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

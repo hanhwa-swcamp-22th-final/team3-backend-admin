@@ -3,7 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;

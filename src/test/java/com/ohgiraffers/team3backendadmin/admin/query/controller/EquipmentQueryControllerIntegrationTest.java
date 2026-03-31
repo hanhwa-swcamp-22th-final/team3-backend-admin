@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentStandard;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentType;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Equipment;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;

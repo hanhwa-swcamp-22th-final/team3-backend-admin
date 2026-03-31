@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate;
+package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment;
 
 import jakarta.persistence.Entity;
 

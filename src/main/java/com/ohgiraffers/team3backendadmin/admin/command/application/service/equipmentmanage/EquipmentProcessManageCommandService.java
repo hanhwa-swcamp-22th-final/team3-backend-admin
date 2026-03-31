@@ -4,7 +4,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.E
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -22,9 +22,9 @@ public class EquipmentProcessManageCommandService {
   private final IdGenerator idGenerator;
 
   /**
-   * 부모 생산 라인 존재 여부와 공정 코드 중복 여부를 확인한 뒤 신규 공정을 생성한다.
-   * @param equipmentProcessCreateRequest 생성할 공정의 생산 라인, 코드, 이름 정보
-   * @return 생성이 완료된 공정의 응답 정보
+   * ?遊붋嶺???諛댄뀰 ??源녿데 ?브퀡???????? ??ㅻ쾴???袁⑤?獄?繞벿살탮????????筌먦끉逾??????ル맪????ㅻ쾴?????諛댁뎽??類ｋ펲.
+   * @param equipmentProcessCreateRequest ??諛댁뎽????ㅻ쾴?????諛댄뀰 ??源녿데, ?袁⑤?獄? ???藥??筌먲퐢沅?
+   * @return ??諛댁뎽???熬곣뫁?????ㅻ쾴?????얜Ŧ堉??筌먲퐢沅?
    */
   public EquipmentProcessCreateResponse createEquipmentProcess(EquipmentProcessCreateRequest equipmentProcessCreateRequest) {
     factoryLineRepository.findById(equipmentProcessCreateRequest.getFactoryLineId()).orElseThrow(
@@ -53,10 +53,10 @@ public class EquipmentProcessManageCommandService {
   }
 
   /**
-   * 기존 공정을 조회한 뒤 요청 값으로 소속 라인과 공정 정보를 수정한다.
-   * @param equipmentProcessId 수정할 공정의 식별자
-   * @param equipmentProcessUpdateRequest 수정할 생산 라인, 공정 코드, 공정명 정보
-   * @return 수정이 완료된 공정의 응답 정보
+   * ?リ옇?????ㅻ쾴????브퀗????????븐슙???띠룆????뿉????爰???源녿데????ㅻ쾴???筌먲퐢沅????瑜곸젧??類ｋ펲.
+   * @param equipmentProcessId ??瑜곸젧????ㅻ쾴?????紐끒??
+   * @param equipmentProcessUpdateRequest ??瑜곸젧????諛댄뀰 ??源녿데, ??ㅻ쾴???袁⑤?獄? ??ㅻ쾴??뗭춻??筌먲퐢沅?
+   * @return ??瑜곸젧???熬곣뫁?????ㅻ쾴?????얜Ŧ堉??筌먲퐢沅?
    */
   public EquipmentProcessUpdateResponse updateEquipmentProcess(Long equipmentProcessId,
                                                               EquipmentProcessUpdateRequest equipmentProcessUpdateRequest) {
@@ -83,9 +83,9 @@ public class EquipmentProcessManageCommandService {
   }
 
   /**
-   * 기존 공정을 조회한 뒤 소프트 삭제 상태로 전환한다.
-   * @param equipmentProcessId 삭제할 공정의 식별자
-   * @return 삭제 처리된 공정의 응답 정보
+   * ?リ옇?????ㅻ쾴????브퀗????????怨뺣뒆????????⑤객臾뜹슖??熬곥굦???類ｋ펲.
+   * @param equipmentProcessId ???????ㅻ쾴?????紐끒??
+   * @return ????嶺뚳퐣瑗?????ㅻ쾴?????얜Ŧ堉??筌먲퐢沅?
    */
   public EquipmentProcessUpdateResponse deleteEquipmentProcess(Long equipmentProcessId) {
     EquipmentProcess equipmentProcess = equipmentProcessRepository.findById(equipmentProcessId).orElseThrow(
