@@ -82,4 +82,22 @@ public class EquipmentProcess {
         this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
     }
+
+  public void updateInfo(Long factoryLineId,
+                         String equipmentProcessCode,
+                         String equipmentProcessName) {
+    if (factoryLineId == null
+        || equipmentProcessCode == null || equipmentProcessCode.isBlank()
+        || equipmentProcessName == null || equipmentProcessName.isBlank()) {
+      throw new IllegalArgumentException("Factory line id, equipment process code, and name must not be null or blank.");
+    }
+
+    this.factoryLineId = factoryLineId;
+    this.equipmentProcessCode = equipmentProcessCode;
+    this.equipmentProcessName = equipmentProcessName;
+  }
+
+  public void softDelete() {
+    this.isDeleted = true;
+  }
 }

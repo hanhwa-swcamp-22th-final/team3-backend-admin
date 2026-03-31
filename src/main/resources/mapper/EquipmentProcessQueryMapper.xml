@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentProcessQueryMapper">
+
+    <select id="selectEquipmentProcessList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse">
+        SELECT
+            ep.equipment_process_id AS equipmentProcessId,
+            ep.factory_line_id AS factoryLineId,
+            fl.factory_line_code AS factoryLineCode,
+            fl.factory_line_name AS factoryLineName,
+            ep.equipment_process_code AS equipmentProcessCode,
+            ep.equipment_process_name AS equipmentProcessName
+        FROM equipment_process ep
+        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        WHERE ep.is_deleted = false
+          AND fl.is_deleted = false
+        <if test="request != null and request.factoryLineId != null">
+            AND ep.factory_line_id = #{request.factoryLineId}
+        </if>
+        <if test="request != null and request.keyword != null and request.keyword != ''">
+            AND (
+                ep.equipment_process_code LIKE CONCAT('%', #{request.keyword}, '%')
+                OR ep.equipment_process_name LIKE CONCAT('%', #{request.keyword}, '%')
+            )
+        </if>
+        ORDER BY ep.equipment_process_id DESC
+    </select>
+
+    <select id="selectEquipmentProcessDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse">
+        SELECT
+            ep.equipment_process_id AS equipmentProcessId,
+            ep.factory_line_id AS factoryLineId,
+            fl.factory_line_code AS factoryLineCode,
+            fl.factory_line_name AS factoryLineName,
+            ep.equipment_process_code AS equipmentProcessCode,
+            ep.equipment_process_name AS equipmentProcessName
+        FROM equipment_process ep
+        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        WHERE ep.equipment_process_id = #{equipmentProcessId}
+          AND ep.is_deleted = false
+          AND fl.is_deleted = false
+    </select>
+
+    <select id="selectEquipmentProcessIdByCode" resultType="java.lang.Long">
+        SELECT equipment_process_id
+        FROM equipment_process
+        WHERE equipment_process_code = #{equipmentProcessCode}
+          AND is_deleted = false
+        LIMIT 1
+    </select>
+</mapper>
