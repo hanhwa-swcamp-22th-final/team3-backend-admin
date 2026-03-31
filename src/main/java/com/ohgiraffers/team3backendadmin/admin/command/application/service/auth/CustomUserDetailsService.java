@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth;
 
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;

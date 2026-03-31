@@ -19,15 +19,15 @@ Authorization: Bearer {{accessToken}}
 
 {
   "departmentId": 1774590584056408,
-  "employeeName": "홍길동",
-  "employeeEmail": "sample123@company.com",
+  "employeeName": "박길동",
+  "employeeEmail": "sample456@company.com",
   "employeePhone": "010-1234-5678",
   "employeeAddress": "서울시 강남구 테헤란로 123",
   "employeeEmergencyContact": "010-9876-5432",
   "employeePassword": "password123!",
   "employeeRole": "ADMIN",
   "employeeStatus": "ACTIVE",
-  "employeeTier": "S"
+  "employeeTier": "C"
 }
 
 ### 사원 수정 - 전체 필드 수정
@@ -83,6 +83,36 @@ Authorization: Bearer {{accessToken}}
 ### 전체 사원 조회
 GET http://localhost:8080/api/v1/organization/employees
 Authorization: Bearer {{accessToken}}
+
+### 사원 스킬 점수 수정 - 전체 카테고리
+PUT http://localhost:8080/api/v1/organization/employee/skill
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeCode": "EMP2603003",
+  "equipmentResponse": 85.50,
+  "technicalTransfer": 90.00,
+  "innovationProposal": 75.25,
+  "safetyCompliance": 88.00,
+  "qualityManagement": 92.50,
+  "productivity": 80.00
+}
+
+### 사원 스킬 점수 수정 - 일부 카테고리만
+PUT http://localhost:8080/api/v1/organization/employee/skill
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeCode": "EMP2603003",
+  "equipmentResponse": 95.00,
+  "technicalTransfer": null,
+  "innovationProposal": null,
+  "safetyCompliance": null,
+  "qualityManagement": null,
+  "productivity": 88.50
+}
 
 ### 사원 삭제 (Soft Delete - 상태 변경)
 DELETE http://localhost:8080/api/v1/organization/employee/EMP2603001

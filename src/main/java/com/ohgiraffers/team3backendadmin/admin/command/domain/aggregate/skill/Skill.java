@@ -34,10 +34,6 @@ public class Skill {
     @Column(name = "skill_score", precision = 10, scale = 2)
     private BigDecimal skillScore;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "skill_tier")
-    private SkillTier skillTier;
-
     @Column(name = "evaluated_at")
     private LocalDateTime evaluatedAt;
 
@@ -56,4 +52,9 @@ public class Skill {
     @LastModifiedBy
     @Column(name = "updated_by")
     private Long updatedBy;
+
+    public void updateScore(BigDecimal score) {
+        this.skillScore = score;
+        this.evaluatedAt = LocalDateTime.now();
+    }
 }

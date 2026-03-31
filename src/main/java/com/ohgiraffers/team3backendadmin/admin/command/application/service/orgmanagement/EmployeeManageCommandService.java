@@ -1,14 +1,10 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
@@ -27,7 +23,7 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
-public class OrganizationManageCommandService {
+public class EmployeeManageCommandService {
 
     private final OrganizationManageDomainService organizationManageDomainService;
     private final DepartmentRepository departmentRepository;
@@ -36,55 +32,6 @@ public class OrganizationManageCommandService {
     private final IdGenerator idGenerator;
     private final PasswordEncoder passwordEncoder;
     private final AesEncryptor aesEncryptor;
-
-    // Insert Department
-    @Transactional
-    public void insertDepartment(DepartmentCreateRequest request, String employeeCode) {
-
-        employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
-
-        Department department = Department.builder()
-                .departmentId(idGenerator.generate())
-                .parentDepartmentId(request.getParentDepartmentId())
-                .departmentName(request.getDepartmentName())
-                .teamName(request.getTeamName())
-                .depth(request.getDepth())
-                .build();
-
-        Department verified = organizationManageDomainService.buildVerifiedDepartment(department);
-
-        departmentRepository.save(verified);
-    }
-
-    // Update Department
-    @Transactional
-    public void updateDepartment(DepartmentUpdateRequest request, String employeeCode) {
-
-        employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
-
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 부서를 찾을 수 없습니다"));
-
-        department.updateNames(
-                request.getDepartmentName(),
-                request.getTeamName()
-        );
-    }
-
-    // Delete Department
-    @Transactional
-    public void deleteDepartment(Long departmentId, String employeeCode) {
-
-        employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new BadCredentialsException("해당 사원 정보를 찾을 수 없습니다"));
-
-        Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 부서를 찾을 수 없습니다"));
-
-        department.softDelete();
-    }
 
     // Insert Employee
     @Transactional
@@ -123,7 +70,6 @@ public class OrganizationManageCommandService {
                             .employeeId(employee.getEmployeeId())
                             .skillCategory(category)
                             .skillScore(BigDecimal.ZERO)
-                            .skillTier(SkillTier.C)
                             .evaluatedAt(LocalDateTime.now())
                             .build();
                     skillRepository.save(defaultSkill);

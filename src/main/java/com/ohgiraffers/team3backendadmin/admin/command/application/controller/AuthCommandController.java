@@ -3,7 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.AuthCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.AuthCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
