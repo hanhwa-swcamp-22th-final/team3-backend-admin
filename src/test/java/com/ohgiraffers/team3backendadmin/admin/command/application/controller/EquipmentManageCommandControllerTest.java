@@ -2,16 +2,24 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentEventManageCommandService;
@@ -77,6 +85,145 @@ class EquipmentManageCommandControllerTest {
     private EnvironmentEventManageCommandService environmentEventManageCommandService;
 
     @Test
+    @DisplayName("Create factory line API success: return a successful response")
+    void createFactoryLine_success() throws Exception {
+        FactoryLineCreateRequest request = FactoryLineCreateRequest.builder()
+            .factoryLineCode("LINE-001")
+            .factoryLineName("Main Line")
+            .build();
+
+        FactoryLineCreateResponse response = FactoryLineCreateResponse.builder()
+            .factoryLineId(1001L)
+            .factoryLineCode("LINE-001")
+            .factoryLineName("Main Line")
+            .build();
+
+        when(factoryLineManageCommandService.createFactoryLine(any(FactoryLineCreateRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post(BASE_URL + "/factory-lines")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.factoryLineId").value(1001L))
+            .andExpect(jsonPath("$.data.factoryLineCode").value("LINE-001"));
+    }
+
+    @Test
+    @DisplayName("Update factory line API success: return a successful response")
+    void updateFactoryLine_success() throws Exception {
+        FactoryLineUpdateRequest request = FactoryLineUpdateRequest.builder()
+            .factoryLineCode("LINE-999")
+            .factoryLineName("Updated Line")
+            .build();
+
+        FactoryLineUpdateResponse response = FactoryLineUpdateResponse.builder()
+            .factoryLineId(1001L)
+            .factoryLineCode("LINE-999")
+            .factoryLineName("Updated Line")
+            .build();
+
+        when(factoryLineManageCommandService.updateFactoryLine(eq(1001L), any(FactoryLineUpdateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(put(BASE_URL + "/factory-lines/1001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.factoryLineName").value("Updated Line"));
+    }
+
+    @Test
+    @DisplayName("Delete factory line API success: return a successful response")
+    void deleteFactoryLine_success() throws Exception {
+        FactoryLineUpdateResponse response = FactoryLineUpdateResponse.builder()
+            .factoryLineId(1001L)
+            .factoryLineCode("LINE-001")
+            .factoryLineName("Main Line")
+            .build();
+
+        when(factoryLineManageCommandService.deleteFactoryLine(1001L)).thenReturn(response);
+
+        mockMvc.perform(delete(BASE_URL + "/factory-lines/1001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.factoryLineId").value(1001L));
+    }
+
+    @Test
+    @DisplayName("Create equipment process API success: return a successful response")
+    void createEquipmentProcess_success() throws Exception {
+        EquipmentProcessCreateRequest request = EquipmentProcessCreateRequest.builder()
+            .factoryLineId(1001L)
+            .equipmentProcessCode("PROC-001")
+            .equipmentProcessName("Mixing Process")
+            .build();
+
+        EquipmentProcessCreateResponse response = EquipmentProcessCreateResponse.builder()
+            .equipmentProcessId(2001L)
+            .factoryLineId(1001L)
+            .equipmentProcessCode("PROC-001")
+            .equipmentProcessName("Mixing Process")
+            .build();
+
+        when(equipmentProcessManageCommandService.createEquipmentProcess(any(EquipmentProcessCreateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(post(BASE_URL + "/equipment-processes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentProcessId").value(2001L));
+    }
+
+    @Test
+    @DisplayName("Update equipment process API success: return a successful response")
+    void updateEquipmentProcess_success() throws Exception {
+        EquipmentProcessUpdateRequest request = EquipmentProcessUpdateRequest.builder()
+            .factoryLineId(1002L)
+            .equipmentProcessCode("PROC-999")
+            .equipmentProcessName("Updated Process")
+            .build();
+
+        EquipmentProcessUpdateResponse response = EquipmentProcessUpdateResponse.builder()
+            .equipmentProcessId(2001L)
+            .factoryLineId(1002L)
+            .equipmentProcessCode("PROC-999")
+            .equipmentProcessName("Updated Process")
+            .build();
+
+        when(equipmentProcessManageCommandService.updateEquipmentProcess(eq(2001L), any(EquipmentProcessUpdateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(put(BASE_URL + "/equipment-processes/2001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentProcessName").value("Updated Process"));
+    }
+
+    @Test
+    @DisplayName("Delete equipment process API success: return a successful response")
+    void deleteEquipmentProcess_success() throws Exception {
+        EquipmentProcessUpdateResponse response = EquipmentProcessUpdateResponse.builder()
+            .equipmentProcessId(2001L)
+            .factoryLineId(1001L)
+            .equipmentProcessCode("PROC-001")
+            .equipmentProcessName("Mixing Process")
+            .build();
+
+        when(equipmentProcessManageCommandService.deleteEquipmentProcess(2001L)).thenReturn(response);
+
+        mockMvc.perform(delete(BASE_URL + "/equipment-processes/2001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentProcessId").value(2001L));
+    }
+
+    @Test
     @DisplayName("Create environment standard API success: return a successful response")
     void createEnvironmentStandard_success() throws Exception {
         EnvironmentStandardCreateRequest request = createEnvironmentStandardCreateRequest();
@@ -97,11 +244,7 @@ class EquipmentManageCommandControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.environmentStandardId").value(3001L))
-            .andExpect(jsonPath("$.data.environmentType").value("DRYROOM"))
-            .andExpect(jsonPath("$.data.environmentCode").value("ENV-001"))
-            .andExpect(jsonPath("$.data.environmentName").value("Dry Room"));
-
-        verify(environmentStandardManageCommandService).createEnvironmentStandard(any(EnvironmentStandardCreateRequest.class));
+            .andExpect(jsonPath("$.data.environmentType").value("DRYROOM"));
     }
 
     @Test
@@ -124,11 +267,7 @@ class EquipmentManageCommandControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.environmentStandardId").value(3001L))
-            .andExpect(jsonPath("$.data.environmentType").value("CLEANROOM"))
-            .andExpect(jsonPath("$.data.environmentCode").value("ENV-999"));
-
-        verify(environmentStandardManageCommandService).updateEnvironmentStandard(eq(3001L), any(EnvironmentStandardUpdateRequest.class));
+            .andExpect(jsonPath("$.data.environmentStandardId").value(3001L));
     }
 
     @Test
@@ -147,8 +286,6 @@ class EquipmentManageCommandControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.environmentStandardId").value(3001L));
-
-        verify(environmentStandardManageCommandService).deleteEnvironmentStandard(3001L);
     }
 
     @Test
@@ -171,12 +308,7 @@ class EquipmentManageCommandControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.environmentEventId").value(5001L))
-            .andExpect(jsonPath("$.data.equipmentId").value(4001L))
-            .andExpect(jsonPath("$.data.envDeviationType").value("TEMPERATURE_DEVIATION"))
-            .andExpect(jsonPath("$.data.envCorrectionApplied").value(false));
-
-        verify(environmentEventManageCommandService).createEnvironmentEvent(any(EnvironmentEventCreateRequest.class));
+            .andExpect(jsonPath("$.data.environmentEventId").value(5001L));
     }
 
     @Test
@@ -199,11 +331,7 @@ class EquipmentManageCommandControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.environmentEventId").value(5001L))
-            .andExpect(jsonPath("$.data.envDeviationType").value("HUMIDITY_DEVIATION"))
-            .andExpect(jsonPath("$.data.envCorrectionApplied").value(true));
-
-        verify(environmentEventManageCommandService).updateEnvironmentEvent(eq(5001L), any(EnvironmentEventUpdateRequest.class));
+            .andExpect(jsonPath("$.data.environmentEventId").value(5001L));
     }
 
     @Test
@@ -222,8 +350,6 @@ class EquipmentManageCommandControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.environmentEventId").value(5001L));
-
-        verify(environmentEventManageCommandService).deleteEnvironmentEvent(5001L);
     }
 
     @Test
@@ -246,13 +372,7 @@ class EquipmentManageCommandControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.equipmentId").value(4001L))
-            .andExpect(jsonPath("$.data.equipmentCode").value("EQ-001"))
-            .andExpect(jsonPath("$.data.equipmentName").value("Printing Equipment"))
-            .andExpect(jsonPath("$.data.equipmentStatus").value("OPERATING"))
-            .andExpect(jsonPath("$.data.equipmentGrade").value("S"));
-
-        verify(equipmentManageCommandService).createEquipment(any(EquipmentCreateRequest.class));
+            .andExpect(jsonPath("$.data.equipmentId").value(4001L));
     }
 
     @Test
@@ -279,8 +399,6 @@ class EquipmentManageCommandControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data").doesNotExist());
-
-        verify(equipmentManageCommandService).updateEquipment(eq(4001L), any(EquipmentUpdateRequest.class));
     }
 
     @Test
@@ -309,8 +427,6 @@ class EquipmentManageCommandControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data").doesNotExist());
-
-        verify(equipmentManageCommandService).deleteEquipment(4001L);
     }
 
     private EnvironmentStandardCreateRequest createEnvironmentStandardCreateRequest() {

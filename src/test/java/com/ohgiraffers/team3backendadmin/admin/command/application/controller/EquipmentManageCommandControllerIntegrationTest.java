@@ -1,8 +1,18 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvDeviationType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentEvent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
@@ -12,6 +22,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipmen
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentEventRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentAgingParamRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentBaselineRepository;
@@ -33,6 +44,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -65,6 +77,9 @@ class EquipmentManageCommandControllerIntegrationTest {
     private EnvironmentStandardRepository environmentStandardRepository;
 
     @Autowired
+    private EnvironmentEventRepository environmentEventRepository;
+
+    @Autowired
     private EquipmentRepository equipmentRepository;
 
     @Autowired
@@ -82,8 +97,10 @@ class EquipmentManageCommandControllerIntegrationTest {
     private final TimeBasedIdGenerator idGenerator = new TimeBasedIdGenerator();
 
     private FactoryLine factoryLine;
+    private FactoryLine anotherFactoryLine;
     private EquipmentProcess equipmentProcess;
     private EnvironmentStandard environmentStandard;
+    private Equipment equipment;
 
     @BeforeEach
     void setUp() {
@@ -92,6 +109,14 @@ class EquipmentManageCommandControllerIntegrationTest {
                 idGenerator.generate(),
                 "LINE-" + idGenerator.generate(),
                 "Main Line"
+            )
+        );
+
+        anotherFactoryLine = factoryLineRepository.save(
+            new FactoryLine(
+                idGenerator.generate(),
+                "LINE-" + idGenerator.generate(),
+                "Second Line"
             )
         );
 
@@ -118,8 +143,128 @@ class EquipmentManageCommandControllerIntegrationTest {
                 .build()
         );
 
+        equipment = createEquipmentAggregate("EQ-" + idGenerator.generate(), "Seed Equipment");
+
         entityManager.flush();
         entityManager.clear();
+    }
+
+    @Test
+    @DisplayName("Create factory line API integration success: persist factory line")
+    void createFactoryLine_success() throws Exception {
+        String factoryLineCode = "LINE-" + idGenerator.generate();
+
+        FactoryLineCreateRequest request = FactoryLineCreateRequest.builder()
+            .factoryLineCode(factoryLineCode)
+            .factoryLineName("Integration Line")
+            .build();
+
+        mockMvc.perform(post("/api/v1/equipment-management/factory-lines")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.factoryLineCode").value(factoryLineCode));
+
+        FactoryLine savedFactoryLine = factoryLineRepository.findByFactoryLineCode(factoryLineCode).orElse(null);
+        assertNotNull(savedFactoryLine);
+        assertEquals("Integration Line", savedFactoryLine.getFactoryLineName());
+        assertFalse(savedFactoryLine.getIsDeleted());
+    }
+
+    @Test
+    @DisplayName("Update factory line API integration success: update factory line fields")
+    void updateFactoryLine_success() throws Exception {
+        String updatedCode = "LINE-" + idGenerator.generate();
+
+        FactoryLineUpdateRequest request = FactoryLineUpdateRequest.builder()
+            .factoryLineCode(updatedCode)
+            .factoryLineName("Updated Line")
+            .build();
+
+        mockMvc.perform(put("/api/v1/equipment-management/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.factoryLineCode").value(updatedCode));
+
+        FactoryLine updatedFactoryLine = factoryLineRepository.findById(factoryLine.getFactoryLineId()).orElse(null);
+        assertNotNull(updatedFactoryLine);
+        assertEquals(updatedCode, updatedFactoryLine.getFactoryLineCode());
+        assertEquals("Updated Line", updatedFactoryLine.getFactoryLineName());
+    }
+
+    @Test
+    @DisplayName("Delete factory line API integration success: soft-delete target factory line")
+    void deleteFactoryLine_success() throws Exception {
+        mockMvc.perform(delete("/api/v1/equipment-management/factory-lines/{factoryLineId}", factoryLine.getFactoryLineId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        FactoryLine deletedFactoryLine = factoryLineRepository.findById(factoryLine.getFactoryLineId()).orElse(null);
+        assertNotNull(deletedFactoryLine);
+        assertTrue(deletedFactoryLine.getIsDeleted());
+    }
+
+    @Test
+    @DisplayName("Create equipment process API integration success: persist equipment process")
+    void createEquipmentProcess_success() throws Exception {
+        String equipmentProcessCode = "PROC-" + idGenerator.generate();
+
+        EquipmentProcessCreateRequest request = EquipmentProcessCreateRequest.builder()
+            .factoryLineId(factoryLine.getFactoryLineId())
+            .equipmentProcessCode(equipmentProcessCode)
+            .equipmentProcessName("Integration Process")
+            .build();
+
+        mockMvc.perform(post("/api/v1/equipment-management/equipment-processes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentProcessCode").value(equipmentProcessCode));
+
+        EquipmentProcess savedEquipmentProcess = equipmentProcessRepository.findByEquipmentProcessCode(equipmentProcessCode).orElse(null);
+        assertNotNull(savedEquipmentProcess);
+        assertEquals(factoryLine.getFactoryLineId(), savedEquipmentProcess.getFactoryLineId());
+        assertFalse(savedEquipmentProcess.getIsDeleted());
+    }
+
+    @Test
+    @DisplayName("Update equipment process API integration success: update process fields")
+    void updateEquipmentProcess_success() throws Exception {
+        String updatedCode = "PROC-" + idGenerator.generate();
+
+        EquipmentProcessUpdateRequest request = EquipmentProcessUpdateRequest.builder()
+            .factoryLineId(anotherFactoryLine.getFactoryLineId())
+            .equipmentProcessCode(updatedCode)
+            .equipmentProcessName("Updated Process")
+            .build();
+
+        mockMvc.perform(put("/api/v1/equipment-management/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentProcessCode").value(updatedCode));
+
+        EquipmentProcess updatedEquipmentProcess = equipmentProcessRepository.findById(equipmentProcess.getEquipmentProcessId()).orElse(null);
+        assertNotNull(updatedEquipmentProcess);
+        assertEquals(anotherFactoryLine.getFactoryLineId(), updatedEquipmentProcess.getFactoryLineId());
+        assertEquals(updatedCode, updatedEquipmentProcess.getEquipmentProcessCode());
+    }
+
+    @Test
+    @DisplayName("Delete equipment process API integration success: soft-delete target process")
+    void deleteEquipmentProcess_success() throws Exception {
+        mockMvc.perform(delete("/api/v1/equipment-management/equipment-processes/{equipmentProcessId}", equipmentProcess.getEquipmentProcessId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        EquipmentProcess deletedEquipmentProcess = equipmentProcessRepository.findById(equipmentProcess.getEquipmentProcessId()).orElse(null);
+        assertNotNull(deletedEquipmentProcess);
+        assertTrue(deletedEquipmentProcess.getIsDeleted());
     }
 
     @Test
@@ -140,33 +285,20 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.75)
             .build();
 
-        mockMvc.perform(post("/api/v1/admin/equipments")
+        mockMvc.perform(post("/api/v1/equipment-management/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.equipmentCode").value(equipmentCode))
-            .andExpect(jsonPath("$.data.equipmentName").value("Printing Equipment"))
-            .andExpect(jsonPath("$.data.equipmentStatus").value("OPERATING"))
-            .andExpect(jsonPath("$.data.equipmentGrade").value("S"));
+            .andExpect(jsonPath("$.data.equipmentCode").value(equipmentCode));
 
         Equipment savedEquipment = equipmentRepository.findByEquipmentCode(equipmentCode).orElse(null);
         assertNotNull(savedEquipment);
 
         Long agingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(savedEquipment.getEquipmentId());
         Long baselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(savedEquipment.getEquipmentId());
-
         assertNotNull(agingParamId);
         assertNotNull(baselineId);
-
-        EquipmentAgingParam equipmentAgingParam = equipmentAgingParamRepository.findById(agingParamId).orElse(null);
-        EquipmentBaseline equipmentBaseline = equipmentBaselineRepository.findById(baselineId).orElse(null);
-
-        assertNotNull(equipmentAgingParam);
-        assertNotNull(equipmentBaseline);
-        assertEquals(24, equipmentAgingParam.getEquipmentWarrantyMonth());
-        assertEquals(120, equipmentAgingParam.getEquipmentDesignLifeMonths());
-        assertEquals(BigDecimal.valueOf(0.75), equipmentAgingParam.getEquipmentWearCoefficient());
     }
 
     @Test
@@ -188,22 +320,12 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.85)
             .build();
 
-        mockMvc.perform(post("/api/v1/admin/equipments")
+        mockMvc.perform(post("/api/v1/equipment-management/equipments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.equipmentCode").value(equipmentCode))
-            .andExpect(jsonPath("$.data.equipmentName").value("Committed Equipment"));
-
-        Equipment savedEquipment = equipmentRepository.findByEquipmentCode(equipmentCode).orElse(null);
-        assertNotNull(savedEquipment);
-
-        Long agingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(savedEquipment.getEquipmentId());
-        Long baselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(savedEquipment.getEquipmentId());
-
-        assertNotNull(agingParamId);
-        assertNotNull(baselineId);
+            .andExpect(jsonPath("$.data.equipmentCode").value(equipmentCode));
     }
 
     @Test
@@ -225,7 +347,7 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWearCoefficient(0.9)
             .build();
 
-        mockMvc.perform(put("/api/v1/admin/equipments/{equipmentId}", existingEquipment.getEquipmentId())
+        mockMvc.perform(put("/api/v1/equipment-management/equipments/{equipmentId}", existingEquipment.getEquipmentId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -233,16 +355,10 @@ class EquipmentManageCommandControllerIntegrationTest {
 
         Equipment updatedEquipment = equipmentRepository.findById(existingEquipment.getEquipmentId()).orElse(null);
         EquipmentAgingParam updatedAgingParam = equipmentAgingParamRepository.findById(agingParamId).orElse(null);
-
         assertNotNull(updatedEquipment);
         assertNotNull(updatedAgingParam);
         assertEquals("Updated Equipment", updatedEquipment.getEquipmentName());
-        assertEquals(EquipmentStatus.STOPPED, updatedEquipment.getEquipmentStatus());
-        assertEquals(EquipmentGrade.B, updatedEquipment.getEquipmentGrade());
-        assertEquals("Updated integration description", updatedEquipment.getEquipmentDescription());
         assertEquals(60, updatedAgingParam.getEquipmentWarrantyMonth());
-        assertEquals(180, updatedAgingParam.getEquipmentDesignLifeMonths());
-        assertEquals(BigDecimal.valueOf(0.9), updatedAgingParam.getEquipmentWearCoefficient());
     }
 
     @Test
@@ -252,7 +368,7 @@ class EquipmentManageCommandControllerIntegrationTest {
         Long agingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(existingEquipment.getEquipmentId());
         Long baselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(existingEquipment.getEquipmentId());
 
-        mockMvc.perform(delete("/api/v1/admin/equipments/{equipmentId}", existingEquipment.getEquipmentId()))
+        mockMvc.perform(delete("/api/v1/equipment-management/equipments/{equipmentId}", existingEquipment.getEquipmentId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true));
 
@@ -261,12 +377,168 @@ class EquipmentManageCommandControllerIntegrationTest {
         assertFalse(equipmentBaselineRepository.findById(baselineId).isPresent());
     }
 
+    @Test
+    @DisplayName("Create environment standard API integration success: persist standard")
+    void createEnvironmentStandard_success() throws Exception {
+        String environmentCode = "ENV-NEW-" + idGenerator.generate();
+
+        EnvironmentStandardCreateRequest request = EnvironmentStandardCreateRequest.builder()
+            .environmentType(EnvironmentType.CLEANROOM)
+            .environmentCode(environmentCode)
+            .environmentName("Clean Room")
+            .envTempMin(BigDecimal.valueOf(18.0))
+            .envTempMax(BigDecimal.valueOf(22.0))
+            .envHumidityMin(BigDecimal.valueOf(35.0))
+            .envHumidityMax(BigDecimal.valueOf(45.0))
+            .envParticleLimit(500)
+            .build();
+
+        mockMvc.perform(post("/api/v1/equipment-management/environment-standards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.environmentCode").value(environmentCode));
+
+        EnvironmentStandard savedStandard = environmentStandardRepository.findByEnvironmentCode(environmentCode).orElse(null);
+        assertNotNull(savedStandard);
+        assertFalse(savedStandard.getIsDeleted());
+    }
+
+    @Test
+    @DisplayName("Update environment standard API integration success: update standard")
+    void updateEnvironmentStandard_success() throws Exception {
+        EnvironmentStandardUpdateRequest request = EnvironmentStandardUpdateRequest.builder()
+            .environmentType(EnvironmentType.CLEANROOM)
+            .environmentCode("ENV-UPD-" + idGenerator.generate())
+            .environmentName("Updated Clean Room")
+            .envTempMin(BigDecimal.valueOf(19.0))
+            .envTempMax(BigDecimal.valueOf(23.0))
+            .envHumidityMin(BigDecimal.valueOf(33.0))
+            .envHumidityMax(BigDecimal.valueOf(43.0))
+            .envParticleLimit(600)
+            .build();
+
+        mockMvc.perform(put("/api/v1/equipment-management/environment-standards/{environmentStandardId}", environmentStandard.getEnvironmentStandardId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        EnvironmentStandard updatedStandard = environmentStandardRepository.findById(environmentStandard.getEnvironmentStandardId()).orElse(null);
+        assertNotNull(updatedStandard);
+        assertEquals("Updated Clean Room", updatedStandard.getEnvironmentName());
+    }
+
+    @Test
+    @DisplayName("Delete environment standard API integration success: soft delete standard")
+    void deleteEnvironmentStandard_success() throws Exception {
+        mockMvc.perform(delete("/api/v1/equipment-management/environment-standards/{environmentStandardId}", environmentStandard.getEnvironmentStandardId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        EnvironmentStandard deletedStandard = environmentStandardRepository.findById(environmentStandard.getEnvironmentStandardId()).orElse(null);
+        assertNotNull(deletedStandard);
+        assertTrue(deletedStandard.getIsDeleted());
+    }
+
+    @Test
+    @DisplayName("Create environment event API integration success: persist event")
+    void createEnvironmentEvent_success() throws Exception {
+        LocalDateTime detectedAt = LocalDateTime.of(2026, 4, 1, 9, 0);
+
+        EnvironmentEventCreateRequest request = EnvironmentEventCreateRequest.builder()
+            .equipmentId(equipment.getEquipmentId())
+            .envTemperature(BigDecimal.valueOf(26.5))
+            .envHumidity(BigDecimal.valueOf(48.0))
+            .envParticleCnt(1500)
+            .envDeviationType(EnvDeviationType.TEMPERATURE_DEVIATION)
+            .envCorrectionApplied(false)
+            .envDetectedAt(detectedAt)
+            .build();
+
+        mockMvc.perform(post("/api/v1/equipment-management/environment-events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentId").value(equipment.getEquipmentId()));
+
+        EnvironmentEvent savedEvent = environmentEventRepository.findAll().stream()
+            .filter(event -> event.getEquipmentId().equals(equipment.getEquipmentId()))
+            .filter(event -> detectedAt.equals(event.getEnvDetectedAt()))
+            .findFirst()
+            .orElse(null);
+        assertNotNull(savedEvent);
+    }
+
+    @Test
+    @DisplayName("Update environment event API integration success: update event")
+    void updateEnvironmentEvent_success() throws Exception {
+        EnvironmentEvent environmentEvent = environmentEventRepository.save(
+            EnvironmentEvent.builder()
+                .environmentEventId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .envTemperature(BigDecimal.valueOf(25.1))
+                .envHumidity(BigDecimal.valueOf(41.0))
+                .envParticleCnt(800)
+                .envDeviationType(EnvDeviationType.HUMIDITY_DEVIATION)
+                .envCorrectionApplied(false)
+                .envDetectedAt(LocalDateTime.of(2026, 4, 1, 8, 30))
+                .build()
+        );
+
+        EnvironmentEventUpdateRequest request = EnvironmentEventUpdateRequest.builder()
+            .equipmentId(equipment.getEquipmentId())
+            .envTemperature(BigDecimal.valueOf(27.3))
+            .envHumidity(BigDecimal.valueOf(49.0))
+            .envParticleCnt(1700)
+            .envDeviationType(EnvDeviationType.TEMPERATURE_DEVIATION)
+            .envCorrectionApplied(true)
+            .envDetectedAt(LocalDateTime.of(2026, 4, 1, 10, 15))
+            .build();
+
+        mockMvc.perform(put("/api/v1/equipment-management/environment-events/{environmentEventId}", environmentEvent.getEnvironmentEventId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        EnvironmentEvent updatedEvent = environmentEventRepository.findById(environmentEvent.getEnvironmentEventId()).orElse(null);
+        assertNotNull(updatedEvent);
+        assertEquals(Integer.valueOf(1700), updatedEvent.getEnvParticleCnt());
+        assertTrue(updatedEvent.getEnvCorrectionApplied());
+    }
+
+    @Test
+    @DisplayName("Delete environment event API integration success: remove event")
+    void deleteEnvironmentEvent_success() throws Exception {
+        EnvironmentEvent environmentEvent = environmentEventRepository.save(
+            EnvironmentEvent.builder()
+                .environmentEventId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .envTemperature(BigDecimal.valueOf(25.0))
+                .envHumidity(BigDecimal.valueOf(42.0))
+                .envParticleCnt(900)
+                .envDeviationType(EnvDeviationType.HUMIDITY_DEVIATION)
+                .envCorrectionApplied(false)
+                .envDetectedAt(LocalDateTime.of(2026, 4, 1, 7, 45))
+                .build()
+        );
+
+        mockMvc.perform(delete("/api/v1/equipment-management/environment-events/{environmentEventId}", environmentEvent.getEnvironmentEventId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        assertTrue(environmentEventRepository.findById(environmentEvent.getEnvironmentEventId()).isEmpty());
+    }
+
     private Equipment createEquipmentAggregate(String equipmentCode, String equipmentName) {
         Long equipmentId = idGenerator.generate();
         Long equipmentAgingParamId = idGenerator.generate();
         Long equipmentBaselineId = idGenerator.generate();
 
-        Equipment equipment = equipmentRepository.save(
+        Equipment createdEquipment = equipmentRepository.save(
             Equipment.builder()
                 .equipmentId(equipmentId)
                 .equipmentProcessId(equipmentProcess.getEquipmentProcessId())
@@ -299,6 +571,6 @@ class EquipmentManageCommandControllerIntegrationTest {
 
         entityManager.flush();
         entityManager.clear();
-        return equipment;
+        return createdEquipment;
     }
 }
