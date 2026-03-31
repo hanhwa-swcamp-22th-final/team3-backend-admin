@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.domain.service;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -124,8 +126,8 @@ class OrganizationManageDomainServiceTest {
             given(departmentRepository.findById(999L)).willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> organizationManageDomainService.buildVerifiedDepartment(input)
             );
             assertEquals("상위 부서를 찾을 수 없습니다", exception.getMessage());

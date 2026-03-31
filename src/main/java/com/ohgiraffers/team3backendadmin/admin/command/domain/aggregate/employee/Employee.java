@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate;
+package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -97,6 +97,10 @@ public class Employee {
         if (phone != null) this.employeePhone = phone;
         if (address != null) this.employeeAddress = address;
         if (emergencyContact != null) this.employeeEmergencyContact = emergencyContact;
+    }
+
+    public void updateRole(EmployeeRole newRole) {
+        this.employeeRole = newRole;
     }
 
     public void deleteEmployee() {

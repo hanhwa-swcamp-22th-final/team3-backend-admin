@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeRole;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeTier;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

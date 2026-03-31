@@ -3,8 +3,13 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeRoleChangeRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeSkillUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.OrganizationManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.DepartmentManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeRoleManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeSkillManageCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +20,18 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 직원/부서 관리 페이지 컨트롤러. (조직관리)
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/organization")
 public class OrganizationManageCommandController {
 
-    private final OrganizationManageCommandService organizationManageCommandService;
+    private final DepartmentManageCommandService departmentManageCommandService;
+    private final EmployeeManageCommandService employeeManageCommandService;
+    private final EmployeeSkillManageCommandService employeeSkillManageCommandService;
+    private final EmployeeRoleManageCommandService employeeRoleManageCommandService;
 
     /**
      * 새로운 부서를 추가하는 Api
@@ -34,7 +45,7 @@ public class OrganizationManageCommandController {
             @Valid @RequestBody DepartmentCreateRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        organizationManageCommandService.insertDepartment(request, userDetails.getUsername());
+        departmentManageCommandService.insertDepartment(request, userDetails.getUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(null));
@@ -52,7 +63,7 @@ public class OrganizationManageCommandController {
             @Valid @RequestBody DepartmentUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        organizationManageCommandService.updateDepartment(request, userDetails.getUsername());
+        departmentManageCommandService.updateDepartment(request, userDetails.getUsername());
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -69,7 +80,7 @@ public class OrganizationManageCommandController {
             @PathVariable Long departmentId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        organizationManageCommandService.deleteDepartment(departmentId, userDetails.getUsername());
+        departmentManageCommandService.deleteDepartment(departmentId, userDetails.getUsername());
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -86,7 +97,7 @@ public class OrganizationManageCommandController {
             @Valid @RequestBody EmployeeCreateRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        organizationManageCommandService.insertEmployee(request, userDetails.getUsername());
+        employeeManageCommandService.insertEmployee(request, userDetails.getUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(null));
@@ -104,7 +115,7 @@ public class OrganizationManageCommandController {
             @Valid @RequestBody EmployeeUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        organizationManageCommandService.updateEmployee(request, userDetails.getUsername());
+        employeeManageCommandService.updateEmployee(request, userDetails.getUsername());
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -121,9 +132,42 @@ public class OrganizationManageCommandController {
             @PathVariable String employeeCode,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        organizationManageCommandService.deleteEmployee(employeeCode, userDetails.getUsername());
+        employeeManageCommandService.deleteEmployee(employeeCode, userDetails.getUsername());
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    /**
+     * 사원의 스킬 점수를 수정하는 Api
+     * @param request EmployeeSkillUpdateRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
+    @PutMapping("/employee/skill")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> updateEmployeeSkill(
+            @Valid @RequestBody EmployeeSkillUpdateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        employeeSkillManageCommandService.updateEmployeeSkill(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    /**
+     * 사원의 역할(Role)을 변경하는 Api
+     * @param request EmployeeRoleChangeRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<>>
+     */
+    @PutMapping("/employee/role")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> changeEmployeeRole(
+            @Valid @RequestBody EmployeeRoleChangeRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        employeeRoleManageCommandService.changeEmployeeRole(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
 }

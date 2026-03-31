@@ -1,11 +1,11 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth;
 
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Employee;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EmployeeStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
