@@ -19,4 +19,6 @@ public class EquipmentCreateRequest {
   private Integer equipmentWarrantyMonth;
   private Integer equipmentDesignLifeMonths;
   private Double equipmentWearCoefficient;
+  private Double equipmentStandardPerformanceRate;
+  private Double equipmentBaselineErrorRate;
 }

@@ -1,6 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
 import org.apache.ibatis.annotations.Mapper;
@@ -20,4 +22,8 @@ public interface EquipmentQueryMapper {
     Long selectEquipmentAgingParamIdByEquipmentId(@Param("equipmentId") Long equipmentId);
 
     Long selectEquipmentBaselineIdByEquipmentId(@Param("equipmentId") Long equipmentId);
+
+    EquipmentAgingParamDetailResponse selectEquipmentAgingParamDetailById(@Param("equipmentAgingParamId") Long equipmentAgingParamId);
+
+    EquipmentBaselineDetailResponse selectEquipmentBaselineDetailById(@Param("equipmentBaselineId") Long equipmentBaselineId);
 }

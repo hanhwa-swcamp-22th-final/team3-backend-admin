@@ -324,6 +324,8 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWarrantyMonth(24)
             .equipmentDesignLifeMonths(120)
             .equipmentWearCoefficient(0.75)
+            .equipmentStandardPerformanceRate(98.5)
+            .equipmentBaselineErrorRate(1.5)
             .build();
 
         mockMvc.perform(post("/api/v1/equipment-management/equipments")
@@ -340,6 +342,11 @@ class EquipmentManageCommandControllerIntegrationTest {
         Long baselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(savedEquipment.getEquipmentId());
         assertNotNull(agingParamId);
         assertNotNull(baselineId);
+
+        EquipmentBaseline savedBaseline = equipmentBaselineRepository.findById(baselineId).orElse(null);
+        assertNotNull(savedBaseline);
+        assertEquals(new BigDecimal("98.5"), savedBaseline.getEquipmentStandardPerformanceRate());
+        assertEquals(new BigDecimal("1.5"), savedBaseline.getEquipmentBaselineErrorRate());
     }
 
     @Test
@@ -359,6 +366,8 @@ class EquipmentManageCommandControllerIntegrationTest {
             .equipmentWarrantyMonth(36)
             .equipmentDesignLifeMonths(180)
             .equipmentWearCoefficient(0.85)
+            .equipmentStandardPerformanceRate(99.0)
+            .equipmentBaselineErrorRate(1.0)
             .build();
 
         mockMvc.perform(post("/api/v1/equipment-management/equipments")

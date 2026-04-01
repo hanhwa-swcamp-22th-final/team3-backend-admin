@@ -661,6 +661,8 @@ class EquipmentManageCommandControllerTest {
             .equipmentWarrantyMonth(24)
             .equipmentDesignLifeMonths(120)
             .equipmentWearCoefficient(0.75)
+            .equipmentStandardPerformanceRate(98.5)
+            .equipmentBaselineErrorRate(1.5)
             .build();
     }
 

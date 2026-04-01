@@ -76,4 +76,32 @@
         WHERE equipment_id = #{equipmentId}
         LIMIT 1
     </select>
+
+    <select id="selectEquipmentAgingParamDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+        SELECT
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_id AS equipmentId,
+            equipment_eta_age AS equipmentEtaAge,
+            equipment_warranty_month AS equipmentWarrantyMonth,
+            equipment_design_life_months AS equipmentDesignLifeMonths,
+            equipment_wear_coefficient AS equipmentWearCoefficient,
+            equipment_age_months AS equipmentAgeMonths,
+            equipment_age_calculated_at AS equipmentAgeCalculatedAt
+        FROM equipment_aging_param
+        WHERE equipment_aging_param_id = #{equipmentAgingParamId}
+    </select>
+
+    <select id="selectEquipmentBaselineDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+        SELECT
+            equipment_baseline_id AS equipmentBaselineId,
+            equipment_id AS equipmentId,
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_standard_performance_rate AS equipmentStandardPerformanceRate,
+            equipment_baseline_error_rate AS equipmentBaselineErrorRate,
+            equipment_eta_maint AS equipmentEtaMaint,
+            equipment_idx AS equipmentIdx,
+            equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
+        FROM equipment_baseline
+        WHERE equipment_baseline_id = #{equipmentBaselineId}
+    </select>
 </mapper>
