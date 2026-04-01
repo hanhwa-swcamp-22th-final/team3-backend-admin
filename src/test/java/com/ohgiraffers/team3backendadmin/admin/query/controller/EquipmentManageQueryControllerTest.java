@@ -14,11 +14,19 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProce
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentEventQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentStandardQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.MaintenanceItemStandardQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.MaintenanceLogQueryService;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceResult;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceType;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
@@ -60,6 +68,12 @@ class EquipmentManageQueryControllerTest {
 
     @MockitoBean
     private EnvironmentEventQueryService environmentEventQueryService;
+
+    @MockitoBean
+    private MaintenanceItemStandardQueryService maintenanceItemStandardQueryService;
+
+    @MockitoBean
+    private MaintenanceLogQueryService maintenanceLogQueryService;
 
     @Test
     @DisplayName("Get factory line list API success: return list JSON")
@@ -309,6 +323,143 @@ class EquipmentManageQueryControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_008"));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard list API success: return list JSON")
+    void getMaintenanceItemStandardList_success() throws Exception {
+        MaintenanceItemStandardQueryResponse response = new MaintenanceItemStandardQueryResponse();
+        response.setMaintenanceItemStandardId(1L);
+        response.setMaintenanceItem("Bearing Check");
+        response.setMaintenanceWeight(new java.math.BigDecimal("0.30"));
+        response.setMaintenanceScoreMax(new java.math.BigDecimal("100.00"));
+
+        when(maintenanceItemStandardQueryService.getMaintenanceItemStandardList(argThat(request -> request != null)))
+            .thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data[0].maintenanceItemStandardId").value(1L));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard list API success: bind query parameters correctly")
+    void getMaintenanceItemStandardList_withQueryParams_success() throws Exception {
+        when(maintenanceItemStandardQueryService.getMaintenanceItemStandardList(argThat(request -> request != null)))
+            .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards")
+                .param("keyword", "bearing"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        verify(maintenanceItemStandardQueryService)
+            .getMaintenanceItemStandardList(argThat(request -> "bearing".equals(request.getKeyword())));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard detail API success: return detail JSON")
+    void getMaintenanceItemStandardDetail_success() throws Exception {
+        MaintenanceItemStandardDetailResponse response = new MaintenanceItemStandardDetailResponse();
+        response.setMaintenanceItemStandardId(1L);
+        response.setMaintenanceItem("Bearing Check");
+        response.setMaintenanceWeight(new java.math.BigDecimal("0.30"));
+        response.setMaintenanceScoreMax(new java.math.BigDecimal("100.00"));
+
+        when(maintenanceItemStandardQueryService.getMaintenanceItemStandardDetail(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceItemStandardId").value(1L));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard detail failure: return 404 when the target does not exist")
+    void getMaintenanceItemStandardDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(maintenanceItemStandardQueryService.getMaintenanceItemStandardDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.MAINTENANCE_ITEM_STANDARD_NOT_FOUND));
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_010"));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log list API success: return list JSON")
+    void getMaintenanceLogList_success() throws Exception {
+        MaintenanceLogQueryResponse response = new MaintenanceLogQueryResponse();
+        response.setMaintenanceLogId(1L);
+        response.setEquipmentId(10L);
+        response.setEquipmentCode("EQ-001");
+        response.setEquipmentName("Drying Equipment");
+        response.setMaintenanceItemStandardId(100L);
+        response.setMaintenanceItem("Bearing Check");
+        response.setMaintenanceType(MaintenanceType.REGULAR);
+        response.setMaintenanceResult(MaintenanceResult.NORMAL);
+
+        when(maintenanceLogQueryService.getMaintenanceLogList(argThat(request -> request != null)))
+            .thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data[0].maintenanceLogId").value(1L));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log list API success: bind query parameters correctly")
+    void getMaintenanceLogList_withQueryParams_success() throws Exception {
+        when(maintenanceLogQueryService.getMaintenanceLogList(argThat(request -> request != null)))
+            .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs")
+                .param("equipmentId", "10")
+                .param("maintenanceType", "REGULAR")
+                .param("maintenanceResult", "NORMAL"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        verify(maintenanceLogQueryService).getMaintenanceLogList(argThat(request ->
+            Long.valueOf(10L).equals(request.getEquipmentId())
+                && MaintenanceType.REGULAR == request.getMaintenanceType()
+                && MaintenanceResult.NORMAL == request.getMaintenanceResult()
+        ));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log detail API success: return detail JSON")
+    void getMaintenanceLogDetail_success() throws Exception {
+        MaintenanceLogDetailResponse response = new MaintenanceLogDetailResponse();
+        response.setMaintenanceLogId(1L);
+        response.setEquipmentId(10L);
+        response.setEquipmentCode("EQ-001");
+        response.setEquipmentName("Drying Equipment");
+        response.setMaintenanceItemStandardId(100L);
+        response.setMaintenanceItem("Bearing Check");
+        response.setMaintenanceType(MaintenanceType.REGULAR);
+        response.setMaintenanceResult(MaintenanceResult.NORMAL);
+
+        when(maintenanceLogQueryService.getMaintenanceLogDetail(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(1L));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log detail failure: return 404 when the target does not exist")
+    void getMaintenanceLogDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(maintenanceLogQueryService.getMaintenanceLogDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND));
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_011"));
     }
 
     @Test

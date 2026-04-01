@@ -1,31 +1,5 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventUpdateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardUpdateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentEventManageCommandService;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentStandardManageCommandService;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
-import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +8,44 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceItemStandardCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceItemStandardUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentEventManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentStandardManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.MaintenanceItemStandardManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.MaintenanceLogManageCommandService;
+import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,6 +57,8 @@ public class EquipmentManageCommandController {
   private final EquipmentManageCommandService equipmentManageCommandService;
   private final EnvironmentStandardManageCommandService environmentStandardManageCommandService;
   private final EnvironmentEventManageCommandService environmentEventManageCommandService;
+  private final MaintenanceItemStandardManageCommandService maintenanceItemStandardManageCommandService;
+  private final MaintenanceLogManageCommandService maintenanceLogManageCommandService;
 
   /**
    * 생산 라인을 생성한다.
@@ -210,6 +224,93 @@ public class EquipmentManageCommandController {
   ) {
     EnvironmentEventUpdateResponse response =
         environmentEventManageCommandService.deleteEnvironmentEvent(environmentEventId);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  /**
+   * 유지보수 항목 기준을 생성한다.
+   * @param request 생성할 유지보수 항목 기준 정보
+   * @return 생성된 유지보수 항목 기준 응답
+   */
+  @PostMapping("/maintenance-item-standards")
+  public ResponseEntity<ApiResponse<MaintenanceItemStandardCreateResponse>> createMaintenanceItemStandard(
+      @RequestBody MaintenanceItemStandardCreateRequest request
+  ) {
+    MaintenanceItemStandardCreateResponse response =
+        maintenanceItemStandardManageCommandService.createMaintenanceItemStandard(request);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  /**
+   * 유지보수 항목 기준 정보를 수정한다.
+   * @param maintenanceItemStandardId 수정할 유지보수 항목 기준 ID
+   * @param request 수정할 유지보수 항목 기준 정보
+   * @return 수정된 유지보수 항목 기준 응답
+   */
+  @PutMapping("/maintenance-item-standards/{maintenanceItemStandardId}")
+  public ResponseEntity<ApiResponse<MaintenanceItemStandardUpdateResponse>> updateMaintenanceItemStandard(
+      @PathVariable Long maintenanceItemStandardId,
+      @RequestBody MaintenanceItemStandardUpdateRequest request
+  ) {
+    MaintenanceItemStandardUpdateResponse response =
+        maintenanceItemStandardManageCommandService.updateMaintenanceItemStandard(maintenanceItemStandardId, request);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  /**
+   * 유지보수 항목 기준을 삭제한다.
+   * @param maintenanceItemStandardId 삭제할 유지보수 항목 기준 ID
+   * @return 삭제된 유지보수 항목 기준 응답
+   */
+  @DeleteMapping("/maintenance-item-standards/{maintenanceItemStandardId}")
+  public ResponseEntity<ApiResponse<MaintenanceItemStandardUpdateResponse>> deleteMaintenanceItemStandard(
+      @PathVariable Long maintenanceItemStandardId
+  ) {
+    MaintenanceItemStandardUpdateResponse response =
+        maintenanceItemStandardManageCommandService.deleteMaintenanceItemStandard(maintenanceItemStandardId);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  /**
+   * 유지보수 이력을 생성한다.
+   * @param request 생성할 유지보수 이력 정보
+   * @return 생성된 유지보수 이력 응답
+   */
+  @PostMapping("/maintenance-logs")
+  public ResponseEntity<ApiResponse<MaintenanceLogCreateResponse>> createMaintenanceLog(
+      @RequestBody MaintenanceLogCreateRequest request
+  ) {
+    MaintenanceLogCreateResponse response = maintenanceLogManageCommandService.createMaintenanceLog(request);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  /**
+   * 유지보수 이력 정보를 수정한다.
+   * @param maintenanceLogId 수정할 유지보수 이력 ID
+   * @param request 수정할 유지보수 이력 정보
+   * @return 수정된 유지보수 이력 응답
+   */
+  @PutMapping("/maintenance-logs/{maintenanceLogId}")
+  public ResponseEntity<ApiResponse<MaintenanceLogUpdateResponse>> updateMaintenanceLog(
+      @PathVariable Long maintenanceLogId,
+      @RequestBody MaintenanceLogUpdateRequest request
+  ) {
+    MaintenanceLogUpdateResponse response =
+        maintenanceLogManageCommandService.updateMaintenanceLog(maintenanceLogId, request);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  /**
+   * 유지보수 이력을 삭제한다.
+   * @param maintenanceLogId 삭제할 유지보수 이력 ID
+   * @return 삭제된 유지보수 이력 응답
+   */
+  @DeleteMapping("/maintenance-logs/{maintenanceLogId}")
+  public ResponseEntity<ApiResponse<MaintenanceLogUpdateResponse>> deleteMaintenanceLog(
+      @PathVariable Long maintenanceLogId
+  ) {
+    MaintenanceLogUpdateResponse response =
+        maintenanceLogManageCommandService.deleteMaintenanceLog(maintenanceLogId);
     return ResponseEntity.ok(ApiResponse.success(response));
   }
 

@@ -11,10 +11,18 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.E
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvDeviationType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentEvent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceItemStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceLog;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceResult;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentAgingParam;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentBaseline;
@@ -29,6 +37,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Equipme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.MaintenanceItemStandardRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.MaintenanceLogRepository;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import jakarta.persistence.EntityManager;
@@ -44,6 +54,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,6 +100,12 @@ class EquipmentManageCommandControllerIntegrationTest {
     private EquipmentBaselineRepository equipmentBaselineRepository;
 
     @Autowired
+    private MaintenanceItemStandardRepository maintenanceItemStandardRepository;
+
+    @Autowired
+    private MaintenanceLogRepository maintenanceLogRepository;
+
+    @Autowired
     private EquipmentQueryService equipmentQueryService;
 
     @Autowired
@@ -101,6 +118,8 @@ class EquipmentManageCommandControllerIntegrationTest {
     private EquipmentProcess equipmentProcess;
     private EnvironmentStandard environmentStandard;
     private Equipment equipment;
+    private MaintenanceItemStandard maintenanceItemStandard;
+    private MaintenanceLog maintenanceLog;
 
     @BeforeEach
     void setUp() {
@@ -144,6 +163,28 @@ class EquipmentManageCommandControllerIntegrationTest {
         );
 
         equipment = createEquipmentAggregate("EQ-" + idGenerator.generate(), "Seed Equipment");
+
+        maintenanceItemStandard = maintenanceItemStandardRepository.save(
+            MaintenanceItemStandard.builder()
+                .maintenanceItemStandardId(idGenerator.generate())
+                .maintenanceItem("Bearing Check")
+                .maintenanceWeight(new BigDecimal("0.30"))
+                .maintenanceScoreMax(new BigDecimal("100.00"))
+                .build()
+        );
+
+        maintenanceLog = maintenanceLogRepository.save(
+            MaintenanceLog.builder()
+                .maintenanceLogId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())
+                .maintenanceType(MaintenanceType.REGULAR)
+                .maintenanceDate(LocalDate.of(2026, 4, 1))
+                .maintenanceScore(new BigDecimal("91.50"))
+                .etaMaintDelta(new BigDecimal("3.50"))
+                .maintenanceResult(MaintenanceResult.NORMAL)
+                .build()
+        );
 
         entityManager.flush();
         entityManager.clear();
@@ -531,6 +572,151 @@ class EquipmentManageCommandControllerIntegrationTest {
             .andExpect(jsonPath("$.success").value(true));
 
         assertTrue(environmentEventRepository.findById(environmentEvent.getEnvironmentEventId()).isEmpty());
+    }
+
+    @Test
+    @DisplayName("Create maintenance item standard API integration success: persist item standard")
+    void createMaintenanceItemStandard_success() throws Exception {
+        MaintenanceItemStandardCreateRequest request = MaintenanceItemStandardCreateRequest.builder()
+            .maintenanceItem("Sensor Check")
+            .maintenanceWeight(new BigDecimal("0.45"))
+            .maintenanceScoreMax(new BigDecimal("120.00"))
+            .build();
+
+        mockMvc.perform(post("/api/v1/equipment-management/maintenance-item-standards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceItem").value("Sensor Check"));
+
+        MaintenanceItemStandard savedItemStandard = maintenanceItemStandardRepository.findAll().stream()
+            .filter(item -> "Sensor Check".equals(item.getMaintenanceItem()))
+            .findFirst()
+            .orElse(null);
+        assertNotNull(savedItemStandard);
+    }
+
+    @Test
+    @DisplayName("Update maintenance item standard API integration success: update item standard")
+    void updateMaintenanceItemStandard_success() throws Exception {
+        MaintenanceItemStandardUpdateRequest request = MaintenanceItemStandardUpdateRequest.builder()
+            .maintenanceItem("Updated Bearing Check")
+            .maintenanceWeight(new BigDecimal("0.55"))
+            .maintenanceScoreMax(new BigDecimal("130.00"))
+            .build();
+
+        mockMvc.perform(put("/api/v1/equipment-management/maintenance-item-standards/{maintenanceItemStandardId}",
+                maintenanceItemStandard.getMaintenanceItemStandardId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        MaintenanceItemStandard updatedItemStandard = maintenanceItemStandardRepository
+            .findById(maintenanceItemStandard.getMaintenanceItemStandardId()).orElse(null);
+        assertNotNull(updatedItemStandard);
+        assertEquals("Updated Bearing Check", updatedItemStandard.getMaintenanceItem());
+    }
+
+    @Test
+    @DisplayName("Delete maintenance item standard API integration success: soft delete item standard")
+    void deleteMaintenanceItemStandard_success() throws Exception {
+        MaintenanceItemStandard deleteTarget = maintenanceItemStandardRepository.save(
+            MaintenanceItemStandard.builder()
+                .maintenanceItemStandardId(idGenerator.generate())
+                .maintenanceItem("Delete Target Standard")
+                .maintenanceWeight(new BigDecimal("0.25"))
+                .maintenanceScoreMax(new BigDecimal("90.00"))
+                .build()
+        );
+
+        mockMvc.perform(delete("/api/v1/equipment-management/maintenance-item-standards/{maintenanceItemStandardId}",
+                deleteTarget.getMaintenanceItemStandardId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        MaintenanceItemStandard deletedItemStandard = maintenanceItemStandardRepository.findById(deleteTarget.getMaintenanceItemStandardId())
+            .orElse(null);
+        assertNotNull(deletedItemStandard);
+        assertTrue(deletedItemStandard.getIsDeleted());
+    }
+
+    @Test
+    @DisplayName("Create maintenance log API integration success: persist maintenance log")
+    void createMaintenanceLog_success() throws Exception {
+        MaintenanceLogCreateRequest request = MaintenanceLogCreateRequest.builder()
+            .equipmentId(equipment.getEquipmentId())
+            .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())
+            .maintenanceType(MaintenanceType.IRREGULAR)
+            .maintenanceDate(LocalDate.of(2026, 4, 2))
+            .maintenanceScore(new BigDecimal("82.00"))
+            .etaMaintDelta(new BigDecimal("5.00"))
+            .maintenanceResult(MaintenanceResult.REPAIR_REQUIRED)
+            .build();
+
+        mockMvc.perform(post("/api/v1/equipment-management/maintenance-logs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentId").value(equipment.getEquipmentId()));
+
+        MaintenanceLog savedLog = maintenanceLogRepository.findAll().stream()
+            .filter(log -> log.getEquipmentId().equals(equipment.getEquipmentId()))
+            .filter(log -> LocalDate.of(2026, 4, 2).equals(log.getMaintenanceDate()))
+            .findFirst()
+            .orElse(null);
+        assertNotNull(savedLog);
+    }
+
+    @Test
+    @DisplayName("Update maintenance log API integration success: update maintenance log")
+    void updateMaintenanceLog_success() throws Exception {
+        MaintenanceLogUpdateRequest request = MaintenanceLogUpdateRequest.builder()
+            .equipmentId(equipment.getEquipmentId())
+            .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())
+            .maintenanceType(MaintenanceType.IRREGULAR)
+            .maintenanceDate(LocalDate.of(2026, 4, 3))
+            .maintenanceScore(new BigDecimal("88.00"))
+            .etaMaintDelta(new BigDecimal("4.50"))
+            .maintenanceResult(MaintenanceResult.REPAIR_COMPLETED)
+            .build();
+
+        mockMvc.perform(put("/api/v1/equipment-management/maintenance-logs/{maintenanceLogId}",
+                maintenanceLog.getMaintenanceLogId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        MaintenanceLog updatedLog = maintenanceLogRepository.findById(maintenanceLog.getMaintenanceLogId()).orElse(null);
+        assertNotNull(updatedLog);
+        assertEquals(MaintenanceResult.REPAIR_COMPLETED, updatedLog.getMaintenanceResult());
+    }
+
+    @Test
+    @DisplayName("Delete maintenance log API integration success: remove maintenance log")
+    void deleteMaintenanceLog_success() throws Exception {
+        MaintenanceLog deleteTarget = maintenanceLogRepository.save(
+            MaintenanceLog.builder()
+                .maintenanceLogId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())
+                .maintenanceType(MaintenanceType.REGULAR)
+                .maintenanceDate(LocalDate.of(2026, 4, 4))
+                .maintenanceScore(new BigDecimal("90.00"))
+                .etaMaintDelta(new BigDecimal("2.50"))
+                .maintenanceResult(MaintenanceResult.NORMAL)
+                .build()
+        );
+
+        mockMvc.perform(delete("/api/v1/equipment-management/maintenance-logs/{maintenanceLogId}",
+                deleteTarget.getMaintenanceLogId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true));
+
+        assertTrue(maintenanceLogRepository.findById(deleteTarget.getMaintenanceLogId()).isEmpty());
     }
 
     private Equipment createEquipmentAggregate(String equipmentCode, String equipmentName) {

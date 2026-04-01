@@ -4,6 +4,10 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environm
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentEvent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceItemStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceLog;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceResult;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
@@ -14,6 +18,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Environ
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.MaintenanceItemStandardRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.MaintenanceLogRepository;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -56,6 +63,12 @@ class EquipmentManageQueryControllerIntegrationTest {
     private EnvironmentEventRepository environmentEventRepository;
 
     @Autowired
+    private MaintenanceItemStandardRepository maintenanceItemStandardRepository;
+
+    @Autowired
+    private MaintenanceLogRepository maintenanceLogRepository;
+
+    @Autowired
     private EntityManager entityManager;
 
     private final TimeBasedIdGenerator idGenerator = new TimeBasedIdGenerator();
@@ -65,6 +78,8 @@ class EquipmentManageQueryControllerIntegrationTest {
     private EnvironmentStandard environmentStandard;
     private Equipment equipment;
     private EnvironmentEvent environmentEvent;
+    private MaintenanceItemStandard maintenanceItemStandard;
+    private MaintenanceLog maintenanceLog;
 
     @BeforeEach
     void setUp() {
@@ -122,6 +137,28 @@ class EquipmentManageQueryControllerIntegrationTest {
                 .envDeviationType(EnvDeviationType.TEMPERATURE_DEVIATION)
                 .envCorrectionApplied(false)
                 .envDetectedAt(LocalDateTime.of(2026, 4, 1, 11, 0))
+                .build()
+        );
+
+        maintenanceItemStandard = maintenanceItemStandardRepository.save(
+            MaintenanceItemStandard.builder()
+                .maintenanceItemStandardId(idGenerator.generate())
+                .maintenanceItem("Bearing Check")
+                .maintenanceWeight(new BigDecimal("0.30"))
+                .maintenanceScoreMax(new BigDecimal("100.00"))
+                .build()
+        );
+
+        maintenanceLog = maintenanceLogRepository.save(
+            MaintenanceLog.builder()
+                .maintenanceLogId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())
+                .maintenanceType(MaintenanceType.REGULAR)
+                .maintenanceDate(LocalDate.of(2026, 4, 1))
+                .maintenanceScore(new BigDecimal("91.50"))
+                .etaMaintDelta(new BigDecimal("3.50"))
+                .maintenanceResult(MaintenanceResult.NORMAL)
                 .build()
         );
 
@@ -242,6 +279,80 @@ class EquipmentManageQueryControllerIntegrationTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_008"));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard list API integration success: return persisted item standard")
+    void getMaintenanceItemStandardList_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards")
+                .param("keyword", "Bearing Check"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data[0].maintenanceItemStandardId").value(maintenanceItemStandard.getMaintenanceItemStandardId()));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard detail API integration success: return persisted item standard detail")
+    void getMaintenanceItemStandardDetail_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards/{maintenanceItemStandardId}",
+                maintenanceItemStandard.getMaintenanceItemStandardId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceItemStandardId").value(maintenanceItemStandard.getMaintenanceItemStandardId()));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard detail API integration failure: return 404 when ID does not exist")
+    void getMaintenanceItemStandardDetail_whenNotFound_thenReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards/{maintenanceItemStandardId}", Long.MAX_VALUE))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_010"));
+    }
+
+    @Test
+    @DisplayName("Get maintenance item standard detail API integration failure: return 404 when item standard is soft deleted")
+    void getMaintenanceItemStandardDetail_whenSoftDeleted_thenReturn404() throws Exception {
+        maintenanceItemStandard.softDelete();
+        maintenanceItemStandardRepository.save(maintenanceItemStandard);
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards/{maintenanceItemStandardId}",
+                maintenanceItemStandard.getMaintenanceItemStandardId()))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_010"));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log list API integration success: return persisted maintenance log")
+    void getMaintenanceLogList_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs")
+                .param("equipmentId", String.valueOf(equipment.getEquipmentId()))
+                .param("maintenanceType", "REGULAR")
+                .param("maintenanceResult", "NORMAL"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data[0].maintenanceLogId").value(maintenanceLog.getMaintenanceLogId()));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log detail API integration success: return persisted maintenance log detail")
+    void getMaintenanceLogDetail_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs/{maintenanceLogId}", maintenanceLog.getMaintenanceLogId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(maintenanceLog.getMaintenanceLogId()));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log detail API integration failure: return 404 when ID does not exist")
+    void getMaintenanceLogDetail_whenNotFound_thenReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs/{maintenanceLogId}", Long.MAX_VALUE))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_011"));
     }
 
     @Test
