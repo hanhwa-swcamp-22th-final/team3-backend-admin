@@ -91,4 +91,47 @@ public class EquipmentBaseline {
         this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
     }
+
+    public void update(BigDecimal equipmentStandardPerformanceRate,
+                       BigDecimal equipmentBaselineErrorRate,
+                       BigDecimal equipmentEtaMaint,
+                       BigDecimal equipmentIdx,
+                       LocalDateTime equipmentBaselineCalculatedAt) {
+        validate(
+            equipmentStandardPerformanceRate,
+            equipmentBaselineErrorRate,
+            equipmentEtaMaint,
+            equipmentIdx,
+            equipmentBaselineCalculatedAt
+        );
+
+        this.equipmentStandardPerformanceRate = equipmentStandardPerformanceRate;
+        this.equipmentBaselineErrorRate = equipmentBaselineErrorRate;
+        this.equipmentEtaMaint = equipmentEtaMaint;
+        this.equipmentIdx = equipmentIdx;
+        this.equipmentBaselineCalculatedAt = equipmentBaselineCalculatedAt;
+    }
+
+    private void validate(BigDecimal equipmentStandardPerformanceRate,
+                          BigDecimal equipmentBaselineErrorRate,
+                          BigDecimal equipmentEtaMaint,
+                          BigDecimal equipmentIdx,
+                          LocalDateTime equipmentBaselineCalculatedAt) {
+        if (equipmentStandardPerformanceRate != null
+            && equipmentStandardPerformanceRate.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Equipment standard performance rate must not be negative.");
+        }
+        if (equipmentBaselineErrorRate != null
+            && equipmentBaselineErrorRate.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Equipment baseline error rate must not be negative.");
+        }
+        if (equipmentEtaMaint != null
+            && equipmentEtaMaint.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Equipment eta maintenance must not be negative.");
+        }
+        if (equipmentIdx != null
+            && equipmentIdx.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Equipment index must not be negative.");
+        }
+    }
 }
