@@ -5,7 +5,6 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.D
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeRoleChangeRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeSkillUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.DepartmentManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement.EmployeeRoleManageCommandService;
@@ -101,23 +100,6 @@ public class OrganizationManageCommandController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(null));
-    }
-
-    /**
-     * 사원의 개인정보를 수정하는 Api
-     * @param request EmployeeUpdateRequest
-     * @param userDetails Login User의 권한 정보를 담고있는 객체
-     * @return ResponseEntity<ApiResponse<>>
-     */
-    @PutMapping("/employee")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> updateEmployee(
-            @Valid @RequestBody EmployeeUpdateRequest request,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        employeeManageCommandService.updateEmployee(request, userDetails.getUsername());
-
-        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     /**

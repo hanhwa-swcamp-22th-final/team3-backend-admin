@@ -3,8 +3,8 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "employeeEmail": "admin@seto.com",
-  "password": "admin123!"
+  "employeeEmail": "sinseon2000@company.com",
+  "password": "password123!"
 }
 
 > {%
@@ -24,3 +24,39 @@ Cookie: refreshToken={{refreshToken}}
 ### 로그아웃 (refreshToken 쿠키 필요)
 POST http://localhost:8080/api/v1/auth/logout
 Cookie: refreshToken={{refreshToken}}
+
+### 프로필 수정 - 전체 필드 수정
+PUT http://localhost:8080/api/v1/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeName": "김신우",
+  "employeeEmail": "admin@seto.com",
+  "employeePhone": "010-1333-1111",
+  "employeeAddress": "부산시 해운대구 센텀로 123",
+  "employeeEmergencyContact": "010-1111-2222"
+}
+
+### 프로필 수정 - 특정 필드만 수정
+PUT http://localhost:8080/api/v1/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeName": "김신우의아이디다",
+  "employeeEmail": null,
+  "employeePhone": null,
+  "employeeAddress": "신검단중앙",
+  "employeeEmergencyContact": "112-112-112"
+}
+
+### 비밀번호 변경
+PUT http://localhost:8080/api/v1/auth/password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "currentPassword": "password1237!",
+  "newPassword": "password123!"
+}
