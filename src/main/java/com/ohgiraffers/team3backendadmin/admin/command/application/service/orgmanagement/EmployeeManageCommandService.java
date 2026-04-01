@@ -4,10 +4,13 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.E
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.consent.Consent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.ConsentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.service.OrganizationManageDomainService;
+import com.ohgiraffers.team3backendadmin.common.constant.ConsentInfo;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
 import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
@@ -31,6 +34,7 @@ public class EmployeeManageCommandService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
     private final SkillRepository skillRepository;
+    private final ConsentRepository consentRepository;
     private final IdGenerator idGenerator;
     private final PasswordEncoder passwordEncoder;
     private final AesEncryptor aesEncryptor;
@@ -86,6 +90,18 @@ public class EmployeeManageCommandService {
                             .build();
                     skillRepository.save(defaultSkill);
                 });
+
+        // 새 사원 생성 시, 약관 처리 테이블에 기본 레코드 생성.
+        Consent defaultConsent = Consent.builder()
+                .consentId(idGenerator.generate())
+                .employeeId(employee.getEmployeeId())
+                .consentVersion(ConsentInfo.CONSENT_VERSION)
+                .isAgreed(false)
+                .consentSavedPath(ConsentInfo.CONSENT_SAVED_PATH)
+                .consentedAt(null)
+                .build();
+
+        consentRepository.save(defaultConsent);
     }
 
     // Delete employee

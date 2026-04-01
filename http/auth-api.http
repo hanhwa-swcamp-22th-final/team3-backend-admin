@@ -3,7 +3,7 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "employeeEmail": "sinseon2000@company.com",
+  "employeeEmail": "sinseon2000@naver.com",
   "password": "password123!"
 }
 
@@ -32,9 +32,9 @@ Authorization: Bearer {{accessToken}}
 
 {
   "employeeName": "김신우",
-  "employeeEmail": "admin@seto.com",
-  "employeePhone": "010-1333-1111",
-  "employeeAddress": "부산시 해운대구 센텀로 123",
+  "employeeEmail": "sinseon2000@naver.com",
+  "employeePhone": "010-7162-1888",
+  "employeeAddress": "강남구 용산구 마포구",
   "employeeEmergencyContact": "010-1111-2222"
 }
 

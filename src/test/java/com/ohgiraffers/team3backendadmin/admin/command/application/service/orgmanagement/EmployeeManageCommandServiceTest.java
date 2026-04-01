@@ -1,12 +1,14 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.consent.Consent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.ConsentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
@@ -54,6 +56,9 @@ class EmployeeManageCommandServiceTest {
 
     @Mock
     private SkillRepository skillRepository;
+
+    @Mock
+    private ConsentRepository consentRepository;
 
     @Mock
     private IdGenerator idGenerator;
@@ -139,6 +144,9 @@ class EmployeeManageCommandServiceTest {
 
             // 6개의 기본 스킬 레코드가 생성되는지 확인
             verify(skillRepository, times(6)).save(any(Skill.class));
+
+            // 기본 약관 동의 레코드가 생성되는지 확인
+            verify(consentRepository).save(any(Consent.class));
         }
 
         @Test
