@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.common.exception;
 
-public class PasswordMismatchException extends RuntimeException {
+public class PasswordMismatchException extends BusinessException {
 
     public PasswordMismatchException() {
-        super("현재 비밀번호가 일치하지 않습니다");
+        super(ErrorCode.PASSWORD_MISMATCH);
     }
 
     public PasswordMismatchException(String message) {
-        super(message);
+        super(ErrorCode.PASSWORD_MISMATCH, message);
     }
 }

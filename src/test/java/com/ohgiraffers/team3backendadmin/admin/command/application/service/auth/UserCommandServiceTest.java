@@ -249,7 +249,7 @@ class UserCommandServiceTest {
                     EmployeeNotFoundException.class,
                     () -> userCommandService.updateProfile(request, "UNKNOWN")
             );
-            assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 사원을 찾을 수 없습니다.", exception.getMessage());
         }
     }
 
@@ -416,7 +416,7 @@ class UserCommandServiceTest {
                     PasswordMismatchException.class,
                     () -> userCommandService.changePassword(request, "EMP2603001")
             );
-            assertEquals("현재 비밀번호가 일치하지 않습니다", exception.getMessage());
+            assertEquals("현재 비밀번호가 일치하지 않습니다.", exception.getMessage());
         }
 
         @Test
@@ -433,7 +433,7 @@ class UserCommandServiceTest {
                     EmployeeNotFoundException.class,
                     () -> userCommandService.changePassword(request, "UNKNOWN")
             );
-            assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 사원을 찾을 수 없습니다.", exception.getMessage());
         }
     }
 }

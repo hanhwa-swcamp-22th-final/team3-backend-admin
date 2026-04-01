@@ -165,7 +165,7 @@ class EmployeeManageCommandServiceTest {
                     DepartmentNotFoundException.class,
                     () -> employeeManageCommandService.insertEmployee(request, "EMP-0001")
             );
-            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -182,7 +182,7 @@ class EmployeeManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.insertEmployee(request, "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -281,7 +281,7 @@ class EmployeeManageCommandServiceTest {
                     EmployeeNotFoundException.class,
                     () -> employeeManageCommandService.deleteEmployee("UNKNOWN_TARGET", "EMP-0001")
             );
-            assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 사원을 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -296,7 +296,7 @@ class EmployeeManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.deleteEmployee("EMP2603001", "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
     }
 }

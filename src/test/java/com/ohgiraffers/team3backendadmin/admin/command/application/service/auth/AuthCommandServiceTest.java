@@ -25,7 +25,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeOnLeaveException;
+import com.ohgiraffers.team3backendadmin.common.exception.InvalidCredentialsException;
+import com.ohgiraffers.team3backendadmin.common.exception.InvalidTokenException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Duration;
@@ -132,11 +135,11 @@ class AuthCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            InvalidCredentialsException exception = assertThrows(
+                    InvalidCredentialsException.class,
                     () -> authCommandService.login(request)
             );
-            assertEquals("아이디 또는 비밀번호가 일치하지 않습니다", exception.getMessage());
+            assertEquals("아이디 또는 비밀번호가 일치하지 않습니다.", exception.getMessage());
         }
 
         @Test
@@ -155,11 +158,11 @@ class AuthCommandServiceTest {
                     .willReturn(Optional.of(onLeaveEmployee));
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            EmployeeOnLeaveException exception = assertThrows(
+                    EmployeeOnLeaveException.class,
                     () -> authCommandService.login(request)
             );
-            assertEquals("Employee is on leave", exception.getMessage());
+            assertEquals("휴직 중인 사원은 로그인할 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -175,11 +178,11 @@ class AuthCommandServiceTest {
                     .willReturn(false);
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            InvalidCredentialsException exception = assertThrows(
+                    InvalidCredentialsException.class,
                     () -> authCommandService.login(request)
             );
-            assertEquals("아이디 또는 비밀번호가 일치하지 않습니다", exception.getMessage());
+            assertEquals("아이디 또는 비밀번호가 일치하지 않습니다.", exception.getMessage());
         }
 
         @Test
@@ -197,11 +200,11 @@ class AuthCommandServiceTest {
                     .willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> authCommandService.login(request)
             );
-            assertEquals("부서 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
         }
     }
 
@@ -276,11 +279,11 @@ class AuthCommandServiceTest {
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.empty());
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            InvalidTokenException exception = assertThrows(
+                    InvalidTokenException.class,
                     () -> authCommandService.refreshToken(provideRefreshToken)
             );
-            assertEquals("해당 유저로 조회되는 refresh token 없음", exception.getMessage());
+            assertEquals("해당 유저로 조회되는 refresh token이 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -300,11 +303,11 @@ class AuthCommandServiceTest {
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(storedToken));
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            InvalidTokenException exception = assertThrows(
+                    InvalidTokenException.class,
                     () -> authCommandService.refreshToken(provideRefreshToken)
             );
-            assertEquals("refresh token이 일치하지 않음", exception.getMessage());
+            assertEquals("refresh token이 일치하지 않습니다.", exception.getMessage());
         }
 
         @Test
@@ -324,11 +327,11 @@ class AuthCommandServiceTest {
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(storedToken));
 
             // when & then
-            BadCredentialsException exception = assertThrows(
-                    BadCredentialsException.class,
+            InvalidTokenException exception = assertThrows(
+                    InvalidTokenException.class,
                     () -> authCommandService.refreshToken(provideRefreshToken)
             );
-            assertEquals("refresh token 기간 만료", exception.getMessage());
+            assertEquals("refresh token이 만료되었습니다.", exception.getMessage());
         }
     }
 

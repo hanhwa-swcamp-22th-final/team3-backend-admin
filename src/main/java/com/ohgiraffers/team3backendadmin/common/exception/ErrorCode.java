@@ -21,6 +21,12 @@ public enum ErrorCode {
     MAINTENANCE_ITEM_STANDARD_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_010", "해당 유지보수 항목 기준을 찾을 수 없습니다."),
     MAINTENANCE_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_011", "해당 유지보수 이력을 찾을 수 없습니다."),
 
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH_001", "아이디 또는 비밀번호가 일치하지 않습니다."),
+    EMPLOYEE_ON_LEAVE(HttpStatus.FORBIDDEN, "AUTH_002", "휴직 중인 사원은 로그인할 수 없습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_003", "유효하지 않은 토큰입니다."),
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_004", "현재 비밀번호가 일치하지 않습니다."),
+
+    DUPLICATE_FIELD(HttpStatus.CONFLICT, "CONFLICT_005", "이미 사용 중인 값입니다."),
     ENVIRONMENT_STANDARD_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "CONFLICT_001", "이미 사용 중인 환경 기준 코드입니다."),
     FACTORY_LINE_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "CONFLICT_002", "이미 사용 중인 생산 라인 코드입니다."),
     EQUIPMENT_PROCESS_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "CONFLICT_003", "이미 사용 중인 공정 코드입니다."),
