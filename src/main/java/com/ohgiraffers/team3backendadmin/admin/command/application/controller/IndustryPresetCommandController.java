@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/industry-presets")
+@RequestMapping("/api/v1/industry")
 public class IndustryPresetCommandController {
 
     private final IndustryPresetCommandService industryPresetCommandService;
 
-    @PostMapping
+    @PostMapping("/preset")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> create(
             @Valid @RequestBody IndustryPresetCreateRequest request

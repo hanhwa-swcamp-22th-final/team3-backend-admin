@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 public class OCSAWeightConfig {
 
     @Id
+    @Column(name = "config_id")
     private Long configId;
 
     @Column(name = "industry_preset_name")
