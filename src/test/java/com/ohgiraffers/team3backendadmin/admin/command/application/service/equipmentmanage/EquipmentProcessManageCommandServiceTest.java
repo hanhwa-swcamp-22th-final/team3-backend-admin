@@ -1,12 +1,15 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,8 +22,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EquipmentProcessManageCommandServiceTest {
@@ -69,10 +78,10 @@ class EquipmentProcessManageCommandServiceTest {
         .equipmentProcessName("Fixed Process")
         .build();
   }
+
   @Test
   @DisplayName("Create equipment process success: save equipment process from request")
   void createEquipmentProcess_success() {
-    // given
     when(factoryLineRepository.findById(1001L))
         .thenReturn(Optional.of(factoryLine));
     when(equipmentProcessRepository.findByEquipmentProcessCode("PROC-001"))
@@ -82,10 +91,8 @@ class EquipmentProcessManageCommandServiceTest {
     when(equipmentProcessRepository.save(any(EquipmentProcess.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // when
-    var response = equipmentProcessManageCommandService.createEquipmentProcess(createRequest);
+    EquipmentProcessCreateResponse response = equipmentProcessManageCommandService.createEquipmentProcess(createRequest);
 
-    // then
     ArgumentCaptor<EquipmentProcess> captor = ArgumentCaptor.forClass(EquipmentProcess.class);
     verify(equipmentProcessRepository).save(captor.capture());
 
@@ -100,47 +107,45 @@ class EquipmentProcessManageCommandServiceTest {
     assertEquals(1001L, response.getFactoryLineId());
     assertEquals("PROC-001", response.getEquipmentProcessCode());
     assertEquals("Mixing Process", response.getEquipmentProcessName());
-
   }
 
   @Test
-  @DisplayName("Create equipment process failure: throw exception when factory line does not exist")
+  @DisplayName("Create equipment process failure: throw business exception when factory line does not exist")
   void createEquipmentProcess_whenFactoryLineNotFound_thenThrow() {
-    // given
     when(factoryLineRepository.findById(1001L))
         .thenReturn(Optional.empty());
 
-    // when & then
-    assertThrows(IllegalArgumentException.class,
-        () -> equipmentProcessManageCommandService.createEquipmentProcess(createRequest));
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> equipmentProcessManageCommandService.createEquipmentProcess(createRequest)
+    );
 
+    assertEquals(ErrorCode.FACTORY_LINE_NOT_FOUND, exception.getErrorCode());
     verify(equipmentProcessRepository, never()).save(any(EquipmentProcess.class));
     verify(idGenerator, never()).generate();
-
   }
 
   @Test
-  @DisplayName("Create equipment process failure: throw exception when equipment process code already exists")
+  @DisplayName("Create equipment process failure: throw business exception when equipment process code already exists")
   void createEquipmentProcess_whenEquipmentProcessCodeAlreadyExists_thenThrow() {
-    // given
     when(factoryLineRepository.findById(1001L))
         .thenReturn(Optional.of(factoryLine));
     when(equipmentProcessRepository.findByEquipmentProcessCode("PROC-001"))
         .thenReturn(Optional.of(equipmentProcess));
 
-    // when & then
-    assertThrows(IllegalArgumentException.class,
-        () -> equipmentProcessManageCommandService.createEquipmentProcess(createRequest));
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> equipmentProcessManageCommandService.createEquipmentProcess(createRequest)
+    );
 
+    assertEquals(ErrorCode.EQUIPMENT_PROCESS_CODE_ALREADY_EXISTS, exception.getErrorCode());
     verify(equipmentProcessRepository, never()).save(any(EquipmentProcess.class));
     verify(idGenerator, never()).generate();
-
   }
 
   @Test
   @DisplayName("Update equipment process success: update existing equipment process")
   void updateEquipmentProcess_success() {
-    // given
     when(equipmentProcessRepository.findById(2001L))
         .thenReturn(Optional.of(equipmentProcess));
     when(factoryLineRepository.findById(1002L))
@@ -149,11 +154,11 @@ class EquipmentProcessManageCommandServiceTest {
             .factoryLineCode("LINE-002")
             .factoryLineName("Sub Line")
             .build()));
+    when(equipmentProcessRepository.findByEquipmentProcessCode("PROC-999"))
+        .thenReturn(Optional.empty());
 
-    // when
-    var response = equipmentProcessManageCommandService.updateEquipmentProcess(2001L, updateRequest);
+    EquipmentProcessUpdateResponse response = equipmentProcessManageCommandService.updateEquipmentProcess(2001L, updateRequest);
 
-    // then
     assertEquals(1002L, equipmentProcess.getFactoryLineId());
     assertEquals("PROC-999", equipmentProcess.getEquipmentProcessCode());
     assertEquals("Fixed Process", equipmentProcess.getEquipmentProcessName());
@@ -162,52 +167,93 @@ class EquipmentProcessManageCommandServiceTest {
     assertEquals(1002L, response.getFactoryLineId());
     assertEquals("PROC-999", response.getEquipmentProcessCode());
     assertEquals("Fixed Process", response.getEquipmentProcessName());
-
   }
 
   @Test
-  @DisplayName("Update equipment process failure: throw exception when equipment process does not exist")
+  @DisplayName("Update equipment process failure: throw business exception when equipment process does not exist")
   void updateEquipmentProcess_whenEquipmentProcessNotFound_thenThrow() {
-    // given
     when(equipmentProcessRepository.findById(9999L))
         .thenReturn(Optional.empty());
 
-    // when & then
-    assertThrows(IllegalArgumentException.class,
-        () -> equipmentProcessManageCommandService.updateEquipmentProcess(9999L, updateRequest));
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> equipmentProcessManageCommandService.updateEquipmentProcess(9999L, updateRequest)
+    );
 
+    assertEquals(ErrorCode.EQUIPMENT_PROCESS_NOT_FOUND, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("Update equipment process failure: throw business exception when factory line does not exist")
+  void updateEquipmentProcess_whenFactoryLineNotFound_thenThrow() {
+    when(equipmentProcessRepository.findById(2001L))
+        .thenReturn(Optional.of(equipmentProcess));
+    when(factoryLineRepository.findById(1002L))
+        .thenReturn(Optional.empty());
+
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> equipmentProcessManageCommandService.updateEquipmentProcess(2001L, updateRequest)
+    );
+
+    assertEquals(ErrorCode.FACTORY_LINE_NOT_FOUND, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("Update equipment process failure: throw business exception when code already exists on another process")
+  void updateEquipmentProcess_whenCodeAlreadyExists_thenThrow() {
+    EquipmentProcess duplicatedEquipmentProcess = EquipmentProcess.builder()
+        .equipmentProcessId(3001L)
+        .factoryLineId(1002L)
+        .equipmentProcessCode("PROC-999")
+        .equipmentProcessName("Duplicated Process")
+        .build();
+
+    when(equipmentProcessRepository.findById(2001L))
+        .thenReturn(Optional.of(equipmentProcess));
+    when(factoryLineRepository.findById(1002L))
+        .thenReturn(Optional.of(FactoryLine.builder()
+            .factoryLineId(1002L)
+            .factoryLineCode("LINE-002")
+            .factoryLineName("Sub Line")
+            .build()));
+    when(equipmentProcessRepository.findByEquipmentProcessCode("PROC-999"))
+        .thenReturn(Optional.of(duplicatedEquipmentProcess));
+
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> equipmentProcessManageCommandService.updateEquipmentProcess(2001L, updateRequest)
+    );
+
+    assertEquals(ErrorCode.EQUIPMENT_PROCESS_CODE_ALREADY_EXISTS, exception.getErrorCode());
   }
 
   @Test
   @DisplayName("Delete equipment process success: soft delete existing equipment process")
   void deleteEquipmentProcess_success() {
-    // given
     when(equipmentProcessRepository.findById(2001L))
         .thenReturn(Optional.of(equipmentProcess));
 
-    // when
-    var response = equipmentProcessManageCommandService.deleteEquipmentProcess(2001L);
+    EquipmentProcessUpdateResponse response = equipmentProcessManageCommandService.deleteEquipmentProcess(2001L);
 
-    // then
     assertTrue(equipmentProcess.getIsDeleted());
     assertEquals(2001L, response.getEquipmentProcessId());
     assertEquals(1001L, response.getFactoryLineId());
     assertEquals("PROC-001", response.getEquipmentProcessCode());
     assertEquals("Mixing Process", response.getEquipmentProcessName());
-
   }
 
   @Test
-  @DisplayName("Delete equipment process failure: throw exception when equipment process does not exist")
+  @DisplayName("Delete equipment process failure: throw business exception when equipment process does not exist")
   void deleteEquipmentProcess_whenEquipmentProcessNotFound_thenThrow() {
-    // given
     when(equipmentProcessRepository.findById(9999L))
         .thenReturn(Optional.empty());
 
-    // when & then
-    assertThrows(IllegalArgumentException.class,
-        () -> equipmentProcessManageCommandService.deleteEquipmentProcess(9999L));
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> equipmentProcessManageCommandService.deleteEquipmentProcess(9999L)
+    );
 
+    assertEquals(ErrorCode.EQUIPMENT_PROCESS_NOT_FOUND, exception.getErrorCode());
   }
-
 }

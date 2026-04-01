@@ -83,4 +83,44 @@ public class EnvironmentEvent {
         this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
     }
+
+    public void updateInfo(Long equipmentId,
+                           BigDecimal envTemperature,
+                           BigDecimal envHumidity,
+                           Integer envParticleCnt,
+                           EnvDeviationType envDeviationType,
+                           Boolean envCorrectionApplied,
+                           LocalDateTime envDetectedAt) {
+        validate(equipmentId, envParticleCnt, envDeviationType, envCorrectionApplied, envDetectedAt);
+
+        this.equipmentId = equipmentId;
+        this.envTemperature = envTemperature;
+        this.envHumidity = envHumidity;
+        this.envParticleCnt = envParticleCnt;
+        this.envDeviationType = envDeviationType;
+        this.envCorrectionApplied = envCorrectionApplied;
+        this.envDetectedAt = envDetectedAt;
+    }
+
+    private void validate(Long equipmentId,
+                          Integer envParticleCnt,
+                          EnvDeviationType envDeviationType,
+                          Boolean envCorrectionApplied,
+                          LocalDateTime envDetectedAt) {
+        if (equipmentId == null) {
+            throw new IllegalArgumentException("Equipment id must not be null.");
+        }
+        if (envParticleCnt != null && envParticleCnt < 0) {
+            throw new IllegalArgumentException("Particle count must not be negative.");
+        }
+        if (envDeviationType == null) {
+            throw new IllegalArgumentException("Environment deviation type must not be null.");
+        }
+        if (envCorrectionApplied == null) {
+            throw new IllegalArgumentException("Environment correction applied flag must not be null.");
+        }
+        if (envDetectedAt == null) {
+            throw new IllegalArgumentException("Environment detected time must not be null.");
+        }
+    }
 }

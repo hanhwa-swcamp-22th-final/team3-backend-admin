@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.common.exception;
 
-public class SkillNotFoundException extends RuntimeException {
+public class SkillNotFoundException extends BusinessException {
 
     public SkillNotFoundException() {
-        super("해당 스킬 레코드를 찾을 수 없습니다");
+        super(ErrorCode.SKILL_NOT_FOUND);
     }
 
     public SkillNotFoundException(String message) {
-        super(message);
+        super(ErrorCode.SKILL_NOT_FOUND, message);
     }
 }

@@ -1,10 +1,11 @@
-package com.ohgiraffers.team3backendadmin.admin.query.service;
+package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.FactoryLineSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.FactoryLineQueryMapper;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +85,6 @@ class FactoryLineQueryServiceTest {
 
         FactoryLineDetailResponse result = factoryLineQueryService.getFactoryLineDetail(1L);
 
-        assertNotNull(result);
         assertEquals(1L, result.getFactoryLineId());
         assertEquals("LINE-001", result.getFactoryLineCode());
         assertEquals("Main Line", result.getFactoryLineName());
@@ -90,13 +92,17 @@ class FactoryLineQueryServiceTest {
     }
 
     @Test
-    @DisplayName("Get factory line detail failure: return null when factory line is not found")
-    void getFactoryLineDetail_whenNotFound_thenNull() {
+    @DisplayName("Get factory line detail failure: throw business exception when factory line is not found")
+    void getFactoryLineDetail_whenNotFound_thenThrow() {
         when(factoryLineQueryMapper.selectFactoryLineDetailById(999L)).thenReturn(null);
 
-        FactoryLineDetailResponse result = factoryLineQueryService.getFactoryLineDetail(999L);
+        BusinessException exception = assertThrows(
+            BusinessException.class,
+            () -> factoryLineQueryService.getFactoryLineDetail(999L)
+        );
 
-        assertNull(result);
+        assertEquals(ErrorCode.FACTORY_LINE_NOT_FOUND, exception.getErrorCode());
+        assertEquals("해당 생산 라인을 찾을 수 없습니다.", exception.getMessage());
         verify(factoryLineQueryMapper).selectFactoryLineDetailById(999L);
     }
 
@@ -118,7 +124,7 @@ class FactoryLineQueryServiceTest {
 
         boolean result = factoryLineQueryService.existsByFactoryLineCode("LINE-404");
 
-        assertFalse(result);
+        org.junit.jupiter.api.Assertions.assertFalse(result);
         verify(factoryLineQueryMapper).selectFactoryLineIdByCode("LINE-404");
     }
 }

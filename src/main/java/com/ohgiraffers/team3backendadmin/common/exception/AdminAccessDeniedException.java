@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.common.exception;
 
-public class AdminAccessDeniedException extends RuntimeException {
+public class AdminAccessDeniedException extends BusinessException {
 
     public AdminAccessDeniedException() {
-        super("해당 사원 정보를 찾을 수 없습니다");
+        super(ErrorCode.ADMIN_ACCESS_DENIED);
     }
 
     public AdminAccessDeniedException(String message) {
-        super(message);
+        super(ErrorCode.ADMIN_ACCESS_DENIED, message);
     }
 }

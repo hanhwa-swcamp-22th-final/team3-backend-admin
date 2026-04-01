@@ -1,10 +1,13 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service;
+package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +20,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FactoryLineManageCommandServiceTest {
@@ -58,7 +67,6 @@ class FactoryLineManageCommandServiceTest {
   @Test
   @DisplayName("Create factory line success: save factory line from request")
   void createFactoryLine_success() {
-    // given
     when(factoryLineRepository.findByFactoryLineCode("LINE-001"))
         .thenReturn(Optional.empty());
     when(idGenerator.generate())
@@ -66,10 +74,8 @@ class FactoryLineManageCommandServiceTest {
     when(factoryLineRepository.save(any(FactoryLine.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // when
-    var response = factoryLineManageCommandService.createFactoryLine(createRequest);
+    FactoryLineCreateResponse response = factoryLineManageCommandService.createFactoryLine(createRequest);
 
-    // then
     ArgumentCaptor<FactoryLine> captor = ArgumentCaptor.forClass(FactoryLine.class);
     verify(factoryLineRepository).save(captor.capture());
 
@@ -85,16 +91,17 @@ class FactoryLineManageCommandServiceTest {
   }
 
   @Test
-  @DisplayName("Create factory line failure: throw exception when code already exists")
+  @DisplayName("Create factory line failure: throw business exception when code already exists")
   void createFactoryLine_whenFactoryLineCodeAlreadyExists_thenThrow() {
-    // given
     when(factoryLineRepository.findByFactoryLineCode("LINE-001"))
         .thenReturn(Optional.of(factoryLine));
 
-    // when & then
-    assertThrows(IllegalArgumentException.class,
-        () -> factoryLineManageCommandService.createFactoryLine(createRequest));
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> factoryLineManageCommandService.createFactoryLine(createRequest)
+    );
 
+    assertEquals(ErrorCode.FACTORY_LINE_CODE_ALREADY_EXISTS, exception.getErrorCode());
     verify(factoryLineRepository, never()).save(any(FactoryLine.class));
     verify(idGenerator, never()).generate();
   }
@@ -102,14 +109,13 @@ class FactoryLineManageCommandServiceTest {
   @Test
   @DisplayName("Update factory line success: update existing factory line")
   void updateFactoryLine_success() {
-    // given
     when(factoryLineRepository.findById(1001L))
         .thenReturn(Optional.of(factoryLine));
+    when(factoryLineRepository.findByFactoryLineCode("LINE-999"))
+        .thenReturn(Optional.empty());
 
-    // when
-    var response = factoryLineManageCommandService.updateFactoryLine(1001L, updateRequest);
+    FactoryLineUpdateResponse response = factoryLineManageCommandService.updateFactoryLine(1001L, updateRequest);
 
-    // then
     assertEquals("LINE-999", factoryLine.getFactoryLineCode());
     assertEquals("Fixed Line", factoryLine.getFactoryLineName());
 
@@ -119,29 +125,49 @@ class FactoryLineManageCommandServiceTest {
   }
 
   @Test
-  @DisplayName("Update factory line failure: throw exception when factory line does not exist")
+  @DisplayName("Update factory line failure: throw business exception when factory line does not exist")
   void updateFactoryLine_whenFactoryLineNotFound_thenThrow() {
-    //given
     when(factoryLineRepository.findById(9999L))
         .thenReturn(Optional.empty());
 
-    //when
-    //then
-    assertThrows(IllegalArgumentException.class,
-        () -> factoryLineManageCommandService.updateFactoryLine(9999L, updateRequest));
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> factoryLineManageCommandService.updateFactoryLine(9999L, updateRequest)
+    );
+
+    assertEquals(ErrorCode.FACTORY_LINE_NOT_FOUND, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("Update factory line failure: throw business exception when code already exists on another line")
+  void updateFactoryLine_whenCodeAlreadyExists_thenThrow() {
+    FactoryLine duplicatedFactoryLine = FactoryLine.builder()
+        .factoryLineId(2001L)
+        .factoryLineCode("LINE-999")
+        .factoryLineName("Duplicated Line")
+        .build();
+
+    when(factoryLineRepository.findById(1001L))
+        .thenReturn(Optional.of(factoryLine));
+    when(factoryLineRepository.findByFactoryLineCode("LINE-999"))
+        .thenReturn(Optional.of(duplicatedFactoryLine));
+
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> factoryLineManageCommandService.updateFactoryLine(1001L, updateRequest)
+    );
+
+    assertEquals(ErrorCode.FACTORY_LINE_CODE_ALREADY_EXISTS, exception.getErrorCode());
   }
 
   @Test
   @DisplayName("Delete factory line success: soft delete existing factory line")
   void deleteFactoryLine_success() {
-    // given
     when(factoryLineRepository.findById(1001L))
         .thenReturn(Optional.of(factoryLine));
 
-    // when
-    var response = factoryLineManageCommandService.deleteFactoryLine(1001L);
+    FactoryLineUpdateResponse response = factoryLineManageCommandService.deleteFactoryLine(1001L);
 
-    // then
     assertTrue(factoryLine.getIsDeleted());
     assertEquals(1001L, response.getFactoryLineId());
     assertEquals("LINE-001", response.getFactoryLineCode());
@@ -149,15 +175,16 @@ class FactoryLineManageCommandServiceTest {
   }
 
   @Test
-  @DisplayName("Delete factory line failure: throw exception when factory line does not exist")
+  @DisplayName("Delete factory line failure: throw business exception when factory line does not exist")
   void deleteFactoryLine_whenFactoryLineNotFound_thenThrow() {
-    // given
     when(factoryLineRepository.findById(9999L))
         .thenReturn(Optional.empty());
 
-    // when & then
-    assertThrows(IllegalArgumentException.class,
-        () -> factoryLineManageCommandService.deleteFactoryLine(9999L));
-  }
+    BusinessException exception = assertThrows(
+        BusinessException.class,
+        () -> factoryLineManageCommandService.deleteFactoryLine(9999L)
+    );
 
+    assertEquals(ErrorCode.FACTORY_LINE_NOT_FOUND, exception.getErrorCode());
+  }
 }

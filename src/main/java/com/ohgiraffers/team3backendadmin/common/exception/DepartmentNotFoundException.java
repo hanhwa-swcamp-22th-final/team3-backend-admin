@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.common.exception;
 
-public class DepartmentNotFoundException extends RuntimeException {
+public class DepartmentNotFoundException extends BusinessException {
 
     public DepartmentNotFoundException() {
-        super("해당 부서를 찾을 수 없습니다");
+        super(ErrorCode.DEPARTMENT_NOT_FOUND);
     }
 
     public DepartmentNotFoundException(String message) {
-        super(message);
+        super(ErrorCode.DEPARTMENT_NOT_FOUND, message);
     }
 }
