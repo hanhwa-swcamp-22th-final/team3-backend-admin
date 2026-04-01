@@ -761,6 +761,8 @@ class EquipmentManageCommandControllerIntegrationTest {
                 .equipmentBaselineId(equipmentBaselineId)
                 .equipmentId(equipmentId)
                 .equipmentAgingParamId(equipmentAgingParamId)
+                .equipmentStandardPerformanceRate(new BigDecimal("98.5"))
+                .equipmentBaselineErrorRate(new BigDecimal("1.5"))
                 .build()
         );
 
