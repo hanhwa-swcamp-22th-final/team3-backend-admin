@@ -237,10 +237,26 @@ class EquipmentQueryMapperTest {
     }
 
     @Test
+    @DisplayName("select equipment aging param id by equipment id not found returns null")
+    void selectEquipmentAgingParamIdByEquipmentId_whenUnknownId_thenNull() {
+        Long result = equipmentQueryMapper.selectEquipmentAgingParamIdByEquipmentId(-1L);
+
+        assertNull(result);
+    }
+
+    @Test
     @DisplayName("select equipment baseline id by equipment id success")
     void selectEquipmentBaselineIdByEquipmentId_success() {
         Long result = equipmentQueryMapper.selectEquipmentBaselineIdByEquipmentId(equipmentId);
 
         assertEquals(equipmentBaselineId, result);
+    }
+
+    @Test
+    @DisplayName("select equipment baseline id by equipment id not found returns null")
+    void selectEquipmentBaselineIdByEquipmentId_whenUnknownId_thenNull() {
+        Long result = equipmentQueryMapper.selectEquipmentBaselineIdByEquipmentId(-1L);
+
+        assertNull(result);
     }
 }
