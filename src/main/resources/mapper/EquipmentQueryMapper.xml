@@ -34,6 +34,175 @@
         ORDER BY e.equipment_id DESC
     </select>
 
+    <select id="selectEquipmentListWithLatestSnapshots" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse">
+        SELECT
+            e.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            e.equipment_status AS equipmentStatus,
+            e.equipment_grade AS equipmentGrade,
+            ep.equipment_process_name AS equipmentProcessName,
+            fl.factory_line_name AS factoryLineName,
+            es.environment_name AS environmentName,
+            (
+                SELECT eap.equipment_aging_param_id
+                FROM equipment_aging_param eap
+                WHERE eap.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eap.equipment_age_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eap.equipment_age_calculated_at DESC,
+                         eap.equipment_aging_param_id DESC
+                LIMIT 1
+            ) AS latestEquipmentAgingParamId,
+            (
+                SELECT eap.equipment_eta_age
+                FROM equipment_aging_param eap
+                WHERE eap.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eap.equipment_age_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eap.equipment_age_calculated_at DESC,
+                         eap.equipment_aging_param_id DESC
+                LIMIT 1
+            ) AS latestEquipmentEtaAge,
+            (
+                SELECT eap.equipment_age_months
+                FROM equipment_aging_param eap
+                WHERE eap.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eap.equipment_age_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eap.equipment_age_calculated_at DESC,
+                         eap.equipment_aging_param_id DESC
+                LIMIT 1
+            ) AS latestEquipmentAgeMonths,
+            (
+                SELECT eap.equipment_age_calculated_at
+                FROM equipment_aging_param eap
+                WHERE eap.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eap.equipment_age_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eap.equipment_age_calculated_at DESC,
+                         eap.equipment_aging_param_id DESC
+                LIMIT 1
+            ) AS latestEquipmentAgeCalculatedAt,
+            (
+                SELECT eb.equipment_baseline_id
+                FROM equipment_baseline eb
+                WHERE eb.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eb.equipment_baseline_calculated_at DESC,
+                         eb.equipment_baseline_id DESC
+                LIMIT 1
+            ) AS latestEquipmentBaselineId,
+            (
+                SELECT eb.equipment_standard_performance_rate
+                FROM equipment_baseline eb
+                WHERE eb.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eb.equipment_baseline_calculated_at DESC,
+                         eb.equipment_baseline_id DESC
+                LIMIT 1
+            ) AS latestEquipmentStandardPerformanceRate,
+            (
+                SELECT eb.equipment_baseline_error_rate
+                FROM equipment_baseline eb
+                WHERE eb.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eb.equipment_baseline_calculated_at DESC,
+                         eb.equipment_baseline_id DESC
+                LIMIT 1
+            ) AS latestEquipmentBaselineErrorRate,
+            (
+                SELECT eb.equipment_eta_maint
+                FROM equipment_baseline eb
+                WHERE eb.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eb.equipment_baseline_calculated_at DESC,
+                         eb.equipment_baseline_id DESC
+                LIMIT 1
+            ) AS latestEquipmentEtaMaint,
+            (
+                SELECT eb.equipment_idx
+                FROM equipment_baseline eb
+                WHERE eb.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eb.equipment_baseline_calculated_at DESC,
+                         eb.equipment_baseline_id DESC
+                LIMIT 1
+            ) AS latestEquipmentIdx,
+            (
+                SELECT eb.equipment_baseline_calculated_at
+                FROM equipment_baseline eb
+                WHERE eb.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eb.equipment_baseline_calculated_at DESC,
+                         eb.equipment_baseline_id DESC
+                LIMIT 1
+            ) AS latestEquipmentBaselineCalculatedAt,
+            (
+                SELECT ee.environment_event_id
+                FROM environment_event ee
+                WHERE ee.equipment_id = e.equipment_id
+                ORDER BY ee.env_detected_at DESC, ee.environment_event_id DESC
+                LIMIT 1
+            ) AS latestEnvironmentEventId,
+            (
+                SELECT ee.env_deviation_type
+                FROM environment_event ee
+                WHERE ee.equipment_id = e.equipment_id
+                ORDER BY ee.env_detected_at DESC, ee.environment_event_id DESC
+                LIMIT 1
+            ) AS latestEnvDeviationType,
+            (
+                SELECT ee.env_correction_applied
+                FROM environment_event ee
+                WHERE ee.equipment_id = e.equipment_id
+                ORDER BY ee.env_detected_at DESC, ee.environment_event_id DESC
+                LIMIT 1
+            ) AS latestEnvCorrectionApplied,
+            (
+                SELECT ee.env_detected_at
+                FROM environment_event ee
+                WHERE ee.equipment_id = e.equipment_id
+                ORDER BY ee.env_detected_at DESC, ee.environment_event_id DESC
+                LIMIT 1
+            ) AS latestEnvDetectedAt,
+            (
+                SELECT ml.maintenance_log_id
+                FROM maintenance_log ml
+                WHERE ml.equipment_id = e.equipment_id
+                ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
+                LIMIT 1
+            ) AS latestMaintenanceLogId,
+            (
+                SELECT ml.maintenance_result
+                FROM maintenance_log ml
+                WHERE ml.equipment_id = e.equipment_id
+                ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
+                LIMIT 1
+            ) AS latestMaintenanceResult,
+            (
+                SELECT ml.maintenance_date
+                FROM maintenance_log ml
+                WHERE ml.equipment_id = e.equipment_id
+                ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
+                LIMIT 1
+            ) AS latestMaintenanceDate
+        FROM equipment e
+        INNER JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
+        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        INNER JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
+        WHERE 1 = 1
+        <if test="request != null and request.keyword != null and request.keyword != ''">
+            AND (
+                e.equipment_code LIKE CONCAT('%', #{request.keyword}, '%')
+                OR e.equipment_name LIKE CONCAT('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request != null and request.equipmentStatus != null">
+            AND e.equipment_status = #{request.equipmentStatus}
+        </if>
+        <if test="request != null and request.equipmentGrade != null">
+            AND e.equipment_grade = #{request.equipmentGrade}
+        </if>
+        ORDER BY e.equipment_id DESC
+    </select>
+
     <select id="selectEquipmentDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse">
         SELECT
             e.equipment_id AS equipmentId,
@@ -91,6 +260,104 @@
         WHERE equipment_aging_param_id = #{equipmentAgingParamId}
     </select>
 
+    <select id="selectEquipmentAgingParamHistory" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+        SELECT
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_id AS equipmentId,
+            equipment_eta_age AS equipmentEtaAge,
+            equipment_warranty_month AS equipmentWarrantyMonth,
+            equipment_design_life_months AS equipmentDesignLifeMonths,
+            equipment_wear_coefficient AS equipmentWearCoefficient,
+            equipment_age_months AS equipmentAgeMonths,
+            equipment_age_calculated_at AS equipmentAgeCalculatedAt
+        FROM equipment_aging_param
+        WHERE 1 = 1
+        <if test="request != null and request.equipmentId != null">
+            AND equipment_id = #{request.equipmentId}
+        </if>
+        <if test="request != null and request.exactCalculatedAt != null">
+            AND equipment_age_calculated_at = #{request.exactCalculatedAt}
+        </if>
+        <if test="request != null and request.calculatedFrom != null">
+            AND equipment_age_calculated_at &gt;= #{request.calculatedFrom}
+        </if>
+        <if test="request != null and request.calculatedTo != null">
+            AND equipment_age_calculated_at &lt;= #{request.calculatedTo}
+        </if>
+        ORDER BY CASE WHEN equipment_age_calculated_at IS NULL THEN 1 ELSE 0 END,
+                 equipment_age_calculated_at DESC,
+                 equipment_aging_param_id DESC
+    </select>
+
+    <select id="selectLatestEquipmentAgingParamByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+        SELECT
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_id AS equipmentId,
+            equipment_eta_age AS equipmentEtaAge,
+            equipment_warranty_month AS equipmentWarrantyMonth,
+            equipment_design_life_months AS equipmentDesignLifeMonths,
+            equipment_wear_coefficient AS equipmentWearCoefficient,
+            equipment_age_months AS equipmentAgeMonths,
+            equipment_age_calculated_at AS equipmentAgeCalculatedAt
+        FROM equipment_aging_param
+        WHERE equipment_id = #{equipmentId}
+        ORDER BY CASE WHEN equipment_age_calculated_at IS NULL THEN 1 ELSE 0 END,
+                 equipment_age_calculated_at DESC,
+                 equipment_aging_param_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestEquipmentAgingParamBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+        SELECT
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_id AS equipmentId,
+            equipment_eta_age AS equipmentEtaAge,
+            equipment_warranty_month AS equipmentWarrantyMonth,
+            equipment_design_life_months AS equipmentDesignLifeMonths,
+            equipment_wear_coefficient AS equipmentWearCoefficient,
+            equipment_age_months AS equipmentAgeMonths,
+            equipment_age_calculated_at AS equipmentAgeCalculatedAt
+        FROM equipment_aging_param
+        WHERE equipment_id = #{equipmentId}
+          AND equipment_age_calculated_at &lt;= #{referenceTime}
+        ORDER BY equipment_age_calculated_at DESC, equipment_aging_param_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectFirstEquipmentAgingParamAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+        SELECT
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_id AS equipmentId,
+            equipment_eta_age AS equipmentEtaAge,
+            equipment_warranty_month AS equipmentWarrantyMonth,
+            equipment_design_life_months AS equipmentDesignLifeMonths,
+            equipment_wear_coefficient AS equipmentWearCoefficient,
+            equipment_age_months AS equipmentAgeMonths,
+            equipment_age_calculated_at AS equipmentAgeCalculatedAt
+        FROM equipment_aging_param
+        WHERE equipment_id = #{equipmentId}
+          AND equipment_age_calculated_at &gt;= #{referenceTime}
+        ORDER BY equipment_age_calculated_at ASC, equipment_aging_param_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectUncalculatedEquipmentAgingParamList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+        SELECT
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_id AS equipmentId,
+            equipment_eta_age AS equipmentEtaAge,
+            equipment_warranty_month AS equipmentWarrantyMonth,
+            equipment_design_life_months AS equipmentDesignLifeMonths,
+            equipment_wear_coefficient AS equipmentWearCoefficient,
+            equipment_age_months AS equipmentAgeMonths,
+            equipment_age_calculated_at AS equipmentAgeCalculatedAt
+        FROM equipment_aging_param
+        WHERE equipment_age_calculated_at IS NULL
+           OR equipment_eta_age IS NULL
+           OR equipment_age_months IS NULL
+        ORDER BY equipment_aging_param_id DESC
+    </select>
+
     <select id="selectEquipmentBaselineDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
         SELECT
             equipment_baseline_id AS equipmentBaselineId,
@@ -103,5 +370,103 @@
             equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
         FROM equipment_baseline
         WHERE equipment_baseline_id = #{equipmentBaselineId}
+    </select>
+
+    <select id="selectEquipmentBaselineHistory" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+        SELECT
+            equipment_baseline_id AS equipmentBaselineId,
+            equipment_id AS equipmentId,
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_standard_performance_rate AS equipmentStandardPerformanceRate,
+            equipment_baseline_error_rate AS equipmentBaselineErrorRate,
+            equipment_eta_maint AS equipmentEtaMaint,
+            equipment_idx AS equipmentIdx,
+            equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
+        FROM equipment_baseline
+        WHERE 1 = 1
+        <if test="request != null and request.equipmentId != null">
+            AND equipment_id = #{request.equipmentId}
+        </if>
+        <if test="request != null and request.exactCalculatedAt != null">
+            AND equipment_baseline_calculated_at = #{request.exactCalculatedAt}
+        </if>
+        <if test="request != null and request.calculatedFrom != null">
+            AND equipment_baseline_calculated_at &gt;= #{request.calculatedFrom}
+        </if>
+        <if test="request != null and request.calculatedTo != null">
+            AND equipment_baseline_calculated_at &lt;= #{request.calculatedTo}
+        </if>
+        ORDER BY CASE WHEN equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                 equipment_baseline_calculated_at DESC,
+                 equipment_baseline_id DESC
+    </select>
+
+    <select id="selectLatestEquipmentBaselineByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+        SELECT
+            equipment_baseline_id AS equipmentBaselineId,
+            equipment_id AS equipmentId,
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_standard_performance_rate AS equipmentStandardPerformanceRate,
+            equipment_baseline_error_rate AS equipmentBaselineErrorRate,
+            equipment_eta_maint AS equipmentEtaMaint,
+            equipment_idx AS equipmentIdx,
+            equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
+        FROM equipment_baseline
+        WHERE equipment_id = #{equipmentId}
+        ORDER BY CASE WHEN equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                 equipment_baseline_calculated_at DESC,
+                 equipment_baseline_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestEquipmentBaselineBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+        SELECT
+            equipment_baseline_id AS equipmentBaselineId,
+            equipment_id AS equipmentId,
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_standard_performance_rate AS equipmentStandardPerformanceRate,
+            equipment_baseline_error_rate AS equipmentBaselineErrorRate,
+            equipment_eta_maint AS equipmentEtaMaint,
+            equipment_idx AS equipmentIdx,
+            equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
+        FROM equipment_baseline
+        WHERE equipment_id = #{equipmentId}
+          AND equipment_baseline_calculated_at &lt;= #{referenceTime}
+        ORDER BY equipment_baseline_calculated_at DESC, equipment_baseline_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectFirstEquipmentBaselineAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+        SELECT
+            equipment_baseline_id AS equipmentBaselineId,
+            equipment_id AS equipmentId,
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_standard_performance_rate AS equipmentStandardPerformanceRate,
+            equipment_baseline_error_rate AS equipmentBaselineErrorRate,
+            equipment_eta_maint AS equipmentEtaMaint,
+            equipment_idx AS equipmentIdx,
+            equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
+        FROM equipment_baseline
+        WHERE equipment_id = #{equipmentId}
+          AND equipment_baseline_calculated_at &gt;= #{referenceTime}
+        ORDER BY equipment_baseline_calculated_at ASC, equipment_baseline_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectUncalculatedEquipmentBaselineList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+        SELECT
+            equipment_baseline_id AS equipmentBaselineId,
+            equipment_id AS equipmentId,
+            equipment_aging_param_id AS equipmentAgingParamId,
+            equipment_standard_performance_rate AS equipmentStandardPerformanceRate,
+            equipment_baseline_error_rate AS equipmentBaselineErrorRate,
+            equipment_eta_maint AS equipmentEtaMaint,
+            equipment_idx AS equipmentIdx,
+            equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
+        FROM equipment_baseline
+        WHERE equipment_baseline_calculated_at IS NULL
+           OR equipment_eta_maint IS NULL
+           OR equipment_idx IS NULL
+        ORDER BY equipment_baseline_id DESC
     </select>
 </mapper>

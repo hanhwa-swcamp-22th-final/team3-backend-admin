@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
@@ -21,6 +22,10 @@ public class EquipmentQueryService {
 
     public List<EquipmentQueryResponse> getEquipmentList(EquipmentSearchRequest request) {
         return equipmentQueryMapper.selectEquipmentList(request);
+    }
+
+    public List<EquipmentLatestSnapshotQueryResponse> getEquipmentListWithLatestSnapshots(EquipmentSearchRequest request) {
+        return equipmentQueryMapper.selectEquipmentListWithLatestSnapshots(request);
     }
 
     public EquipmentDetailResponse getEquipmentDetail(Long equipmentId) {

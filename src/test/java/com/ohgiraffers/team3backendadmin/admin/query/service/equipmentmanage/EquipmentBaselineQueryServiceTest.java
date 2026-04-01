@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentBaselineSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
@@ -12,8 +13,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,5 +60,39 @@ class EquipmentBaselineQueryServiceTest {
 
         assertEquals(ErrorCode.EQUIPMENT_BASELINE_NOT_FOUND, exception.getErrorCode());
         verify(equipmentQueryMapper).selectEquipmentBaselineDetailById(9999L);
+    }
+
+    @Test
+    @DisplayName("Get latest equipment baseline success")
+    void getLatestEquipmentBaseline_success() {
+        EquipmentBaselineDetailResponse response = new EquipmentBaselineDetailResponse();
+        response.setEquipmentBaselineId(6002L);
+        response.setEquipmentId(4001L);
+
+        when(equipmentQueryMapper.selectLatestEquipmentBaselineByEquipmentId(4001L)).thenReturn(response);
+
+        EquipmentBaselineDetailResponse result = equipmentBaselineQueryService.getLatestEquipmentBaseline(4001L);
+
+        assertEquals(6002L, result.getEquipmentBaselineId());
+        verify(equipmentQueryMapper).selectLatestEquipmentBaselineByEquipmentId(4001L);
+    }
+
+    @Test
+    @DisplayName("Get equipment baseline history success")
+    void getEquipmentBaselineHistory_success() {
+        EquipmentBaselineSearchRequest request = EquipmentBaselineSearchRequest.builder()
+            .equipmentId(4001L)
+            .calculatedFrom(LocalDateTime.of(2026, 4, 1, 0, 0))
+            .build();
+        EquipmentBaselineDetailResponse response = new EquipmentBaselineDetailResponse();
+        response.setEquipmentBaselineId(6003L);
+
+        when(equipmentQueryMapper.selectEquipmentBaselineHistory(request)).thenReturn(List.of(response));
+
+        List<EquipmentBaselineDetailResponse> result = equipmentBaselineQueryService.getEquipmentBaselineHistory(request);
+
+        assertFalse(result.isEmpty());
+        assertEquals(6003L, result.get(0).getEquipmentBaselineId());
+        verify(equipmentQueryMapper).selectEquipmentBaselineHistory(request);
     }
 }

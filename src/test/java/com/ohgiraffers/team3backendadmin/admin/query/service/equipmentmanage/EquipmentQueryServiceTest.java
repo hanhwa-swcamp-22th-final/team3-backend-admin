@@ -4,6 +4,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipmen
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
@@ -36,6 +37,7 @@ class EquipmentQueryServiceTest {
 
     private EquipmentSearchRequest searchRequest;
     private EquipmentQueryResponse equipmentQueryResponse;
+    private EquipmentLatestSnapshotQueryResponse equipmentLatestSnapshotQueryResponse;
     private EquipmentDetailResponse equipmentDetailResponse;
 
     @BeforeEach
@@ -52,6 +54,11 @@ class EquipmentQueryServiceTest {
         equipmentQueryResponse.setEquipmentName("Printer");
         equipmentQueryResponse.setEquipmentStatus(EquipmentStatus.OPERATING);
         equipmentQueryResponse.setEquipmentGrade(EquipmentGrade.S);
+
+        equipmentLatestSnapshotQueryResponse = new EquipmentLatestSnapshotQueryResponse();
+        equipmentLatestSnapshotQueryResponse.setEquipmentId(1L);
+        equipmentLatestSnapshotQueryResponse.setEquipmentCode("EQ-001");
+        equipmentLatestSnapshotQueryResponse.setEquipmentName("Printer");
 
         equipmentDetailResponse = new EquipmentDetailResponse();
         equipmentDetailResponse.setEquipmentId(1L);
@@ -86,6 +93,19 @@ class EquipmentQueryServiceTest {
 
         assertTrue(result.isEmpty());
         verify(equipmentQueryMapper).selectEquipmentList(emptyRequest);
+    }
+
+    @Test
+    @DisplayName("Get equipment list with latest snapshots success")
+    void getEquipmentListWithLatestSnapshots_success() {
+        when(equipmentQueryMapper.selectEquipmentListWithLatestSnapshots(searchRequest))
+            .thenReturn(List.of(equipmentLatestSnapshotQueryResponse));
+
+        List<EquipmentLatestSnapshotQueryResponse> result = equipmentQueryService.getEquipmentListWithLatestSnapshots(searchRequest);
+
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getEquipmentId());
+        verify(equipmentQueryMapper).selectEquipmentListWithLatestSnapshots(searchRequest);
     }
 
     @Test

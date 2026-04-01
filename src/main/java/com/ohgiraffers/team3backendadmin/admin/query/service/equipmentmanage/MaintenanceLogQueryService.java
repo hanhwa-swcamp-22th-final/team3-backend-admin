@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -39,5 +40,33 @@ public class MaintenanceLogQueryService {
             throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
         }
         return response;
+    }
+
+    public MaintenanceLogDetailResponse getLatestMaintenanceLog(Long equipmentId) {
+        MaintenanceLogDetailResponse response = maintenanceLogQueryMapper.selectLatestMaintenanceLogByEquipmentId(equipmentId);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public MaintenanceLogDetailResponse getLatestMaintenanceLogBeforeOrAt(Long equipmentId, LocalDate referenceDate) {
+        MaintenanceLogDetailResponse response = maintenanceLogQueryMapper.selectLatestMaintenanceLogBeforeOrAt(equipmentId, referenceDate);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public MaintenanceLogDetailResponse getFirstMaintenanceLogAfterOrAt(Long equipmentId, LocalDate referenceDate) {
+        MaintenanceLogDetailResponse response = maintenanceLogQueryMapper.selectFirstMaintenanceLogAfterOrAt(equipmentId, referenceDate);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public List<MaintenanceLogQueryResponse> getAbnormalOrIncompleteMaintenanceLogList() {
+        return maintenanceLogQueryMapper.selectAbnormalOrIncompleteMaintenanceLogList();
     }
 }

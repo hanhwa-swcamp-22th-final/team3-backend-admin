@@ -14,4 +14,18 @@ public interface EnvironmentEventQueryMapper {
     List<EnvironmentEventQueryResponse> selectEnvironmentEventList(@Param("request") EnvironmentEventSearchRequest request);
 
     EnvironmentEventDetailResponse selectEnvironmentEventDetailById(@Param("environmentEventId") Long environmentEventId);
+
+    EnvironmentEventDetailResponse selectLatestEnvironmentEventByEquipmentId(@Param("equipmentId") Long equipmentId);
+
+    EnvironmentEventDetailResponse selectLatestEnvironmentEventBeforeOrAt(
+        @Param("equipmentId") Long equipmentId,
+        @Param("referenceTime") java.time.LocalDateTime referenceTime
+    );
+
+    EnvironmentEventDetailResponse selectFirstEnvironmentEventAfterOrAt(
+        @Param("equipmentId") Long equipmentId,
+        @Param("referenceTime") java.time.LocalDateTime referenceTime
+    );
+
+    List<EnvironmentEventQueryResponse> selectUnresolvedEnvironmentEventList();
 }

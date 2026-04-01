@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentAgingParamSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
@@ -7,6 +8,9 @@ import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +31,37 @@ public class EquipmentAgingParamQueryService {
             throw new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND);
         }
         return response;
+    }
+
+    public List<EquipmentAgingParamDetailResponse> getEquipmentAgingParamHistory(EquipmentAgingParamSearchRequest request) {
+        return equipmentQueryMapper.selectEquipmentAgingParamHistory(request);
+    }
+
+    public EquipmentAgingParamDetailResponse getLatestEquipmentAgingParam(Long equipmentId) {
+        EquipmentAgingParamDetailResponse response = equipmentQueryMapper.selectLatestEquipmentAgingParamByEquipmentId(equipmentId);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public EquipmentAgingParamDetailResponse getLatestEquipmentAgingParamBeforeOrAt(Long equipmentId, LocalDateTime referenceTime) {
+        EquipmentAgingParamDetailResponse response = equipmentQueryMapper.selectLatestEquipmentAgingParamBeforeOrAt(equipmentId, referenceTime);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public EquipmentAgingParamDetailResponse getFirstEquipmentAgingParamAfterOrAt(Long equipmentId, LocalDateTime referenceTime) {
+        EquipmentAgingParamDetailResponse response = equipmentQueryMapper.selectFirstEquipmentAgingParamAfterOrAt(equipmentId, referenceTime);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public List<EquipmentAgingParamDetailResponse> getUncalculatedEquipmentAgingParamList() {
+        return equipmentQueryMapper.selectUncalculatedEquipmentAgingParamList();
     }
 }

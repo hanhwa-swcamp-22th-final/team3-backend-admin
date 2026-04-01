@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentBaselineSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
@@ -7,6 +8,9 @@ import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +31,37 @@ public class EquipmentBaselineQueryService {
             throw new BusinessException(ErrorCode.EQUIPMENT_BASELINE_NOT_FOUND);
         }
         return response;
+    }
+
+    public List<EquipmentBaselineDetailResponse> getEquipmentBaselineHistory(EquipmentBaselineSearchRequest request) {
+        return equipmentQueryMapper.selectEquipmentBaselineHistory(request);
+    }
+
+    public EquipmentBaselineDetailResponse getLatestEquipmentBaseline(Long equipmentId) {
+        EquipmentBaselineDetailResponse response = equipmentQueryMapper.selectLatestEquipmentBaselineByEquipmentId(equipmentId);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.EQUIPMENT_BASELINE_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public EquipmentBaselineDetailResponse getLatestEquipmentBaselineBeforeOrAt(Long equipmentId, LocalDateTime referenceTime) {
+        EquipmentBaselineDetailResponse response = equipmentQueryMapper.selectLatestEquipmentBaselineBeforeOrAt(equipmentId, referenceTime);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.EQUIPMENT_BASELINE_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public EquipmentBaselineDetailResponse getFirstEquipmentBaselineAfterOrAt(Long equipmentId, LocalDateTime referenceTime) {
+        EquipmentBaselineDetailResponse response = equipmentQueryMapper.selectFirstEquipmentBaselineAfterOrAt(equipmentId, referenceTime);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.EQUIPMENT_BASELINE_NOT_FOUND);
+        }
+        return response;
+    }
+
+    public List<EquipmentBaselineDetailResponse> getUncalculatedEquipmentBaselineList() {
+        return equipmentQueryMapper.selectUncalculatedEquipmentBaselineList();
     }
 }
