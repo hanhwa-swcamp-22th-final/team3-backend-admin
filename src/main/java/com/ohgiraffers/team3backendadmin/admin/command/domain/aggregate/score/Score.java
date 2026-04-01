@@ -1,5 +1,6 @@
-package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.antigamingflag;
+package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.score;
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
@@ -12,38 +13,36 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "anti_gaming_flag")
+@Table(name = "score")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class AntiGamingFlag {
+public class Score {
 
     @Id
-    @Column(name = "flag_id")
-    private Long flagId;
+    @Column(name = "score_id")
+    private Long scoreId;
 
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 
-    @Column(name = "production_speed_rank")
-    private Integer productionSpeedRank;
+    @Column(name = "evaluation_year")
+    private Integer evaluationYear;
 
-    @Column(name = "safety_keyword_rank")
-    private Integer safetyKeywordRank;
+    @Column(name = "evaluation_period", length = 50)
+    private String evaluationPeriod;
 
-    @Column(name = "penalty_coefficient")
-    private BigDecimal penaltyCoefficient;
+    @Column(name = "capability_index")
+    private BigDecimal capabilityIndex;
 
-    @Column(name = "target_year")
-    private Integer targetYear;
+    @Column(name = "total_points")
+    private Integer totalPoints;
 
-    @Column(name = "target_period", length = 50)
-    private String targetPeriod;
-
-    @Column(name = "is_active")
-    private Boolean isActive;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tier")
+    private EmployeeTier tier;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)

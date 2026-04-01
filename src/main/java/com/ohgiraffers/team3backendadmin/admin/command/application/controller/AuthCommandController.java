@@ -80,6 +80,12 @@ public class AuthCommandController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    /**
+     * 로그인한 사원 본인의 비밀번호를 수정하는 Api
+     * @param request PasswordChangeRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<Void>>
+     */
     @PutMapping("/password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> changePassword(
