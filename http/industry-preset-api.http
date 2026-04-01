@@ -14,6 +14,36 @@ Authorization: Bearer {{accessToken}}
 }
 
 
+### 산업군 프리셋 수정 (전체)
+PUT http://localhost:8080/api/v1/industry/preset
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "configId": 1775030784718795,
+  "industryPresetName": "프리셋2_수정",
+  "weightV1": 0.50,
+  "weightV2": 0.00,
+  "weightV3": 0.00,
+  "weightV4": 0.00,
+  "alphaWeight": 0.3,
+  "effectiveDate": "2026-07-01"
+}
+
+
+### 산업군 프리셋 수정 (부분 - 이름, 적용일만)
+PUT http://localhost:8080/api/v1/industry/preset
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "configId": 1775030784718795,
+  "industryPresetName": "프리셋2_부분수정",
+  "weightV1": 0.50,
+  "effectiveDate": "2026-08-01"
+}
+
+
 ### 산업군 프리셋 리스트 불러오기
 GET http://localhost:8080/api/v1/industry/presets
 Content-Type: application/json

@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaOCSAWeightConfigRepository extends JpaRepository<OCSAWeightConfig, Long> {
     boolean existsByIndustryPresetName(String industryPresetName);
+    boolean existsByIndustryPresetNameAndConfigIdNot(String industryPresetName, Long configId);
 }

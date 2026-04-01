@@ -1,10 +1,12 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.ocsaweightconfig.OCSAWeightConfig;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.OCSAWeightConfigRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.DuplicateFieldException;
 import com.ohgiraffers.team3backendadmin.common.exception.InvalidInputException;
+import com.ohgiraffers.team3backendadmin.common.exception.OCSAWeightConfigNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,19 +28,8 @@ public class IndustryPresetCommandService {
             throw new DuplicateFieldException("이미 사용 중인 프리셋 이름입니다.");
         }
 
-        BigDecimal weightSum = request.getWeightV1()
-                .add(request.getWeightV2())
-                .add(request.getWeightV3())
-                .add(request.getWeightV4());
-
-        if (weightSum.compareTo(BigDecimal.ONE) != 0) {
-            throw new InvalidInputException("가중치(v1~v4)의 합은 1.00이어야 합니다.");
-        }
-
-        if (request.getAlphaWeight().compareTo(BigDecimal.ZERO) < 0
-                || request.getAlphaWeight().compareTo(new BigDecimal("0.5")) > 0) {
-            throw new InvalidInputException("알파 가중치는 0.0~0.5 범위여야 합니다.");
-        }
+        validateWeights(request.getWeightV1(), request.getWeightV2(),
+                request.getWeightV3(), request.getWeightV4(), request.getAlphaWeight());
 
         OCSAWeightConfig config = OCSAWeightConfig.builder()
                 .configId(idGenerator.generate())
@@ -52,5 +43,50 @@ public class IndustryPresetCommandService {
                 .build();
 
         ocsaWeightConfigRepository.save(config);
+    }
+
+    @Transactional
+    public void update(IndustryPresetUpdateRequest request) {
+
+        OCSAWeightConfig config = ocsaWeightConfigRepository.findById(request.getConfigId())
+                .orElseThrow(OCSAWeightConfigNotFoundException::new);
+
+        if (request.getIndustryPresetName() != null
+                && ocsaWeightConfigRepository.existsByIndustryPresetNameAndConfigIdNot(
+                request.getIndustryPresetName(), config.getConfigId())) {
+            throw new DuplicateFieldException("이미 사용 중인 프리셋 이름입니다.");
+        }
+
+        BigDecimal mergedV1 = request.getWeightV1() != null ? request.getWeightV1() : config.getWeightV1();
+        BigDecimal mergedV2 = request.getWeightV2() != null ? request.getWeightV2() : config.getWeightV2();
+        BigDecimal mergedV3 = request.getWeightV3() != null ? request.getWeightV3() : config.getWeightV3();
+        BigDecimal mergedV4 = request.getWeightV4() != null ? request.getWeightV4() : config.getWeightV4();
+        BigDecimal mergedAlpha = request.getAlphaWeight() != null ? request.getAlphaWeight() : config.getAlphaWeight();
+
+        validateWeights(mergedV1, mergedV2, mergedV3, mergedV4, mergedAlpha);
+
+        config.updatePreset(
+                request.getIndustryPresetName(),
+                request.getWeightV1(),
+                request.getWeightV2(),
+                request.getWeightV3(),
+                request.getWeightV4(),
+                request.getAlphaWeight(),
+                request.getEffectiveDate()
+        );
+    }
+
+    private void validateWeights(BigDecimal v1, BigDecimal v2, BigDecimal v3, BigDecimal v4,
+                                 BigDecimal alphaWeight) {
+        BigDecimal weightSum = v1.add(v2).add(v3).add(v4);
+
+        if (weightSum.compareTo(BigDecimal.ONE) != 0) {
+            throw new InvalidInputException("가중치(v1~v4)의 합은 1.00이어야 합니다.");
+        }
+
+        if (alphaWeight.compareTo(BigDecimal.ZERO) < 0
+                || alphaWeight.compareTo(new BigDecimal("0.5")) > 0) {
+            throw new InvalidInputException("알파 가중치는 0.0~0.5 범위여야 합니다.");
+        }
     }
 }

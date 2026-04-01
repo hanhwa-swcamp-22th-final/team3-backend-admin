@@ -61,4 +61,16 @@ public class OCSAWeightConfig {
     @LastModifiedBy
     @Column(name = "updated_by")
     private Long updatedBy;
+
+    public void updatePreset(String industryPresetName, BigDecimal weightV1, BigDecimal weightV2,
+                             BigDecimal weightV3, BigDecimal weightV4, BigDecimal alphaWeight,
+                             LocalDate effectiveDate) {
+        if (industryPresetName != null) this.industryPresetName = industryPresetName;
+        if (weightV1 != null) this.weightV1 = weightV1;
+        if (weightV2 != null) this.weightV2 = weightV2;
+        if (weightV3 != null) this.weightV3 = weightV3;
+        if (weightV4 != null) this.weightV4 = weightV4;
+        if (alphaWeight != null) this.alphaWeight = alphaWeight;
+        if (effectiveDate != null) this.effectiveDate = effectiveDate;
+    }
 }

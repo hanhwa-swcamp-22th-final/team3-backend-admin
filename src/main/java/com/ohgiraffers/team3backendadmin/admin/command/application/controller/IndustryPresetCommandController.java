@@ -1,16 +1,14 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset.IndustryPresetCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +23,15 @@ public class IndustryPresetCommandController {
             @Valid @RequestBody IndustryPresetCreateRequest request
     ) {
         industryPresetCommandService.create(request);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @PutMapping("/preset")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> update(
+            @Valid @RequestBody IndustryPresetUpdateRequest request
+    ) {
+        industryPresetCommandService.update(request);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
