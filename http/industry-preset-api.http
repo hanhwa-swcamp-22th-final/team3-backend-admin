@@ -1,4 +1,4 @@
-### 유지보수 항목 기준 생성
+### 산업군 프리셋 항목 기준 생성
 POST http://localhost:8080/api/v1/industry/preset
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -12,3 +12,9 @@ Authorization: Bearer {{accessToken}}
   "alphaWeight": 0.5,
   "effectiveDate": "2026-06-06"
 }
+
+
+### 산업군 프리셋 리스트 불러오기
+GET http://localhost:8080/api/v1/industry/presets
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
