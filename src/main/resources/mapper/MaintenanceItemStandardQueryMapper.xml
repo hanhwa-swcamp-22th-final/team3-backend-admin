@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.MaintenanceItemStandardQueryMapper">
+
+    <select id="selectMaintenanceItemStandardList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardQueryResponse">
+        SELECT
+            maintenance_item_standard_id AS maintenanceItemStandardId,
+            maintenance_item AS maintenanceItem,
+            maintenance_weight AS maintenanceWeight,
+            maintenance_score_max AS maintenanceScoreMax
+        FROM maintenance_item_standard
+        WHERE 1 = 1
+        AND is_deleted = false
+        <if test="keyword != null and keyword != ''">
+            AND maintenance_item LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY maintenance_item_standard_id DESC
+    </select>
+
+    <select id="selectMaintenanceItemStandardDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardDetailResponse">
+        SELECT
+            maintenance_item_standard_id AS maintenanceItemStandardId,
+            maintenance_item AS maintenanceItem,
+            maintenance_weight AS maintenanceWeight,
+            maintenance_score_max AS maintenanceScoreMax
+        FROM maintenance_item_standard
+        WHERE maintenance_item_standard_id = #{maintenanceItemStandardId}
+          AND is_deleted = false
+    </select>
+</mapper>

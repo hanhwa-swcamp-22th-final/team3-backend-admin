@@ -35,10 +35,10 @@ public class EnvironmentStandard {
     private EnvironmentType environmentType;
 
     @Column(name = "environment_code", nullable = false)
-    private String enviromentCode;
+    private String environmentCode;
 
     @Column(name = "environment_name", nullable = false)
-    private String enviromentName;
+    private String environmentName;
 
     @Column(name = "env_temp_min", nullable = false)
     private BigDecimal envTempMin;
@@ -54,6 +54,9 @@ public class EnvironmentStandard {
 
     @Column(name = "env_particle_limit", nullable = false)
     private Integer envParticleLimit;
+
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -73,43 +76,104 @@ public class EnvironmentStandard {
 
     public EnvironmentStandard(Long environmentStandardId,
                                EnvironmentType environmentType,
-                               String enviromentCode,
-                               String enviromentName,
+                               String environmentCode,
+                               String environmentName,
                                BigDecimal envTempMin,
                                BigDecimal envTempMax,
                                BigDecimal envHumidityMin,
                                BigDecimal envHumidityMax,
                                Integer envParticleLimit) {
-        this(environmentStandardId, environmentType, enviromentCode, enviromentName, envTempMin, envTempMax,
-            envHumidityMin, envHumidityMax, envParticleLimit, null, null, null, null);
+        this(environmentStandardId, environmentType, environmentCode, environmentName, envTempMin, envTempMax,
+            envHumidityMin, envHumidityMax, envParticleLimit, false, null, null, null, null);
     }
 
     @Builder
     public EnvironmentStandard(Long environmentStandardId,
                                EnvironmentType environmentType,
-                               String enviromentCode,
-                               String enviromentName,
+                               String environmentCode,
+                               String environmentName,
                                BigDecimal envTempMin,
                                BigDecimal envTempMax,
                                BigDecimal envHumidityMin,
                                BigDecimal envHumidityMax,
                                Integer envParticleLimit,
+                               Boolean isDeleted,
                                LocalDateTime createdAt,
                                Long createdBy,
                                LocalDateTime updatedAt,
                                Long updatedBy) {
         this.environmentStandardId = environmentStandardId;
         this.environmentType = environmentType;
-        this.enviromentCode = enviromentCode;
-        this.enviromentName = enviromentName;
+        this.environmentCode = environmentCode;
+        this.environmentName = environmentName;
         this.envTempMin = envTempMin;
         this.envTempMax = envTempMax;
         this.envHumidityMin = envHumidityMin;
         this.envHumidityMax = envHumidityMax;
         this.envParticleLimit = envParticleLimit;
+        this.isDeleted = isDeleted == null ? false : isDeleted;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
+    }
+
+    public void updateInfo(EnvironmentType environmentType,
+                           String environmentCode,
+                           String environmentName,
+                           BigDecimal envTempMin,
+                           BigDecimal envTempMax,
+                           BigDecimal envHumidityMin,
+                           BigDecimal envHumidityMax,
+                           Integer envParticleLimit) {
+        validate(environmentType, environmentCode, environmentName, envTempMin, envTempMax,
+            envHumidityMin, envHumidityMax, envParticleLimit);
+
+        this.environmentType = environmentType;
+        this.environmentCode = environmentCode;
+        this.environmentName = environmentName;
+        this.envTempMin = envTempMin;
+        this.envTempMax = envTempMax;
+        this.envHumidityMin = envHumidityMin;
+        this.envHumidityMax = envHumidityMax;
+        this.envParticleLimit = envParticleLimit;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
+
+    private void validate(EnvironmentType environmentType,
+                          String environmentCode,
+                          String environmentName,
+                          BigDecimal envTempMin,
+                          BigDecimal envTempMax,
+                          BigDecimal envHumidityMin,
+                          BigDecimal envHumidityMax,
+                          Integer envParticleLimit) {
+        if (environmentType == null) {
+            throw new IllegalArgumentException("Environment type must not be null.");
+        }
+        if (environmentCode == null || environmentCode.isBlank()) {
+            throw new IllegalArgumentException("Environment code must not be blank.");
+        }
+        if (environmentName == null || environmentName.isBlank()) {
+            throw new IllegalArgumentException("Environment name must not be blank.");
+        }
+        if (envTempMin == null || envTempMax == null) {
+            throw new IllegalArgumentException("Temperature range must not be null.");
+        }
+        if (envTempMin.compareTo(envTempMax) > 0) {
+            throw new IllegalArgumentException("Minimum temperature must be less than or equal to maximum temperature.");
+        }
+        if (envHumidityMin == null || envHumidityMax == null) {
+            throw new IllegalArgumentException("Humidity range must not be null.");
+        }
+        if (envHumidityMin.compareTo(envHumidityMax) > 0) {
+            throw new IllegalArgumentException("Minimum humidity must be less than or equal to maximum humidity.");
+        }
+        if (envParticleLimit == null) {
+            throw new IllegalArgumentException("Particle limit must not be null.");
+        }
     }
 }

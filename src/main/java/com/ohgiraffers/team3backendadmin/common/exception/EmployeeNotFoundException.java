@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.common.exception;
 
-public class EmployeeNotFoundException extends RuntimeException {
+public class EmployeeNotFoundException extends BusinessException {
 
     public EmployeeNotFoundException() {
-        super("해당 사원을 찾을 수 없습니다");
+        super(ErrorCode.EMPLOYEE_NOT_FOUND);
     }
 
     public EmployeeNotFoundException(String message) {
-        super(message);
+        super(ErrorCode.EMPLOYEE_NOT_FOUND, message);
     }
 }
