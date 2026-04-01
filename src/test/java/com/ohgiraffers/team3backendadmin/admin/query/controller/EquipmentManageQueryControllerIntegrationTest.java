@@ -9,12 +9,16 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintena
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceResult;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentAgingParam;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentBaseline;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentEventRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentAgingParamRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentBaselineRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
@@ -60,6 +64,12 @@ class EquipmentManageQueryControllerIntegrationTest {
     private EquipmentRepository equipmentRepository;
 
     @Autowired
+    private EquipmentAgingParamRepository equipmentAgingParamRepository;
+
+    @Autowired
+    private EquipmentBaselineRepository equipmentBaselineRepository;
+
+    @Autowired
     private EnvironmentEventRepository environmentEventRepository;
 
     @Autowired
@@ -80,6 +90,10 @@ class EquipmentManageQueryControllerIntegrationTest {
     private EnvironmentEvent environmentEvent;
     private MaintenanceItemStandard maintenanceItemStandard;
     private MaintenanceLog maintenanceLog;
+    private EquipmentAgingParam equipmentAgingParam;
+    private EquipmentAgingParam latestEquipmentAgingParam;
+    private EquipmentBaseline equipmentBaseline;
+    private EquipmentBaseline latestEquipmentBaseline;
 
     @BeforeEach
     void setUp() {
@@ -124,6 +138,58 @@ class EquipmentManageQueryControllerIntegrationTest {
                 .equipmentStatus(EquipmentStatus.OPERATING)
                 .equipmentGrade(EquipmentGrade.S)
                 .equipmentDescription("Query integration equipment")
+                .build()
+        );
+
+        equipmentAgingParam = equipmentAgingParamRepository.save(
+            EquipmentAgingParam.builder()
+                .equipmentAgingParamId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .equipmentWarrantyMonth(24)
+                .equipmentDesignLifeMonths(120)
+                .equipmentWearCoefficient(new BigDecimal("0.70"))
+                .equipmentEtaAge(new BigDecimal("48.0"))
+                .equipmentAgeMonths(12)
+                .equipmentAgeCalculatedAt(LocalDateTime.of(2026, 3, 31, 9, 0))
+                .build()
+        );
+
+        latestEquipmentAgingParam = equipmentAgingParamRepository.save(
+            EquipmentAgingParam.builder()
+                .equipmentAgingParamId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .equipmentWarrantyMonth(24)
+                .equipmentDesignLifeMonths(120)
+                .equipmentWearCoefficient(new BigDecimal("0.72"))
+                .equipmentEtaAge(new BigDecimal("45.0"))
+                .equipmentAgeMonths(13)
+                .equipmentAgeCalculatedAt(LocalDateTime.of(2026, 4, 1, 9, 0))
+                .build()
+        );
+
+        equipmentBaseline = equipmentBaselineRepository.save(
+            EquipmentBaseline.builder()
+                .equipmentBaselineId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .equipmentAgingParamId(equipmentAgingParam.getEquipmentAgingParamId())
+                .equipmentStandardPerformanceRate(new BigDecimal("98.0"))
+                .equipmentBaselineErrorRate(new BigDecimal("1.2"))
+                .equipmentEtaMaint(new BigDecimal("120.0"))
+                .equipmentIdx(new BigDecimal("91.0"))
+                .equipmentBaselineCalculatedAt(LocalDateTime.of(2026, 3, 31, 10, 0))
+                .build()
+        );
+
+        latestEquipmentBaseline = equipmentBaselineRepository.save(
+            EquipmentBaseline.builder()
+                .equipmentBaselineId(idGenerator.generate())
+                .equipmentId(equipment.getEquipmentId())
+                .equipmentAgingParamId(latestEquipmentAgingParam.getEquipmentAgingParamId())
+                .equipmentStandardPerformanceRate(new BigDecimal("97.5"))
+                .equipmentBaselineErrorRate(new BigDecimal("1.5"))
+                .equipmentEtaMaint(new BigDecimal("110.0"))
+                .equipmentIdx(new BigDecimal("89.5"))
+                .equipmentBaselineCalculatedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .build()
         );
 
@@ -282,6 +348,16 @@ class EquipmentManageQueryControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Get latest environment event API integration success")
+    void getLatestEnvironmentEvent_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/environment-events")
+                .param("mode", "latest")
+                .param("equipmentId", String.valueOf(equipment.getEquipmentId())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.environmentEventId").value(environmentEvent.getEnvironmentEventId()));
+    }
+
+    @Test
     @DisplayName("Get maintenance item standard list API integration success: return persisted item standard")
     void getMaintenanceItemStandardList_success() throws Exception {
         mockMvc.perform(get("/api/v1/equipment-management/maintenance-item-standards")
@@ -356,6 +432,16 @@ class EquipmentManageQueryControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Get latest maintenance log API integration success")
+    void getLatestMaintenanceLog_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs")
+                .param("mode", "latest")
+                .param("equipmentId", String.valueOf(equipment.getEquipmentId())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(maintenanceLog.getMaintenanceLogId()));
+    }
+
+    @Test
     @DisplayName("Get equipment list API integration success: return persisted equipment")
     void getEquipmentList_success() throws Exception {
         mockMvc.perform(get("/api/v1/equipment-management/equipments")
@@ -382,4 +468,59 @@ class EquipmentManageQueryControllerIntegrationTest {
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_006"));
     }
+
+    @Test
+    @DisplayName("Get equipment list with latest snapshots API integration success")
+    void getEquipmentListWithLatestSnapshots_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/equipments")
+                .param("mode", "latest-snapshots")
+                .param("keyword", "Query Equipment"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentId").value(equipment.getEquipmentId()))
+            .andExpect(jsonPath("$.data[0].latestEquipmentAgingParamId").value(latestEquipmentAgingParam.getEquipmentAgingParamId()))
+            .andExpect(jsonPath("$.data[0].latestEquipmentBaselineId").value(latestEquipmentBaseline.getEquipmentBaselineId()));
+    }
+
+    @Test
+    @DisplayName("Get equipment aging param history API integration success")
+    void getEquipmentAgingParamHistory_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-aging-params")
+                .param("equipmentId", String.valueOf(equipment.getEquipmentId()))
+                .param("calculatedFrom", "2026-03-31T00:00:00")
+                .param("calculatedTo", "2026-04-01T23:59:59"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentAgingParamId").exists());
+    }
+
+    @Test
+    @DisplayName("Get latest equipment aging param API integration success")
+    void getLatestEquipmentAgingParam_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-aging-params")
+                .param("mode", "latest")
+                .param("equipmentId", String.valueOf(equipment.getEquipmentId())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.equipmentAgingParamId").value(latestEquipmentAgingParam.getEquipmentAgingParamId()));
+    }
+
+    @Test
+    @DisplayName("Get equipment baseline history API integration success")
+    void getEquipmentBaselineHistory_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-baselines")
+                .param("equipmentId", String.valueOf(equipment.getEquipmentId()))
+                .param("calculatedFrom", "2026-03-31T00:00:00")
+                .param("calculatedTo", "2026-04-01T23:59:59"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentBaselineId").exists());
+    }
+
+    @Test
+    @DisplayName("Get latest equipment baseline API integration success")
+    void getLatestEquipmentBaseline_success() throws Exception {
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-baselines")
+                .param("mode", "latest")
+                .param("equipmentId", String.valueOf(equipment.getEquipmentId())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.equipmentBaselineId").value(latestEquipmentBaseline.getEquipmentBaselineId()));
+    }
+
 }
