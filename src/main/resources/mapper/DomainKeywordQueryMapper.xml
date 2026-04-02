@@ -25,7 +25,7 @@
             AND domain_is_active = #{isActive}
         </if>
         ORDER BY domain_keyword_id DESC
-    </select>equipment_baseline
+    </select>
 
     <select id="selectDomainKeywordDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.DomainKeywordDetailResponse">
         SELECT

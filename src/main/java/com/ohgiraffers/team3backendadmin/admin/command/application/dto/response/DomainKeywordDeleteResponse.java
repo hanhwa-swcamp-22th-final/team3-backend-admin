@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EquipmentProcessUpdateResponse {
+public class DomainKeywordDeleteResponse {
 
-    private Long equipmentProcessId;
-    private Long factoryLineId;
-    private String equipmentProcessCode;
-    private String equipmentProcessName;
+    private Long domainKeywordId;
+    private Boolean deleted;
 }
