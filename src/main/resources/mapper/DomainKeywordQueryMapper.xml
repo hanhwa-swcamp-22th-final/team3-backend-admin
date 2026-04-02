@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.DomainKeywordQueryMapper">
+
+    <select id="selectDomainKeywordList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.DomainKeywordQueryResponse">
+        SELECT
+            domain_keyword_id AS domainKeywordId,
+            domain_keyword AS domainKeyword,
+            domain_keyword_description AS domainKeywordDescription,
+            domain_competency_category AS domainCompetencyCategory,
+            domain_base_score AS domainBaseScore,
+            domain_weight AS domainWeight,
+            domain_is_active AS domainIsActive
+        FROM domain_keyword
+        WHERE 1 = 1
+        <if test="keyword != null and keyword != ''">
+            AND domain_keyword LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="category != null">
+            AND domain_competency_category = #{category}
+        </if>
+        <if test="isActive != null">
+            AND domain_is_active = #{isActive}
+        </if>
+        ORDER BY domain_keyword_id DESC
+    </select>equipment_baseline
+
+    <select id="selectDomainKeywordDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.DomainKeywordDetailResponse">
+        SELECT
+            domain_keyword_id AS domainKeywordId,
+            domain_keyword AS domainKeyword,
+            domain_keyword_description AS domainKeywordDescription,
+            domain_competency_category AS domainCompetencyCategory,
+            domain_base_score AS domainBaseScore,
+            domain_weight AS domainWeight,
+            domain_is_active AS domainIsActive
+        FROM domain_keyword
+        WHERE domain_keyword_id = #{domainKeywordId}
+    </select>
+</mapper>
