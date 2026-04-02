@@ -20,7 +20,9 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLates
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardQueryResponse;
@@ -84,6 +86,19 @@ public class EquipmentManageQueryController {
     @GetMapping("/factory-lines/{factoryLineId}")
     public ResponseEntity<ApiResponse<FactoryLineDetailResponse>> getFactoryLineDetail(@PathVariable Long factoryLineId) {
         FactoryLineDetailResponse response = factoryLineQueryService.getFactoryLineDetail(factoryLineId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 생산 라인별 설비 통계 정보를 조회한다.
+     * @param factoryLineId 조회할 생산 라인 ID
+     * @return 생산 라인 설비 통계 응답
+     */
+    @GetMapping("/factory-lines/{factoryLineId}/equipment-stats")
+    public ResponseEntity<ApiResponse<FactoryLineEquipmentStatsResponse>> getFactoryLineEquipmentStats(
+        @PathVariable Long factoryLineId
+    ) {
+        FactoryLineEquipmentStatsResponse response = factoryLineQueryService.getFactoryLineEquipmentStats(factoryLineId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -275,7 +290,7 @@ public class EquipmentManageQueryController {
 
     /**
      * 설비 목록을 조회한다.
-     * history 기본 목록과 latest-snapshots 요약 목록 모드를 query string으로 분기한다.
+     * history 기본 목록과 summary, latest-snapshots 요약 목록 모드를 query string으로 분기한다.
      * @param request 목록 조회 조건 정보
      * @param mode 조회 모드
      * @return 설비 목록 응답
@@ -285,6 +300,11 @@ public class EquipmentManageQueryController {
         EquipmentSearchRequest request,
         @RequestParam(value = "mode", required = false, defaultValue = "history") String mode
     ) {
+        if ("summary".equals(mode)) {
+            EquipmentSummaryQueryResponse response = equipmentQueryService.getEquipmentSummary();
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
         if ("latest-snapshots".equals(mode)) {
             List<EquipmentLatestSnapshotQueryResponse> responses = equipmentQueryService.getEquipmentListWithLatestSnapshots(request);
             return ResponseEntity.ok(ApiResponse.success(responses));

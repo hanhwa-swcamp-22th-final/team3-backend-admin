@@ -8,6 +8,7 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBasel
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,6 +19,8 @@ import java.util.List;
 public interface EquipmentQueryMapper {
 
     List<EquipmentQueryResponse> selectEquipmentList(@Param("request") EquipmentSearchRequest request);
+
+    EquipmentSummaryQueryResponse selectEquipmentSummary();
 
     List<EquipmentLatestSnapshotQueryResponse> selectEquipmentListWithLatestSnapshots(@Param("request") EquipmentSearchRequest request);
 

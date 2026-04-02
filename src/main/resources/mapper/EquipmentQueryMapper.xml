@@ -34,6 +34,16 @@
         ORDER BY e.equipment_id DESC
     </select>
 
+    <select id="selectEquipmentSummary" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse">
+        SELECT
+            COUNT(*) AS totalCount,
+            SUM(CASE WHEN equipment_status = 'OPERATING' THEN 1 ELSE 0 END) AS operatingCount,
+            SUM(CASE WHEN equipment_status = 'STOPPED' THEN 1 ELSE 0 END) AS stoppedCount,
+            SUM(CASE WHEN equipment_status = 'UNDER_INSPECTION' THEN 1 ELSE 0 END) AS underInspectionCount,
+            SUM(CASE WHEN equipment_status = 'DISPOSED' THEN 1 ELSE 0 END) AS disposedCount
+        FROM equipment
+    </select>
+
     <select id="selectEquipmentListWithLatestSnapshots" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse">
         SELECT
             e.equipment_id AS equipmentId,

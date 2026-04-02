@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -249,6 +250,32 @@ class EquipmentManageQueryControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.factoryLineId").value(factoryLine.getFactoryLineId()));
+    }
+
+    @Test
+    @DisplayName("Get factory line equipment stats API integration success")
+    void getFactoryLineEquipmentStats_success() throws Exception {
+        equipmentRepository.save(
+            Equipment.builder()
+                .equipmentId(idGenerator.generate())
+                .equipmentProcessId(equipmentProcess.getEquipmentProcessId())
+                .environmentStandardId(environmentStandard.getEnvironmentStandardId())
+                .equipmentCode("EQ-LINE-STOP-" + idGenerator.generate())
+                .equipmentName("Line Stopped Equipment")
+                .equipmentStatus(EquipmentStatus.STOPPED)
+                .equipmentGrade(EquipmentGrade.A)
+                .build()
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(get("/api/v1/equipment-management/factory-lines/{factoryLineId}/equipment-stats", factoryLine.getFactoryLineId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.totalEquipmentCount").value(2))
+            .andExpect(jsonPath("$.data.operatingEquipmentCount").value(1))
+            .andExpect(jsonPath("$.data.operationRate").value(50.00));
     }
 
     @Test
@@ -467,6 +494,58 @@ class EquipmentManageQueryControllerIntegrationTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_006"));
+    }
+
+    @Test
+    @DisplayName("Get equipment summary API integration success")
+    void getEquipmentSummary_success() throws Exception {
+        equipmentRepository.save(
+            Equipment.builder()
+                .equipmentId(idGenerator.generate())
+                .equipmentProcessId(equipmentProcess.getEquipmentProcessId())
+                .environmentStandardId(environmentStandard.getEnvironmentStandardId())
+                .equipmentCode("EQ-SUM-STOP-" + idGenerator.generate())
+                .equipmentName("Summary Stopped")
+                .equipmentStatus(EquipmentStatus.STOPPED)
+                .equipmentGrade(EquipmentGrade.A)
+                .build()
+        );
+
+        equipmentRepository.save(
+            Equipment.builder()
+                .equipmentId(idGenerator.generate())
+                .equipmentProcessId(equipmentProcess.getEquipmentProcessId())
+                .environmentStandardId(environmentStandard.getEnvironmentStandardId())
+                .equipmentCode("EQ-SUM-INSP-" + idGenerator.generate())
+                .equipmentName("Summary Inspection")
+                .equipmentStatus(EquipmentStatus.UNDER_INSPECTION)
+                .equipmentGrade(EquipmentGrade.B)
+                .build()
+        );
+
+        equipmentRepository.save(
+            Equipment.builder()
+                .equipmentId(idGenerator.generate())
+                .equipmentProcessId(equipmentProcess.getEquipmentProcessId())
+                .environmentStandardId(environmentStandard.getEnvironmentStandardId())
+                .equipmentCode("EQ-SUM-DISP-" + idGenerator.generate())
+                .equipmentName("Summary Disposed")
+                .equipmentStatus(EquipmentStatus.DISPOSED)
+                .equipmentGrade(EquipmentGrade.C)
+                .build()
+        );
+
+        entityManager.flush();
+        entityManager.clear();
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipments")
+                .param("mode", "summary"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.totalCount").value(greaterThanOrEqualTo(4)))
+            .andExpect(jsonPath("$.data.operatingCount").value(greaterThanOrEqualTo(1)))
+            .andExpect(jsonPath("$.data.stoppedCount").value(greaterThanOrEqualTo(1)))
+            .andExpect(jsonPath("$.data.underInspectionCount").value(greaterThanOrEqualTo(1)))
+            .andExpect(jsonPath("$.data.disposedCount").value(greaterThanOrEqualTo(1)));
     }
 
     @Test

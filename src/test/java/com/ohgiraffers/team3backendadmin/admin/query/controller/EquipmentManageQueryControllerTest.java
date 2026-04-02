@@ -15,7 +15,9 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLates
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardQueryResponse;
@@ -45,6 +47,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.math.BigDecimal;
 
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -129,6 +132,24 @@ class EquipmentManageQueryControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.factoryLineId").value(1L));
+    }
+
+    @Test
+    @DisplayName("Get factory line equipment stats API success")
+    void getFactoryLineEquipmentStats_success() throws Exception {
+        FactoryLineEquipmentStatsResponse response = new FactoryLineEquipmentStatsResponse();
+        response.setTotalEquipmentCount(10L);
+        response.setOperatingEquipmentCount(7L);
+        response.setOperationRate(new BigDecimal("70.00"));
+
+        when(factoryLineQueryService.getFactoryLineEquipmentStats(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/factory-lines/1/equipment-stats"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.totalEquipmentCount").value(10))
+            .andExpect(jsonPath("$.data.operatingEquipmentCount").value(7))
+            .andExpect(jsonPath("$.data.operationRate").value(70.00));
     }
 
     @Test
@@ -602,6 +623,28 @@ class EquipmentManageQueryControllerTest {
                 && request.getEquipmentStatus() == EquipmentStatus.OPERATING
                 && request.getEquipmentGrade() == EquipmentGrade.S
         ));
+    }
+
+    @Test
+    @DisplayName("Get equipment summary API success")
+    void getEquipmentSummary_success() throws Exception {
+        EquipmentSummaryQueryResponse response = new EquipmentSummaryQueryResponse();
+        response.setTotalCount(10L);
+        response.setOperatingCount(4L);
+        response.setStoppedCount(3L);
+        response.setUnderInspectionCount(2L);
+        response.setDisposedCount(1L);
+
+        when(equipmentQueryService.getEquipmentSummary()).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipments")
+                .param("mode", "summary"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.totalCount").value(10))
+            .andExpect(jsonPath("$.data.operatingCount").value(4))
+            .andExpect(jsonPath("$.data.stoppedCount").value(3))
+            .andExpect(jsonPath("$.data.underInspectionCount").value(2))
+            .andExpect(jsonPath("$.data.disposedCount").value(1));
     }
 
     @Test

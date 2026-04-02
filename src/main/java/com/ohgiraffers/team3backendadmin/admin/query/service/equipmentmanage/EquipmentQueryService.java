@@ -4,6 +4,7 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearch
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
@@ -27,6 +28,14 @@ public class EquipmentQueryService {
      */
     public List<EquipmentQueryResponse> getEquipmentList(EquipmentSearchRequest request) {
         return equipmentQueryMapper.selectEquipmentList(request);
+    }
+
+    /**
+     * 설비 상태 집계 정보를 조회한다.
+     * @return 설비 상태 집계 응답
+     */
+    public EquipmentSummaryQueryResponse getEquipmentSummary() {
+        return equipmentQueryMapper.selectEquipmentSummary();
     }
 
     /**

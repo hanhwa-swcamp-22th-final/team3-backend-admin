@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.FactoryLineSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.FactoryLineQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +36,7 @@ class FactoryLineQueryServiceTest {
     private FactoryLineSearchRequest searchRequest;
     private FactoryLineQueryResponse factoryLineQueryResponse;
     private FactoryLineDetailResponse factoryLineDetailResponse;
+    private FactoryLineEquipmentStatsResponse factoryLineEquipmentStatsResponse;
 
     @BeforeEach
     void setUp() {
@@ -50,6 +53,11 @@ class FactoryLineQueryServiceTest {
         factoryLineDetailResponse.setFactoryLineId(1L);
         factoryLineDetailResponse.setFactoryLineCode("LINE-001");
         factoryLineDetailResponse.setFactoryLineName("Main Line");
+
+        factoryLineEquipmentStatsResponse = new FactoryLineEquipmentStatsResponse();
+        factoryLineEquipmentStatsResponse.setTotalEquipmentCount(10L);
+        factoryLineEquipmentStatsResponse.setOperatingEquipmentCount(7L);
+        factoryLineEquipmentStatsResponse.setOperationRate(new BigDecimal("70.00"));
     }
 
     @Test
@@ -104,6 +112,19 @@ class FactoryLineQueryServiceTest {
         assertEquals(ErrorCode.FACTORY_LINE_NOT_FOUND, exception.getErrorCode());
         assertEquals("해당 생산 라인을 찾을 수 없습니다.", exception.getMessage());
         verify(factoryLineQueryMapper).selectFactoryLineDetailById(999L);
+    }
+
+    @Test
+    @DisplayName("Get factory line equipment stats success")
+    void getFactoryLineEquipmentStats_success() {
+        when(factoryLineQueryMapper.selectFactoryLineEquipmentStats(1L)).thenReturn(factoryLineEquipmentStatsResponse);
+
+        FactoryLineEquipmentStatsResponse result = factoryLineQueryService.getFactoryLineEquipmentStats(1L);
+
+        assertEquals(10L, result.getTotalEquipmentCount());
+        assertEquals(7L, result.getOperatingEquipmentCount());
+        assertEquals(new BigDecimal("70.00"), result.getOperationRate());
+        verify(factoryLineQueryMapper).selectFactoryLineEquipmentStats(1L);
     }
 
     @Test

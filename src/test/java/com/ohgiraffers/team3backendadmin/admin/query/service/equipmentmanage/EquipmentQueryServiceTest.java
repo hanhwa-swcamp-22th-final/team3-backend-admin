@@ -6,6 +6,7 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearch
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
@@ -39,6 +40,7 @@ class EquipmentQueryServiceTest {
     private EquipmentQueryResponse equipmentQueryResponse;
     private EquipmentLatestSnapshotQueryResponse equipmentLatestSnapshotQueryResponse;
     private EquipmentDetailResponse equipmentDetailResponse;
+    private EquipmentSummaryQueryResponse equipmentSummaryQueryResponse;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +69,13 @@ class EquipmentQueryServiceTest {
         equipmentDetailResponse.setEquipmentStatus(EquipmentStatus.OPERATING);
         equipmentDetailResponse.setEquipmentGrade(EquipmentGrade.S);
         equipmentDetailResponse.setEquipmentDescription("Main line printer");
+
+        equipmentSummaryQueryResponse = new EquipmentSummaryQueryResponse();
+        equipmentSummaryQueryResponse.setTotalCount(10L);
+        equipmentSummaryQueryResponse.setOperatingCount(4L);
+        equipmentSummaryQueryResponse.setStoppedCount(3L);
+        equipmentSummaryQueryResponse.setUnderInspectionCount(2L);
+        equipmentSummaryQueryResponse.setDisposedCount(1L);
     }
 
     @Test
@@ -106,6 +115,21 @@ class EquipmentQueryServiceTest {
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).getEquipmentId());
         verify(equipmentQueryMapper).selectEquipmentListWithLatestSnapshots(searchRequest);
+    }
+
+    @Test
+    @DisplayName("Get equipment summary success")
+    void getEquipmentSummary_success() {
+        when(equipmentQueryMapper.selectEquipmentSummary()).thenReturn(equipmentSummaryQueryResponse);
+
+        EquipmentSummaryQueryResponse result = equipmentQueryService.getEquipmentSummary();
+
+        assertEquals(10L, result.getTotalCount());
+        assertEquals(4L, result.getOperatingCount());
+        assertEquals(3L, result.getStoppedCount());
+        assertEquals(2L, result.getUnderInspectionCount());
+        assertEquals(1L, result.getDisposedCount());
+        verify(equipmentQueryMapper).selectEquipmentSummary();
     }
 
     @Test
