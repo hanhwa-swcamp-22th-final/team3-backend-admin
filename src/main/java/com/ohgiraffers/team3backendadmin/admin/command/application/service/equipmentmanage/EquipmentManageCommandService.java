@@ -35,8 +35,9 @@ public class EquipmentManageCommandService {
   private final IdGenerator idGenerator;
 
   /**
-   * 설비 생성 요청을 검증한 뒤 설비, 노후 파라미터, 기준 정보를 함께 저장한다.
-   * @param request 설비 생성에 필요한 공정, 환경 기준, 코드, 이름, 상태 정보
+   * 설비 생성 요청을 검증한 뒤 설비, 노후 파라미터, baseline 정보를 함께 저장한다.
+   * baseline에는 초기 보증 성능과 초기 오차율을 함께 기록한다.
+   * @param request 설비 생성에 필요한 공정, 환경 기준, 코드, 이름, 노후도 및 baseline 초기 정보
    * @return 생성된 설비의 식별자와 기본 정보
    */
   public EquipmentCreateResponse createEquipment(EquipmentCreateRequest request) {
@@ -79,6 +80,8 @@ public class EquipmentManageCommandService {
         .equipmentBaselineId(equipmentBaselineId)
         .equipmentId(equipmentId)
         .equipmentAgingParamId(equipmentAgingParamId)
+        .equipmentStandardPerformanceRate(toBigDecimal(request.getEquipmentStandardPerformanceRate()))
+        .equipmentBaselineErrorRate(toBigDecimal(request.getEquipmentBaselineErrorRate()))
         .build();
 
     equipmentRepository.save(equipment);
@@ -144,7 +147,7 @@ public class EquipmentManageCommandService {
   }
 
   /**
-   * 기존 설비를 조회한 뒤 관련 기준 데이터를 함께 삭제하고 설비를 제거한다.
+   * 기존 설비를 조회한 뒤 연관된 baseline, 노후 파라미터를 함께 삭제하고 설비를 제거한다.
    * @param equipmentId 삭제할 설비의 식별자
    * @return 반환값 없음
    */
@@ -167,7 +170,7 @@ public class EquipmentManageCommandService {
 
   /**
    * Double 값을 BigDecimal 값으로 변환한다.
-   * @param value 변환할 마모 계수 값
+   * @param value 변환할 수치 값
    * @return BigDecimal로 변환한 값, null 입력 시 null
    */
   private BigDecimal toBigDecimal(Double value) {

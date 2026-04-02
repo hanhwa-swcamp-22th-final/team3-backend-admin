@@ -117,4 +117,26 @@ class MaintenanceLogQueryServiceTest {
         assertEquals(ErrorCode.MAINTENANCE_LOG_NOT_FOUND, exception.getErrorCode());
         verify(maintenanceLogQueryMapper).selectMaintenanceLogDetailById(9999L);
     }
+
+    @Test
+    @DisplayName("Get latest maintenance log success")
+    void getLatestMaintenanceLog_success() {
+        when(maintenanceLogQueryMapper.selectLatestMaintenanceLogByEquipmentId(4001L)).thenReturn(detailResponse);
+
+        MaintenanceLogDetailResponse result = maintenanceLogQueryService.getLatestMaintenanceLog(4001L);
+
+        assertEquals(8001L, result.getMaintenanceLogId());
+        verify(maintenanceLogQueryMapper).selectLatestMaintenanceLogByEquipmentId(4001L);
+    }
+
+    @Test
+    @DisplayName("Get abnormal or incomplete maintenance logs success")
+    void getAbnormalOrIncompleteMaintenanceLogList_success() {
+        when(maintenanceLogQueryMapper.selectAbnormalOrIncompleteMaintenanceLogList()).thenReturn(List.of(queryResponse));
+
+        List<MaintenanceLogQueryResponse> result = maintenanceLogQueryService.getAbnormalOrIncompleteMaintenanceLogList();
+
+        assertEquals(1, result.size());
+        verify(maintenanceLogQueryMapper).selectAbnormalOrIncompleteMaintenanceLogList();
+    }
 }

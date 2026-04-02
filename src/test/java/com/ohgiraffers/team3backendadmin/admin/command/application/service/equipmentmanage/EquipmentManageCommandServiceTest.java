@@ -105,6 +105,8 @@ class EquipmentManageCommandServiceTest {
             .equipmentWarrantyMonth(24)
             .equipmentDesignLifeMonths(120)
             .equipmentWearCoefficient(0.75)
+            .equipmentStandardPerformanceRate(98.5)
+            .equipmentBaselineErrorRate(1.5)
             .build();
 
         equipmentUpdateRequest = EquipmentUpdateRequest.builder()
@@ -184,6 +186,8 @@ class EquipmentManageCommandServiceTest {
         assertEquals(6001L, savedBaseline.getEquipmentBaselineId());
         assertEquals(4001L, savedBaseline.getEquipmentId());
         assertEquals(5001L, savedBaseline.getEquipmentAgingParamId());
+        assertEquals(BigDecimal.valueOf(98.5), savedBaseline.getEquipmentStandardPerformanceRate());
+        assertEquals(BigDecimal.valueOf(1.5), savedBaseline.getEquipmentBaselineErrorRate());
 
         assertEquals(4001L, response.getEquipmentId());
         assertEquals("EQ-001", response.getEquipmentCode());

@@ -8,11 +8,16 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEve
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardQueryResponse;
@@ -20,6 +25,8 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLog
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentEventQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentStandardQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentAgingParamQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentBaselineQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
@@ -38,7 +45,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.math.BigDecimal;
 
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -62,6 +71,12 @@ class EquipmentManageQueryControllerTest {
 
     @MockitoBean
     private EquipmentQueryService equipmentQueryService;
+
+    @MockitoBean
+    private EquipmentAgingParamQueryService equipmentAgingParamQueryService;
+
+    @MockitoBean
+    private EquipmentBaselineQueryService equipmentBaselineQueryService;
 
     @MockitoBean
     private EnvironmentStandardQueryService environmentStandardQueryService;
@@ -117,6 +132,24 @@ class EquipmentManageQueryControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.factoryLineId").value(1L));
+    }
+
+    @Test
+    @DisplayName("Get factory line equipment stats API success")
+    void getFactoryLineEquipmentStats_success() throws Exception {
+        FactoryLineEquipmentStatsResponse response = new FactoryLineEquipmentStatsResponse();
+        response.setTotalEquipmentCount(10L);
+        response.setOperatingEquipmentCount(7L);
+        response.setOperationRate(new BigDecimal("70.00"));
+
+        when(factoryLineQueryService.getFactoryLineEquipmentStats(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/factory-lines/1/equipment-stats"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.totalEquipmentCount").value(10))
+            .andExpect(jsonPath("$.data.operatingEquipmentCount").value(7))
+            .andExpect(jsonPath("$.data.operationRate").value(70.00));
     }
 
     @Test
@@ -295,6 +328,53 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
+    @DisplayName("Get latest environment event API success")
+    void getLatestEnvironmentEvent_success() throws Exception {
+        EnvironmentEventDetailResponse response = new EnvironmentEventDetailResponse();
+        response.setEnvironmentEventId(11L);
+
+        when(environmentEventQueryService.getLatestEnvironmentEvent(10L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/environment-events")
+                .param("mode", "latest")
+                .param("equipmentId", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.environmentEventId").value(11L));
+    }
+
+    @Test
+    @DisplayName("Get environment event as-of API success")
+    void getLatestEnvironmentEventAsOf_success() throws Exception {
+        EnvironmentEventDetailResponse response = new EnvironmentEventDetailResponse();
+        response.setEnvironmentEventId(12L);
+
+        when(environmentEventQueryService.getLatestEnvironmentEventBeforeOrAt(
+            10L, LocalDateTime.of(2026, 4, 1, 10, 0)))
+            .thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/environment-events")
+                .param("mode", "as-of")
+                .param("equipmentId", "10")
+                .param("referenceTime", "2026-04-01T10:00:00"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.environmentEventId").value(12L));
+    }
+
+    @Test
+    @DisplayName("Get unresolved environment event list API success")
+    void getUnresolvedEnvironmentEventList_success() throws Exception {
+        EnvironmentEventQueryResponse response = new EnvironmentEventQueryResponse();
+        response.setEnvironmentEventId(13L);
+
+        when(environmentEventQueryService.getUnresolvedEnvironmentEventList()).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/environment-events")
+                .param("mode", "unresolved"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].environmentEventId").value(13L));
+    }
+
+    @Test
     @DisplayName("Get environment event detail API success: return detail JSON")
     void getEnvironmentEventDetail_success() throws Exception {
         EnvironmentEventDetailResponse response = new EnvironmentEventDetailResponse();
@@ -430,6 +510,52 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
+    @DisplayName("Get latest maintenance log API success")
+    void getLatestMaintenanceLog_success() throws Exception {
+        MaintenanceLogDetailResponse response = new MaintenanceLogDetailResponse();
+        response.setMaintenanceLogId(21L);
+
+        when(maintenanceLogQueryService.getLatestMaintenanceLog(10L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs")
+                .param("mode", "latest")
+                .param("equipmentId", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(21L));
+    }
+
+    @Test
+    @DisplayName("Get maintenance log as-of API success")
+    void getLatestMaintenanceLogAsOf_success() throws Exception {
+        MaintenanceLogDetailResponse response = new MaintenanceLogDetailResponse();
+        response.setMaintenanceLogId(22L);
+
+        when(maintenanceLogQueryService.getLatestMaintenanceLogBeforeOrAt(10L, LocalDate.of(2026, 4, 1)))
+            .thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs")
+                .param("mode", "as-of")
+                .param("equipmentId", "10")
+                .param("referenceDate", "2026-04-01"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.maintenanceLogId").value(22L));
+    }
+
+    @Test
+    @DisplayName("Get abnormal maintenance log list API success")
+    void getAbnormalOrIncompleteMaintenanceLogs_success() throws Exception {
+        MaintenanceLogQueryResponse response = new MaintenanceLogQueryResponse();
+        response.setMaintenanceLogId(23L);
+
+        when(maintenanceLogQueryService.getAbnormalOrIncompleteMaintenanceLogList()).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/maintenance-logs")
+                .param("mode", "anomalies"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].maintenanceLogId").value(23L));
+    }
+
+    @Test
     @DisplayName("Get maintenance log detail API success: return detail JSON")
     void getMaintenanceLogDetail_success() throws Exception {
         MaintenanceLogDetailResponse response = new MaintenanceLogDetailResponse();
@@ -500,6 +626,45 @@ class EquipmentManageQueryControllerTest {
     }
 
     @Test
+    @DisplayName("Get equipment summary API success")
+    void getEquipmentSummary_success() throws Exception {
+        EquipmentSummaryQueryResponse response = new EquipmentSummaryQueryResponse();
+        response.setTotalCount(10L);
+        response.setOperatingCount(4L);
+        response.setStoppedCount(3L);
+        response.setUnderInspectionCount(2L);
+        response.setDisposedCount(1L);
+
+        when(equipmentQueryService.getEquipmentSummary()).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipments")
+                .param("mode", "summary"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.totalCount").value(10))
+            .andExpect(jsonPath("$.data.operatingCount").value(4))
+            .andExpect(jsonPath("$.data.stoppedCount").value(3))
+            .andExpect(jsonPath("$.data.underInspectionCount").value(2))
+            .andExpect(jsonPath("$.data.disposedCount").value(1));
+    }
+
+    @Test
+    @DisplayName("Get equipment list with latest snapshots API success")
+    void getEquipmentListWithLatestSnapshots_success() throws Exception {
+        EquipmentLatestSnapshotQueryResponse response = new EquipmentLatestSnapshotQueryResponse();
+        response.setEquipmentId(31L);
+        response.setLatestEquipmentBaselineId(601L);
+
+        when(equipmentQueryService.getEquipmentListWithLatestSnapshots(argThat(request -> request != null)))
+            .thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipments")
+                .param("mode", "latest-snapshots"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentId").value(31L))
+            .andExpect(jsonPath("$.data[0].latestEquipmentBaselineId").value(601L));
+    }
+
+    @Test
     @DisplayName("Get equipment detail API success: return detail JSON")
     void getEquipmentDetail_success() throws Exception {
         EquipmentDetailResponse response = new EquipmentDetailResponse();
@@ -530,4 +695,155 @@ class EquipmentManageQueryControllerTest {
             .andExpect(jsonPath("$.success").value(false))
             .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_006"));
     }
+
+    @Test
+    @DisplayName("Get equipment aging param detail API success: return detail JSON")
+    void getEquipmentAgingParamDetail_success() throws Exception {
+        EquipmentAgingParamDetailResponse response = new EquipmentAgingParamDetailResponse();
+        response.setEquipmentAgingParamId(5001L);
+        response.setEquipmentId(4001L);
+        response.setEquipmentEtaAge(new java.math.BigDecimal("36.5"));
+        response.setEquipmentWarrantyMonth(36);
+
+        when(equipmentAgingParamQueryService.getEquipmentAgingParamDetail(5001L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-aging-params/5001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentAgingParamId").value(5001L));
+    }
+
+    @Test
+    @DisplayName("Get equipment aging param detail failure: return 404 when the target does not exist")
+    void getEquipmentAgingParamDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(equipmentAgingParamQueryService.getEquipmentAgingParamDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND));
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-aging-params/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_009"));
+    }
+
+    @Test
+    @DisplayName("Get equipment aging param history API success")
+    void getEquipmentAgingParamHistory_success() throws Exception {
+        EquipmentAgingParamDetailResponse response = new EquipmentAgingParamDetailResponse();
+        response.setEquipmentAgingParamId(5002L);
+
+        when(equipmentAgingParamQueryService.getEquipmentAgingParamHistory(argThat(request -> request != null)))
+            .thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-aging-params")
+                .param("equipmentId", "4001")
+                .param("calculatedFrom", "2026-04-01T00:00:00")
+                .param("calculatedTo", "2026-04-02T00:00:00"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentAgingParamId").value(5002L));
+    }
+
+    @Test
+    @DisplayName("Get latest equipment aging param API success")
+    void getLatestEquipmentAgingParam_success() throws Exception {
+        EquipmentAgingParamDetailResponse response = new EquipmentAgingParamDetailResponse();
+        response.setEquipmentAgingParamId(5003L);
+
+        when(equipmentAgingParamQueryService.getLatestEquipmentAgingParam(4001L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-aging-params")
+                .param("mode", "latest")
+                .param("equipmentId", "4001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.equipmentAgingParamId").value(5003L));
+    }
+
+    @Test
+    @DisplayName("Get uncalculated equipment aging param list API success")
+    void getUncalculatedEquipmentAgingParamList_success() throws Exception {
+        EquipmentAgingParamDetailResponse response = new EquipmentAgingParamDetailResponse();
+        response.setEquipmentAgingParamId(5004L);
+
+        when(equipmentAgingParamQueryService.getUncalculatedEquipmentAgingParamList()).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-aging-params")
+                .param("mode", "uncalculated"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentAgingParamId").value(5004L));
+    }
+
+    @Test
+    @DisplayName("Get equipment baseline detail API success: return detail JSON")
+    void getEquipmentBaselineDetail_success() throws Exception {
+        EquipmentBaselineDetailResponse response = new EquipmentBaselineDetailResponse();
+        response.setEquipmentBaselineId(6001L);
+        response.setEquipmentId(4001L);
+        response.setEquipmentAgingParamId(5001L);
+        response.setEquipmentStandardPerformanceRate(new java.math.BigDecimal("97.5"));
+
+        when(equipmentBaselineQueryService.getEquipmentBaselineDetail(6001L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-baselines/6001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentBaselineId").value(6001L));
+    }
+
+    @Test
+    @DisplayName("Get equipment baseline detail failure: return 404 when the target does not exist")
+    void getEquipmentBaselineDetail_whenServiceThrows_thenReturn404() throws Exception {
+        when(equipmentBaselineQueryService.getEquipmentBaselineDetail(999L))
+            .thenThrow(new BusinessException(ErrorCode.EQUIPMENT_BASELINE_NOT_FOUND));
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-baselines/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.errorCode").value("NOT_FOUND_012"));
+    }
+
+    @Test
+    @DisplayName("Get equipment baseline history API success")
+    void getEquipmentBaselineHistory_success() throws Exception {
+        EquipmentBaselineDetailResponse response = new EquipmentBaselineDetailResponse();
+        response.setEquipmentBaselineId(6002L);
+
+        when(equipmentBaselineQueryService.getEquipmentBaselineHistory(argThat(request -> request != null)))
+            .thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-baselines")
+                .param("equipmentId", "4001")
+                .param("calculatedFrom", "2026-04-01T00:00:00")
+                .param("calculatedTo", "2026-04-02T00:00:00"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentBaselineId").value(6002L));
+    }
+
+    @Test
+    @DisplayName("Get latest equipment baseline API success")
+    void getLatestEquipmentBaseline_success() throws Exception {
+        EquipmentBaselineDetailResponse response = new EquipmentBaselineDetailResponse();
+        response.setEquipmentBaselineId(6003L);
+
+        when(equipmentBaselineQueryService.getLatestEquipmentBaseline(4001L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-baselines")
+                .param("mode", "latest")
+                .param("equipmentId", "4001"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.equipmentBaselineId").value(6003L));
+    }
+
+    @Test
+    @DisplayName("Get uncalculated equipment baseline list API success")
+    void getUncalculatedEquipmentBaselineList_success() throws Exception {
+        EquipmentBaselineDetailResponse response = new EquipmentBaselineDetailResponse();
+        response.setEquipmentBaselineId(6004L);
+
+        when(equipmentBaselineQueryService.getUncalculatedEquipmentBaselineList()).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/equipment-management/equipment-baselines")
+                .param("mode", "uncalculated"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].equipmentBaselineId").value(6004L));
+    }
+
 }

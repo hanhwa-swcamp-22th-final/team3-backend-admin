@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.FactoryLineSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,8 @@ class FactoryLineQueryMapperTest {
 
     private String uniqueSuffix;
     private Long factoryLineId;
+    private Long equipmentProcessId;
+    private Long environmentStandardId;
     private String factoryLineCode;
     private String factoryLineName;
 
@@ -37,6 +40,8 @@ class FactoryLineQueryMapperTest {
     void setUp() {
         uniqueSuffix = String.valueOf(idGenerator.generate());
         factoryLineId = idGenerator.generate();
+        equipmentProcessId = idGenerator.generate();
+        environmentStandardId = idGenerator.generate();
         factoryLineCode = "LINE-MAPPER-" + uniqueSuffix;
         factoryLineName = "Mapper Line " + uniqueSuffix;
 
@@ -46,6 +51,27 @@ class FactoryLineQueryMapperTest {
             factoryLineCode,
             factoryLineName,
             false
+        );
+
+        jdbcTemplate.update(
+            "INSERT INTO equipment_process (equipment_process_id, factory_line_id, equipment_process_code, equipment_process_name) VALUES (?, ?, ?, ?)",
+            equipmentProcessId,
+            factoryLineId,
+            "PROC-LINE-" + uniqueSuffix,
+            "Line Process " + uniqueSuffix
+        );
+
+        jdbcTemplate.update(
+            "INSERT INTO environment_standard (environment_standard_id, environment_type, environment_code, environment_name, env_temp_min, env_temp_max, env_humidity_min, env_humidity_max, env_particle_limit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            environmentStandardId,
+            "DRYROOM",
+            "ENV-LINE-" + uniqueSuffix,
+            "Line Environment " + uniqueSuffix,
+            20.0,
+            25.0,
+            30.0,
+            40.0,
+            1000
         );
     }
 
@@ -101,6 +127,41 @@ class FactoryLineQueryMapperTest {
         FactoryLineDetailResponse result = factoryLineQueryMapper.selectFactoryLineDetailById(factoryLineId);
 
         assertNull(result);
+    }
+
+    @Test
+    @DisplayName("select factory line equipment stats success")
+    void selectFactoryLineEquipmentStats_success() {
+        jdbcTemplate.update(
+            "INSERT INTO equipment (equipment_id, equipment_process_id, environment_standard_id, equipment_code, equipment_name, equipment_status, equipment_grade, equipment_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            idGenerator.generate(),
+            equipmentProcessId,
+            environmentStandardId,
+            "EQ-LINE-OP-" + uniqueSuffix,
+            "Operating Equipment " + uniqueSuffix,
+            "OPERATING",
+            "S",
+            "Operating equipment"
+        );
+
+        jdbcTemplate.update(
+            "INSERT INTO equipment (equipment_id, equipment_process_id, environment_standard_id, equipment_code, equipment_name, equipment_status, equipment_grade, equipment_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            idGenerator.generate(),
+            equipmentProcessId,
+            environmentStandardId,
+            "EQ-LINE-ST-" + uniqueSuffix,
+            "Stopped Equipment " + uniqueSuffix,
+            "STOPPED",
+            "A",
+            "Stopped equipment"
+        );
+
+        FactoryLineEquipmentStatsResponse result = factoryLineQueryMapper.selectFactoryLineEquipmentStats(factoryLineId);
+
+        assertNotNull(result);
+        assertEquals(2L, result.getTotalEquipmentCount());
+        assertEquals(1L, result.getOperatingEquipmentCount());
+        assertEquals("50.00", result.getOperationRate().toPlainString());
     }
 
     @Test
