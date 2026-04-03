@@ -198,7 +198,7 @@ class EmployeeSkillManageCommandServiceTest {
                     EmployeeNotFoundException.class,
                     () -> employeeSkillManageCommandService.updateEmployeeSkill(request, "EMP-0001")
             );
-            assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 사원을 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -219,7 +219,7 @@ class EmployeeSkillManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> employeeSkillManageCommandService.updateEmployeeSkill(request, "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
 
         @Test

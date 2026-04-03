@@ -1,12 +1,14 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.consent.Consent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.ConsentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
@@ -54,6 +56,9 @@ class EmployeeManageCommandServiceTest {
 
     @Mock
     private SkillRepository skillRepository;
+
+    @Mock
+    private ConsentRepository consentRepository;
 
     @Mock
     private IdGenerator idGenerator;
@@ -139,6 +144,9 @@ class EmployeeManageCommandServiceTest {
 
             // 6개의 기본 스킬 레코드가 생성되는지 확인
             verify(skillRepository, times(6)).save(any(Skill.class));
+
+            // 기본 약관 동의 레코드가 생성되는지 확인
+            verify(consentRepository).save(any(Consent.class));
         }
 
         @Test
@@ -157,7 +165,7 @@ class EmployeeManageCommandServiceTest {
                     DepartmentNotFoundException.class,
                     () -> employeeManageCommandService.insertEmployee(request, "EMP-0001")
             );
-            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -174,7 +182,7 @@ class EmployeeManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.insertEmployee(request, "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -273,7 +281,7 @@ class EmployeeManageCommandServiceTest {
                     EmployeeNotFoundException.class,
                     () -> employeeManageCommandService.deleteEmployee("UNKNOWN_TARGET", "EMP-0001")
             );
-            assertEquals("해당 사원을 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 사원을 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -288,7 +296,7 @@ class EmployeeManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.deleteEmployee("EMP2603001", "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
     }
 }

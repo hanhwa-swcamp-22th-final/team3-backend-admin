@@ -138,7 +138,7 @@ class DepartmentManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> departmentManageCommandService.insertDepartment(request, "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
     }
 
@@ -248,7 +248,7 @@ class DepartmentManageCommandServiceTest {
                     DepartmentNotFoundException.class,
                     () -> departmentManageCommandService.updateDepartment(request, "EMP-0001")
             );
-            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -267,7 +267,7 @@ class DepartmentManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> departmentManageCommandService.updateDepartment(request, "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
     }
 
@@ -316,7 +316,7 @@ class DepartmentManageCommandServiceTest {
                     DepartmentNotFoundException.class,
                     () -> departmentManageCommandService.deleteDepartment(9999L, "EMP-0001")
             );
-            assertEquals("해당 부서를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -331,7 +331,7 @@ class DepartmentManageCommandServiceTest {
                     AdminAccessDeniedException.class,
                     () -> departmentManageCommandService.deleteDepartment(1000L, "UNKNOWN")
             );
-            assertEquals("해당 사원 정보를 찾을 수 없습니다", exception.getMessage());
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }
     }
 }
