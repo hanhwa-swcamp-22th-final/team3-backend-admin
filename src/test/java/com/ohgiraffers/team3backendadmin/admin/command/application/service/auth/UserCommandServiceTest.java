@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.PasswordChangeRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.ProfileUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.PasswordChangeRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.ProfileUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;

@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request;
+package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;

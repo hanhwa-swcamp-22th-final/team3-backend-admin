@@ -1,6 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDeleteResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
@@ -41,7 +43,7 @@ public class EmployeeManageCommandService {
 
     // Insert Employee
     @Transactional
-    public void insertEmployee(EmployeeCreateRequest request, String employeeCode) {
+    public EmployeeCreateResponse insertEmployee(EmployeeCreateRequest request, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(AdminAccessDeniedException::new);
@@ -102,11 +104,24 @@ public class EmployeeManageCommandService {
                 .build();
 
         consentRepository.save(defaultConsent);
+
+        return EmployeeCreateResponse.builder()
+                .departmentId(request.getDepartmentId())
+                .employeeName(request.getEmployeeName())
+                .employeeEmail(request.getEmployeeEmail())
+                .employeePhone(request.getEmployeePhone())
+                .employeeAddress(request.getEmployeeAddress())
+                .employeeEmergencyContact(request.getEmployeeEmergencyContact())
+                .employeePassword(request.getEmployeePassword())
+                .employeeRole(request.getEmployeeRole())
+                .employeeStatus(request.getEmployeeStatus())
+                .employeeTier(request.getEmployeeTier())
+                .build();
     }
 
     // Delete employee
     @Transactional
-    public void deleteEmployee(String targetCode, String adminCode) {
+    public EmployeeDeleteResponse deleteEmployee(String targetCode, String adminCode) {
 
         employeeRepository.findByEmployeeCode(adminCode)
                 .orElseThrow(AdminAccessDeniedException::new);
@@ -114,6 +129,13 @@ public class EmployeeManageCommandService {
         Employee target = employeeRepository.findByEmployeeCode(targetCode)
                 .orElseThrow(EmployeeNotFoundException::new);
 
+        EmployeeDeleteResponse response = EmployeeDeleteResponse.builder()
+                .employeeCode(target.getEmployeeCode())
+                .employeeName(target.getEmployeeName())
+                .build();
+
         target.deleteEmployee();
+
+        return response;
     }
 }

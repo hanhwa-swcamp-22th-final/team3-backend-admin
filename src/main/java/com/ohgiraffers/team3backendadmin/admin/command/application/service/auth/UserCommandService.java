@@ -1,7 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.PasswordChangeRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.ProfileUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.PasswordChangeRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.ProfileUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.PasswordChangeResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.ProfileUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.passwordhistory.PasswordHistory;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
@@ -32,7 +34,7 @@ public class UserCommandService {
     private final AesEncryptor aesEncryptor;
 
     @Transactional
-    public void updateProfile(ProfileUpdateRequest request, String employeeCode) {
+    public ProfileUpdateResponse updateProfile(ProfileUpdateRequest request, String employeeCode) {
 
         Employee employee = employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(EmployeeNotFoundException::new);
@@ -58,10 +60,18 @@ public class UserCommandService {
                 request.getEmployeeAddress() != null ? aesEncryptor.encrypt(request.getEmployeeAddress()) : null,
                 request.getEmployeeEmergencyContact() != null ? aesEncryptor.encrypt(request.getEmployeeEmergencyContact()) : null
         );
+
+        return ProfileUpdateResponse.builder()
+                .employeeName(request.getEmployeeName())
+                .employeeEmail(request.getEmployeeEmail())
+                .employeePhone(request.getEmployeePhone())
+                .employeeAddress(request.getEmployeeAddress())
+                .employeeEmergencyContact(request.getEmployeeEmergencyContact())
+                .build();
     }
 
     @Transactional
-    public void changePassword(PasswordChangeRequest request, String employeeCode) {
+    public PasswordChangeResponse changePassword(PasswordChangeRequest request, String employeeCode) {
 
         Employee employee = employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(EmployeeNotFoundException::new);
@@ -98,5 +108,10 @@ public class UserCommandService {
         passwordHistoryRepository.save(newHistory);
 
         employee.changePassword(passwordEncoder.encode(request.getNewPassword()));
+
+        return PasswordChangeResponse.builder()
+                .currentPassword(request.getCurrentPassword())
+                .newPassword(request.getNewPassword())
+                .build();
     }
 }

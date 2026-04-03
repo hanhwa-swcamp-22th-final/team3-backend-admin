@@ -1,8 +1,11 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetDeleteRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetDeleteRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.industrypreset.IndustryPresetCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.industrypreset.IndustryPresetDeleteResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.industrypreset.IndustryPresetUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset.IndustryPresetCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,28 +23,28 @@ public class IndustryPresetCommandController {
 
     @PostMapping("/preset")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> create(
+    public ResponseEntity<ApiResponse<IndustryPresetCreateResponse>> create(
             @Valid @RequestBody IndustryPresetCreateRequest request
     ) {
-        industryPresetCommandService.create(request);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        IndustryPresetCreateResponse response = industryPresetCommandService.create(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PutMapping("/preset")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> update(
+    public ResponseEntity<ApiResponse<IndustryPresetUpdateResponse>> update(
             @Valid @RequestBody IndustryPresetUpdateRequest request
     ) {
-        industryPresetCommandService.update(request);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        IndustryPresetUpdateResponse response = industryPresetCommandService.update(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @DeleteMapping("/preset")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> delete(
+    public ResponseEntity<ApiResponse<IndustryPresetDeleteResponse>> delete(
             @Valid @RequestBody IndustryPresetDeleteRequest request
     ) {
-        industryPresetCommandService.delete(request);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        IndustryPresetDeleteResponse response = industryPresetCommandService.delete(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

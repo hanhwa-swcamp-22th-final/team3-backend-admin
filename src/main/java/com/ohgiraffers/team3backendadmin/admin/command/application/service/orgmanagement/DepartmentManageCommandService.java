@@ -1,7 +1,10 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.department.DepartmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.department.DepartmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.department.DepartmentCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.department.DepartmentDeleteResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.department.DepartmentUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
@@ -24,7 +27,7 @@ public class DepartmentManageCommandService {
 
     // Insert Department
     @Transactional
-    public void insertDepartment(DepartmentCreateRequest request, String employeeCode) {
+    public DepartmentCreateResponse insertDepartment(DepartmentCreateRequest request, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(AdminAccessDeniedException::new);
@@ -40,11 +43,18 @@ public class DepartmentManageCommandService {
         Department verified = organizationManageDomainService.buildVerifiedDepartment(department);
 
         departmentRepository.save(verified);
+
+        return DepartmentCreateResponse.builder()
+                .parentDepartmentId(verified.getParentDepartmentId())
+                .departmentName(verified.getDepartmentName())
+                .teamName(verified.getTeamName())
+                .depth(verified.getDepth())
+                .build();
     }
 
     // Update Department
     @Transactional
-    public void updateDepartment(DepartmentUpdateRequest request, String employeeCode) {
+    public DepartmentUpdateResponse updateDepartment(DepartmentUpdateRequest request, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(AdminAccessDeniedException::new);
@@ -56,11 +66,17 @@ public class DepartmentManageCommandService {
                 request.getDepartmentName(),
                 request.getTeamName()
         );
+
+        return DepartmentUpdateResponse.builder()
+                .departmentId(department.getDepartmentId())
+                .departmentName(department.getDepartmentName())
+                .teamName(department.getTeamName())
+                .build();
     }
 
     // Delete Department
     @Transactional
-    public void deleteDepartment(Long departmentId, String employeeCode) {
+    public DepartmentDeleteResponse deleteDepartment(Long departmentId, String employeeCode) {
 
         employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(AdminAccessDeniedException::new);
@@ -68,6 +84,13 @@ public class DepartmentManageCommandService {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(DepartmentNotFoundException::new);
 
+        DepartmentDeleteResponse response = DepartmentDeleteResponse.builder()
+                .departmentId(department.getDepartmentId())
+                .departmentName(department.getDepartmentName())
+                .build();
+
         department.softDelete();
+
+        return response;
     }
 }

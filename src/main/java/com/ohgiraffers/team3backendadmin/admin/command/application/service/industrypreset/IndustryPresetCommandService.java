@@ -1,8 +1,11 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetDeleteRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetDeleteRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.industrypreset.IndustryPresetCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.industrypreset.IndustryPresetDeleteResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.industrypreset.IndustryPresetUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.ocsaweightconfig.OCSAWeightConfig;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.OCSAWeightConfigRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.DuplicateFieldException;
@@ -23,7 +26,7 @@ public class IndustryPresetCommandService {
     private final IdGenerator idGenerator;
 
     @Transactional
-    public void create(IndustryPresetCreateRequest request) {
+    public IndustryPresetCreateResponse create(IndustryPresetCreateRequest request) {
 
         if (ocsaWeightConfigRepository.existsByIndustryPresetName(request.getIndustryPresetName())) {
             throw new DuplicateFieldException("이미 사용 중인 프리셋 이름입니다.");
@@ -44,10 +47,20 @@ public class IndustryPresetCommandService {
                 .build();
 
         ocsaWeightConfigRepository.save(config);
+
+        return IndustryPresetCreateResponse.builder()
+                .industryPresetName(config.getIndustryPresetName())
+                .weightV1(config.getWeightV1())
+                .weightV2(config.getWeightV2())
+                .weightV3(config.getWeightV3())
+                .weightV4(config.getWeightV4())
+                .alphaWeight(config.getAlphaWeight())
+                .effectiveDate(config.getEffectiveDate())
+                .build();
     }
 
     @Transactional
-    public void update(IndustryPresetUpdateRequest request) {
+    public IndustryPresetUpdateResponse update(IndustryPresetUpdateRequest request) {
 
         OCSAWeightConfig config = ocsaWeightConfigRepository.findById(request.getConfigId())
                 .orElseThrow(OCSAWeightConfigNotFoundException::new);
@@ -75,15 +88,33 @@ public class IndustryPresetCommandService {
                 request.getAlphaWeight(),
                 request.getEffectiveDate()
         );
+
+        return IndustryPresetUpdateResponse.builder()
+                .configId(config.getConfigId())
+                .industryPresetName(config.getIndustryPresetName())
+                .weightV1(config.getWeightV1())
+                .weightV2(config.getWeightV2())
+                .weightV3(config.getWeightV3())
+                .weightV4(config.getWeightV4())
+                .alphaWeight(config.getAlphaWeight())
+                .effectiveDate(config.getEffectiveDate())
+                .build();
     }
 
     @Transactional
-    public void delete(IndustryPresetDeleteRequest request) {
+    public IndustryPresetDeleteResponse delete(IndustryPresetDeleteRequest request) {
 
         OCSAWeightConfig config = ocsaWeightConfigRepository.findById(request.getConfigId())
                 .orElseThrow(OCSAWeightConfigNotFoundException::new);
 
+        IndustryPresetDeleteResponse response = IndustryPresetDeleteResponse.builder()
+                .configId(config.getConfigId())
+                .industryPresetName(config.getIndustryPresetName())
+                .build();
+
         config.softDelete();
+
+        return response;
     }
 
     private void validateWeights(BigDecimal v1, BigDecimal v2, BigDecimal v3, BigDecimal v4,

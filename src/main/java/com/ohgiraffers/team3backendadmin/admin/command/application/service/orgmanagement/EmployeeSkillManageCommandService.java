@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeSkillUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeSkillUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeSkillUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
@@ -25,7 +26,7 @@ public class EmployeeSkillManageCommandService {
     private final SkillRepository skillRepository;
 
     @Transactional
-    public void updateEmployeeSkill(EmployeeSkillUpdateRequest request, String adminCode) {
+    public EmployeeSkillUpdateResponse updateEmployeeSkill(EmployeeSkillUpdateRequest request, String adminCode) {
 
         employeeRepository.findByEmployeeCode(adminCode)
                 .orElseThrow(AdminAccessDeniedException::new);
@@ -51,5 +52,15 @@ public class EmployeeSkillManageCommandService {
                 skill.updateScore(score);
             }
         });
+
+        return EmployeeSkillUpdateResponse.builder()
+                .employeeCode(request.getEmployeeCode())
+                .equipmentResponse(request.getEquipmentResponse())
+                .technicalTransfer(request.getTechnicalTransfer())
+                .innovationProposal(request.getInnovationProposal())
+                .safetyCompliance(request.getSafetyCompliance())
+                .qualityManagement(request.getQualityManagement())
+                .productivity(request.getProductivity())
+                .build();
     }
 }

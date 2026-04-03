@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DepartmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.department.DepartmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.department.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
