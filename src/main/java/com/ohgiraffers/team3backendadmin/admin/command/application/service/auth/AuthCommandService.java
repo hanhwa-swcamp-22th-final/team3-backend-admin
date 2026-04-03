@@ -10,13 +10,22 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshT
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
+import com.ohgiraffers.team3backendadmin.common.exception.EmployeeOnLeaveException;
+import com.ohgiraffers.team3backendadmin.common.exception.InvalidCredentialsException;
+import com.ohgiraffers.team3backendadmin.common.exception.InvalidTokenException;
 import com.ohgiraffers.team3backendadmin.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Date;
 
 @Service
@@ -33,21 +42,21 @@ public class AuthCommandService {
     public TokenResponse login(LoginRequest loginRequest) {
         // 1. 이메일 암호화 후 조회
         Employee employee = this.employeeRepository.findByEmployeeEmail(aesEncryptor.encrypt(loginRequest.getEmployeeEmail()))
-                .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다"));
+                .orElseThrow(InvalidCredentialsException::new);
 
         // 2. 사원 상태 확인 (ON_LEAVE인 경우 로그인 차단)
         if (employee.getEmployeeStatus() == EmployeeStatus.ON_LEAVE) {
-            throw new BadCredentialsException("Employee is on leave");
+            throw new EmployeeOnLeaveException();
         }
 
         // 3. 비밀번호 매칭 확인
         if(!this.passwordEncoder.matches(loginRequest.getPassword(), employee.getEmployeePassword())) {
-            throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다");
+            throw new InvalidCredentialsException();
         }
 
         // 3. 부서 정보 조회
         Department department = this.departmentRepository.findById(employee.getDepartmentId())
-                .orElseThrow(() -> new BadCredentialsException("부서 정보를 찾을 수 없습니다"));
+                .orElseThrow(DepartmentNotFoundException::new);
 
         // 4. 비밀번호가 일치 -> 로그인 성공 -> 토큰 생성 -> 발급
         String accessToken = this.jwtTokenProvider.createToken(
@@ -88,25 +97,25 @@ public class AuthCommandService {
 
         // DB에서 employee_code가 일치하는 행의 refresh token을 조회
         RefreshToken storedToken  = this.jpaAuthRepository.findById(employeeCode)
-                .orElseThrow(()->new BadCredentialsException("해당 유저로 조회되는 refresh token 없음"));
+                .orElseThrow(() -> new InvalidTokenException("해당 유저로 조회되는 refresh token이 없습니다."));
 
         // 넘어온 요청 시 전달 받은 refresh token 과 DB에 저장된 refresh token이 일치하는지 확인
         if (!storedToken.getToken().equals(provideRefreshToken)) {
-            throw new BadCredentialsException("refresh token이 일치하지 않음");
+            throw new InvalidTokenException("refresh token이 일치하지 않습니다.");
         }
 
         // DB에 저장된 token의 만료 기간이 현재 시간 보다 과거인지 확인
         if (storedToken.getExpiryDate().before(new Date())) {
-            throw new BadCredentialsException("refresh token 기간 만료");
+            throw new InvalidTokenException("refresh token이 만료되었습니다.");
         }
 
         // employeeCode가 일치하는 회원(employee) 조회
         Employee employee = this.employeeRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(()->new BadCredentialsException("해당 유저 없음"));
+                .orElseThrow(EmployeeNotFoundException::new);
 
         // 부서 정보 조회
         Department department = this.departmentRepository.findById(employee.getDepartmentId())
-                .orElseThrow(() -> new BadCredentialsException("부서 정보를 찾을 수 없습니다"));
+                .orElseThrow(DepartmentNotFoundException::new);
 
         // 새로운 token 발급
         String accessToken = this.jwtTokenProvider.createToken(
@@ -127,6 +136,36 @@ public class AuthCommandService {
 
         // TokenResponse 반환
         return TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
+
+    /* accessToken 과 refreshToken을 body와 쿠키에 담아 반환 */
+    public ResponseEntity<ApiResponse<TokenResponse>> buildTokenResponse(TokenResponse tokenResponse) {
+        ResponseCookie cookie = createRefreshTokenCookie(tokenResponse.getRefreshToken());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(ApiResponse.success(tokenResponse));
+    }
+
+    /* refreshToken 쿠키 생성 */
+    public ResponseCookie createRefreshTokenCookie(String refreshToken) {
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                // .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Strict")
+                .build();
+    }
+
+    /* refreshToken 쿠키를 삭제하는 delete cookie 생성 */
+    public ResponseCookie createDeleteRefreshTokenCookie() {
+        return ResponseCookie.from("refreshToken")
+                .httpOnly(true)
+                // .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
     }
 
 }

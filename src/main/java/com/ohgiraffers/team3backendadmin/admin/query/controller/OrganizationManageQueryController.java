@@ -2,7 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.DepartmentResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.service.OrganizationManageQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.DepartmentManageQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.EmployeeManageQueryService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,8 @@ import java.util.List;
 @RequestMapping("/api/v1/organization")
 public class OrganizationManageQueryController {
 
-    private final OrganizationManageQueryService organizationManageQueryService;
+    private final DepartmentManageQueryService departmentManageQueryService;
+    private final EmployeeManageQueryService employeeManageQueryService;
 
     /**
      * 선택 부서 조회
@@ -31,7 +33,7 @@ public class OrganizationManageQueryController {
     public ResponseEntity<ApiResponse<DepartmentResponse>> getDepartment(
             @PathVariable Long departmentId
     ) {
-        DepartmentResponse department = organizationManageQueryService.getDepartmentById(departmentId);
+        DepartmentResponse department = departmentManageQueryService.getDepartmentById(departmentId);
         return ResponseEntity.ok(ApiResponse.success(department));
     }
 
@@ -42,7 +44,7 @@ public class OrganizationManageQueryController {
     @GetMapping("/departments")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<List<DepartmentResponse>>> getAllDepartments() {
-        List<DepartmentResponse> departments = organizationManageQueryService.getAllDepartments();
+        List<DepartmentResponse> departments = departmentManageQueryService.getAllDepartments();
         return ResponseEntity.ok(ApiResponse.success(departments));
     }
 
@@ -56,7 +58,7 @@ public class OrganizationManageQueryController {
     public ResponseEntity<ApiResponse<EmployeeResponse>> getEmployee(
             @PathVariable String employeeCode
     ) {
-        EmployeeResponse employee = organizationManageQueryService.getEmployeeByCode(employeeCode);
+        EmployeeResponse employee = employeeManageQueryService.getEmployeeByCode(employeeCode);
         return ResponseEntity.ok(ApiResponse.success(employee));
     }
 
@@ -67,7 +69,7 @@ public class OrganizationManageQueryController {
     @GetMapping("/employees")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse<List<EmployeeResponse>>> getAllEmployees() {
-        List<EmployeeResponse> employees = organizationManageQueryService.getAllEmployees();
+        List<EmployeeResponse> employees = employeeManageQueryService.getAllEmployees();
         return ResponseEntity.ok(ApiResponse.success(employees));
     }
 }
