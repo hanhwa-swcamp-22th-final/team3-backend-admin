@@ -138,6 +138,20 @@ class EquipmentManageCommandControllerTest {
     }
 
     @Test
+    @DisplayName("Create factory line API validation failure: return bad request")
+    void createFactoryLine_whenInvalidRequest_thenBadRequest() throws Exception {
+        FactoryLineCreateRequest request = FactoryLineCreateRequest.builder()
+            .factoryLineCode(" ")
+            .factoryLineName("")
+            .build();
+
+        mockMvc.perform(post(BASE_URL + "/factory-lines")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("Update factory line API success: return a successful response")
     void updateFactoryLine_success() throws Exception {
         FactoryLineUpdateRequest request = FactoryLineUpdateRequest.builder()
@@ -556,6 +570,29 @@ class EquipmentManageCommandControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.equipmentId").value(4001L));
+    }
+
+    @Test
+    @DisplayName("Create equipment API validation failure: return bad request")
+    void createEquipment_whenValidationFails_thenBadRequest() throws Exception {
+        EquipmentCreateRequest request = EquipmentCreateRequest.builder()
+            .equipmentProcessId(null)
+            .environmentStandardId(3001L)
+            .equipmentCode("")
+            .equipmentName("Printing Equipment")
+            .equipmentStatus(EquipmentStatus.OPERATING)
+            .equipmentGrade(EquipmentGrade.S)
+            .equipmentWarrantyMonth(-1)
+            .equipmentDesignLifeMonths(60)
+            .equipmentWearCoefficient(-0.1)
+            .equipmentStandardPerformanceRate(98.5)
+            .equipmentBaselineErrorRate(1.5)
+            .build();
+
+        mockMvc.perform(post(BASE_URL + "/equipments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,7 +76,7 @@ public class EquipmentManageCommandController {
    */
   @PostMapping("/factory-lines")
   public ResponseEntity<ApiResponse<FactoryLineCreateResponse>> createFactoryLine(
-      @RequestBody FactoryLineCreateRequest request
+      @Valid @RequestBody FactoryLineCreateRequest request
   ) {
     FactoryLineCreateResponse response = factoryLineManageCommandService.createFactoryLine(request);
     return ResponseEntity.ok(ApiResponse.success(response));
@@ -90,7 +91,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/factory-lines/{factoryLineId}")
   public ResponseEntity<ApiResponse<FactoryLineUpdateResponse>> updateFactoryLine(
       @PathVariable Long factoryLineId,
-      @RequestBody FactoryLineUpdateRequest request
+      @Valid @RequestBody FactoryLineUpdateRequest request
   ) {
     FactoryLineUpdateResponse response = factoryLineManageCommandService.updateFactoryLine(factoryLineId, request);
     return ResponseEntity.ok(ApiResponse.success(response));
@@ -114,7 +115,7 @@ public class EquipmentManageCommandController {
    */
   @PostMapping("/equipment-processes")
   public ResponseEntity<ApiResponse<EquipmentProcessCreateResponse>> createEquipmentProcess(
-      @RequestBody EquipmentProcessCreateRequest request
+      @Valid @RequestBody EquipmentProcessCreateRequest request
   ) {
     EquipmentProcessCreateResponse response = equipmentProcessManageCommandService.createEquipmentProcess(request);
     return ResponseEntity.ok(ApiResponse.success(response));
@@ -129,7 +130,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/equipment-processes/{equipmentProcessId}")
   public ResponseEntity<ApiResponse<EquipmentProcessUpdateResponse>> updateEquipmentProcess(
       @PathVariable Long equipmentProcessId,
-      @RequestBody EquipmentProcessUpdateRequest request
+      @Valid @RequestBody EquipmentProcessUpdateRequest request
   ) {
     EquipmentProcessUpdateResponse response =
         equipmentProcessManageCommandService.updateEquipmentProcess(equipmentProcessId, request);
@@ -156,7 +157,7 @@ public class EquipmentManageCommandController {
    */
   @PostMapping("/environment-standards")
   public ResponseEntity<ApiResponse<EnvironmentStandardCreateResponse>> createEnvironmentStandard(
-      @RequestBody EnvironmentStandardCreateRequest request
+      @Valid @RequestBody EnvironmentStandardCreateRequest request
   ) {
     EnvironmentStandardCreateResponse response = environmentStandardManageCommandService.createEnvironmentStandard(request);
     return ResponseEntity.ok(ApiResponse.success(response));
@@ -171,7 +172,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/environment-standards/{environmentStandardId}")
   public ResponseEntity<ApiResponse<EnvironmentStandardUpdateResponse>> updateEnvironmentStandard(
       @PathVariable Long environmentStandardId,
-      @RequestBody EnvironmentStandardUpdateRequest request
+      @Valid @RequestBody EnvironmentStandardUpdateRequest request
   ) {
     EnvironmentStandardUpdateResponse response =
         environmentStandardManageCommandService.updateEnvironmentStandard(environmentStandardId, request);
@@ -199,7 +200,7 @@ public class EquipmentManageCommandController {
    */
   @PostMapping("/environment-events")
   public ResponseEntity<ApiResponse<EnvironmentEventCreateResponse>> createEnvironmentEvent(
-      @RequestBody EnvironmentEventCreateRequest request
+      @Valid @RequestBody EnvironmentEventCreateRequest request
   ) {
     EnvironmentEventCreateResponse response = environmentEventManageCommandService.createEnvironmentEvent(request);
     return ResponseEntity.ok(ApiResponse.success(response));
@@ -214,7 +215,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/environment-events/{environmentEventId}")
   public ResponseEntity<ApiResponse<EnvironmentEventUpdateResponse>> updateEnvironmentEvent(
       @PathVariable Long environmentEventId,
-      @RequestBody EnvironmentEventUpdateRequest request
+      @Valid @RequestBody EnvironmentEventUpdateRequest request
   ) {
     EnvironmentEventUpdateResponse response =
         environmentEventManageCommandService.updateEnvironmentEvent(environmentEventId, request);
@@ -242,7 +243,7 @@ public class EquipmentManageCommandController {
    */
   @PostMapping("/maintenance-item-standards")
   public ResponseEntity<ApiResponse<MaintenanceItemStandardCreateResponse>> createMaintenanceItemStandard(
-      @RequestBody MaintenanceItemStandardCreateRequest request
+      @Valid @RequestBody MaintenanceItemStandardCreateRequest request
   ) {
     MaintenanceItemStandardCreateResponse response =
         maintenanceItemStandardManageCommandService.createMaintenanceItemStandard(request);
@@ -258,7 +259,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/maintenance-item-standards/{maintenanceItemStandardId}")
   public ResponseEntity<ApiResponse<MaintenanceItemStandardUpdateResponse>> updateMaintenanceItemStandard(
       @PathVariable Long maintenanceItemStandardId,
-      @RequestBody MaintenanceItemStandardUpdateRequest request
+      @Valid @RequestBody MaintenanceItemStandardUpdateRequest request
   ) {
     MaintenanceItemStandardUpdateResponse response =
         maintenanceItemStandardManageCommandService.updateMaintenanceItemStandard(maintenanceItemStandardId, request);
@@ -286,7 +287,7 @@ public class EquipmentManageCommandController {
    */
   @PostMapping("/maintenance-logs")
   public ResponseEntity<ApiResponse<MaintenanceLogCreateResponse>> createMaintenanceLog(
-      @RequestBody MaintenanceLogCreateRequest request
+      @Valid @RequestBody MaintenanceLogCreateRequest request
   ) {
     MaintenanceLogCreateResponse response = maintenanceLogManageCommandService.createMaintenanceLog(request);
     return ResponseEntity.ok(ApiResponse.success(response));
@@ -301,7 +302,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/maintenance-logs/{maintenanceLogId}")
   public ResponseEntity<ApiResponse<MaintenanceLogUpdateResponse>> updateMaintenanceLog(
       @PathVariable Long maintenanceLogId,
-      @RequestBody MaintenanceLogUpdateRequest request
+      @Valid @RequestBody MaintenanceLogUpdateRequest request
   ) {
     MaintenanceLogUpdateResponse response =
         maintenanceLogManageCommandService.updateMaintenanceLog(maintenanceLogId, request);
@@ -329,7 +330,7 @@ public class EquipmentManageCommandController {
    */
   @PostMapping("/equipments")
   public ResponseEntity<ApiResponse<EquipmentCreateResponse>> createEquipment(
-      @RequestBody EquipmentCreateRequest request
+      @Valid @RequestBody EquipmentCreateRequest request
   ) {
     EquipmentCreateResponse response = equipmentManageCommandService.createEquipment(request);
     return ResponseEntity.ok(ApiResponse.success(response));
@@ -344,7 +345,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/equipments/{equipmentId}")
   public ResponseEntity<ApiResponse<Void>> updateEquipment(
       @PathVariable Long equipmentId,
-      @RequestBody EquipmentUpdateRequest request
+      @Valid @RequestBody EquipmentUpdateRequest request
   ) {
     equipmentManageCommandService.updateEquipment(equipmentId, request);
     return ResponseEntity.ok(ApiResponse.success(null));
@@ -370,7 +371,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/equipment-aging-params/{equipmentAgingParamId}")
   public ResponseEntity<ApiResponse<EquipmentAgingParamUpdateResponse>> updateEquipmentAgingParam(
       @PathVariable Long equipmentAgingParamId,
-      @RequestBody EquipmentAgingParamUpdateRequest request
+      @Valid @RequestBody EquipmentAgingParamUpdateRequest request
   ) {
     EquipmentAgingParamUpdateResponse response =
         equipmentAgingParamManageCommandService.updateEquipmentAgingParam(equipmentAgingParamId, request);
@@ -386,7 +387,7 @@ public class EquipmentManageCommandController {
   @PutMapping("/equipment-baselines/{equipmentBaselineId}")
   public ResponseEntity<ApiResponse<EquipmentBaselineUpdateResponse>> updateEquipmentBaseline(
       @PathVariable Long equipmentBaselineId,
-      @RequestBody EquipmentBaselineUpdateRequest request
+      @Valid @RequestBody EquipmentBaselineUpdateRequest request
   ) {
     EquipmentBaselineUpdateResponse response =
         equipmentBaselineManageCommandService.updateEquipmentBaseline(equipmentBaselineId, request);
