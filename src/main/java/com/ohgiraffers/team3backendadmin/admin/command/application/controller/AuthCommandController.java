@@ -1,10 +1,12 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.PasswordChangeRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.ProfileUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.LoginRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.PasswordChangeRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.ProfileUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.PasswordChangeResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.ProfileUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.TokenResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.AuthCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.auth.UserCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
@@ -67,33 +69,33 @@ public class AuthCommandController {
      * 로그인한 사원 본인의 개인정보를 수정하는 Api
      * @param request ProfileUpdateRequest
      * @param userDetails Login User의 권한 정보를 담고있는 객체
-     * @return ResponseEntity<ApiResponse<Void>>
+     * @return ResponseEntity<ApiResponse<ProfileUpdateResponse>>
      */
     @PutMapping("/profile")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> updateProfile(
+    public ResponseEntity<ApiResponse<ProfileUpdateResponse>> updateProfile(
             @Valid @RequestBody ProfileUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        userCommandService.updateProfile(request, userDetails.getUsername());
+        ProfileUpdateResponse response = userCommandService.updateProfile(request, userDetails.getUsername());
 
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     /**
      * 로그인한 사원 본인의 비밀번호를 수정하는 Api
      * @param request PasswordChangeRequest
      * @param userDetails Login User의 권한 정보를 담고있는 객체
-     * @return ResponseEntity<ApiResponse<Void>>
+     * @return ResponseEntity<ApiResponse<PasswordChangeResponse>>
      */
     @PutMapping("/password")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> changePassword(
+    public ResponseEntity<ApiResponse<PasswordChangeResponse>> changePassword(
             @Valid @RequestBody PasswordChangeRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        userCommandService.changePassword(request, userDetails.getUsername());
+        PasswordChangeResponse response = userCommandService.changePassword(request, userDetails.getUsername());
 
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

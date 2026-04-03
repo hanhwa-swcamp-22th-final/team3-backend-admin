@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EmployeeRoleChangeRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeRoleChangeRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeRoleChangeResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.rolechangehistory.RoleChangeHistory;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
@@ -21,7 +22,7 @@ public class EmployeeRoleManageCommandService {
     private final IdGenerator idGenerator;
 
     @Transactional
-    public void changeEmployeeRole(EmployeeRoleChangeRequest request, String adminCode) {
+    public EmployeeRoleChangeResponse changeEmployeeRole(EmployeeRoleChangeRequest request, String adminCode) {
 
         Employee admin = employeeRepository.findByEmployeeCode(adminCode)
                 .orElseThrow(AdminAccessDeniedException::new);
@@ -42,5 +43,12 @@ public class EmployeeRoleManageCommandService {
         roleChangeHistoryRepository.save(history);
 
         // TODO: Employee.updateRole()은 effectiveDate에 배치 시스템에서 실행됨
+
+        return EmployeeRoleChangeResponse.builder()
+                .employeeCode(request.getEmployeeCode())
+                .newRole(request.getNewRole())
+                .reason(request.getReason())
+                .effectiveDate(request.getEffectiveDate())
+                .build();
     }
 }

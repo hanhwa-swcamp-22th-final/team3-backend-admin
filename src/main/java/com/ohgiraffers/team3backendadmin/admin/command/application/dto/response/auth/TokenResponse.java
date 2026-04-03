@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.dto.response;
+package com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetDeleteRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetDeleteRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset.IndustryPresetUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.ocsaweightconfig.OCSAWeightConfig;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.OCSAWeightConfigRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.DuplicateFieldException;

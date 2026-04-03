@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request;
+package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.department;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

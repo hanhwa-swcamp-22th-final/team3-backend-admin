@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request;
+package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

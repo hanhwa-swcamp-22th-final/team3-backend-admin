@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request;
+package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import jakarta.validation.constraints.NotBlank;

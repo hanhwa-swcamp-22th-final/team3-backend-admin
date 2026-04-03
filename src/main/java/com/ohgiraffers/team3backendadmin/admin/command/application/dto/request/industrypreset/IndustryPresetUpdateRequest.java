@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request;
+package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.industrypreset;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

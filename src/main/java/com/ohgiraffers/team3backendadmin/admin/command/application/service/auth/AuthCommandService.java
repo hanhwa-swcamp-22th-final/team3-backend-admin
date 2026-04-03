@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth;
 
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.LoginRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.TokenResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.LoginRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.TokenResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
