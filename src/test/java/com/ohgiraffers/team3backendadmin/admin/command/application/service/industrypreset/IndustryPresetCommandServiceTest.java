@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetDeleteRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.ocsaweightconfig.OCSAWeightConfig;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.OCSAWeightConfigRepository;
@@ -428,6 +429,57 @@ class IndustryPresetCommandServiceTest {
                     () -> industryPresetCommandService.update(request)
             );
             assertEquals("알파 가중치는 0.0~0.5 범위여야 합니다.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("delete 메서드")
+    class Delete {
+
+        @Test
+        @DisplayName("존재하는 설정이면 프리셋 이름이 DELETED로 변경된다")
+        void deleteSuccess() {
+            // given
+            OCSAWeightConfig existing = OCSAWeightConfig.builder()
+                    .configId(1000L)
+                    .industryPresetName("SEMICONDUCTOR")
+                    .weightV1(new BigDecimal("0.25"))
+                    .weightV2(new BigDecimal("0.25"))
+                    .weightV3(new BigDecimal("0.25"))
+                    .weightV4(new BigDecimal("0.25"))
+                    .alphaWeight(new BigDecimal("0.3"))
+                    .effectiveDate(LocalDate.of(2026, 4, 1))
+                    .build();
+
+            IndustryPresetDeleteRequest request = new IndustryPresetDeleteRequest(
+                    1000L, "SEMICONDUCTOR"
+            );
+
+            given(ocsaWeightConfigRepository.findById(1000L)).willReturn(Optional.of(existing));
+
+            // when
+            industryPresetCommandService.delete(request);
+
+            // then
+            assertEquals("DELETED", existing.getIndustryPresetName());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 설정 ID이면 예외가 발생한다")
+        void deleteFailNotFound() {
+            // given
+            IndustryPresetDeleteRequest request = new IndustryPresetDeleteRequest(
+                    9999L, "SEMICONDUCTOR"
+            );
+
+            given(ocsaWeightConfigRepository.findById(9999L)).willReturn(Optional.empty());
+
+            // when & then
+            OCSAWeightConfigNotFoundException exception = assertThrows(
+                    OCSAWeightConfigNotFoundException.class,
+                    () -> industryPresetCommandService.delete(request)
+            );
+            assertEquals("해당 OCSA 가중치 설정을 찾을 수 없습니다.", exception.getMessage());
         }
     }
 }

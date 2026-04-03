@@ -73,4 +73,8 @@ public class OCSAWeightConfig {
         if (alphaWeight != null) this.alphaWeight = alphaWeight;
         if (effectiveDate != null) this.effectiveDate = effectiveDate;
     }
+
+    public void softDelete() {
+        this.industryPresetName = "DELETED";
+    }
 }

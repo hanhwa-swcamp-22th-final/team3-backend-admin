@@ -34,6 +34,7 @@
                updated_at,
                updated_by
           FROM OCSA_weight_config
+         WHERE industry_preset_name != 'DELETED'
          ORDER BY config_id
     </select>
 

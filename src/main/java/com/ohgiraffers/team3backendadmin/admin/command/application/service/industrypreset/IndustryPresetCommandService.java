@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetDeleteRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.ocsaweightconfig.OCSAWeightConfig;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.OCSAWeightConfigRepository;
@@ -74,6 +75,15 @@ public class IndustryPresetCommandService {
                 request.getAlphaWeight(),
                 request.getEffectiveDate()
         );
+    }
+
+    @Transactional
+    public void delete(IndustryPresetDeleteRequest request) {
+
+        OCSAWeightConfig config = ocsaWeightConfigRepository.findById(request.getConfigId())
+                .orElseThrow(OCSAWeightConfigNotFoundException::new);
+
+        config.softDelete();
     }
 
     private void validateWeights(BigDecimal v1, BigDecimal v2, BigDecimal v3, BigDecimal v4,

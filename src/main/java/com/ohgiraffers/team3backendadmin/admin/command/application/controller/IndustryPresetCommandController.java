@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetDeleteRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.IndustryPresetUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.industrypreset.IndustryPresetCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
@@ -32,6 +33,15 @@ public class IndustryPresetCommandController {
             @Valid @RequestBody IndustryPresetUpdateRequest request
     ) {
         industryPresetCommandService.update(request);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @DeleteMapping("/preset")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @Valid @RequestBody IndustryPresetDeleteRequest request
+    ) {
+        industryPresetCommandService.delete(request);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
