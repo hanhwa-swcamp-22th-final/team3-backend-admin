@@ -1,9 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceItemStandardUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceItemStandardCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceItemStandardUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.MaintenanceItemStandardCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.MaintenanceItemStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.MaintenanceItemStandardCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.MaintenanceItemStandardUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.maintenance.MaintenanceItemStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.MaintenanceItemStandardRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;

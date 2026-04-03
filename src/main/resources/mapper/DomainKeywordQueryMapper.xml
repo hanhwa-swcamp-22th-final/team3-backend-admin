@@ -4,7 +4,7 @@
 
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.DomainKeywordQueryMapper">
 
-    <select id="selectDomainKeywordList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.DomainKeywordQueryResponse">
+    <select id="selectDomainKeywordList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.domainkeyword.DomainKeywordQueryResponse">
         SELECT
             domain_keyword_id AS domainKeywordId,
             domain_keyword AS domainKeyword,
@@ -27,7 +27,7 @@
         ORDER BY domain_keyword_id DESC
     </select>
 
-    <select id="selectDomainKeywordDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.DomainKeywordDetailResponse">
+    <select id="selectDomainKeywordDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.domainkeyword.DomainKeywordDetailResponse">
         SELECT
             domain_keyword_id AS domainKeywordId,
             domain_keyword AS domainKeyword,

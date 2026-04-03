@@ -1,10 +1,10 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.domainkeyword;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DomainKeywordCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DomainKeywordUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.DomainKeywordCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.DomainKeywordDeleteResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.DomainKeywordUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.domainkeyword.DomainKeywordCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.domainkeyword.DomainKeywordUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.domainkeyword.DomainKeywordCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.domainkeyword.DomainKeywordDeleteResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.domainkeyword.DomainKeywordUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.domainkeyword.DomainKeyword;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DomainKeywordRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;

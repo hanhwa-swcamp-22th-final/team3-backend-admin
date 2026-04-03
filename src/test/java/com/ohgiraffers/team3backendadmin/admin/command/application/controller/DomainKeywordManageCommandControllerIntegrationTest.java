@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DomainKeywordCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.DomainKeywordUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.domainkeyword.DomainKeywordCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.domainkeyword.DomainKeywordUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.domainkeyword.DomainCompetencyCategory;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.domainkeyword.DomainKeyword;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DomainKeywordRepository;

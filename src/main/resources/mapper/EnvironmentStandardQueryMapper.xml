@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EnvironmentStandardQueryMapper">
 
-    <select id="selectEnvironmentStandardList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardQueryResponse">
+    <select id="selectEnvironmentStandardList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentStandardQueryResponse">
         SELECT
             environment_standard_id AS environmentStandardId,
             environment_type AS environmentType,
@@ -29,7 +29,7 @@
         ORDER BY environment_standard_id DESC
     </select>
 
-    <select id="selectEnvironmentStandardDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardDetailResponse">
+    <select id="selectEnvironmentStandardDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentStandardDetailResponse">
         SELECT
             environment_standard_id AS environmentStandardId,
             environment_type AS environmentType,

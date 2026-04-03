@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentProcessQueryMapper">
 
-    <select id="selectEquipmentProcessList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse">
+    <select id="selectEquipmentProcessList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentProcessQueryResponse">
         SELECT
             ep.equipment_process_id AS equipmentProcessId,
             ep.factory_line_id AS factoryLineId,
@@ -28,7 +28,7 @@
         ORDER BY ep.equipment_process_id DESC
     </select>
 
-    <select id="selectEquipmentProcessDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse">
+    <select id="selectEquipmentProcessDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentProcessDetailResponse">
         SELECT
             ep.equipment_process_id AS equipmentProcessId,
             ep.factory_line_id AS factoryLineId,
