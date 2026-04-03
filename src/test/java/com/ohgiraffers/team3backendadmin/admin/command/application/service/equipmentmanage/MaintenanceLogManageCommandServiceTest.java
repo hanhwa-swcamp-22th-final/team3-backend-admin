@@ -1,9 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.MaintenanceLogCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.MaintenanceLogUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.MaintenanceLogCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.MaintenanceLogUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;

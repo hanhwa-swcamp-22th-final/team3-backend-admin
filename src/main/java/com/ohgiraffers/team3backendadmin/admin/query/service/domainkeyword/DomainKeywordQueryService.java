@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.domainkeyword;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.DomainKeywordSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.DomainKeywordDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.DomainKeywordQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.domainkeyword.DomainKeywordSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.domainkeyword.DomainKeywordDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.domainkeyword.DomainKeywordQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.DomainKeywordQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;

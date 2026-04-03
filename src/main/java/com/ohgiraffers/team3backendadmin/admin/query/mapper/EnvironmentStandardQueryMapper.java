@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EnvironmentStandardSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EnvironmentStandardSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentStandardDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentStandardQueryResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

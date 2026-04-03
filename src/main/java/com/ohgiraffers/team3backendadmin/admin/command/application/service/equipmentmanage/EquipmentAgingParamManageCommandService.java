@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentAgingParamUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentAgingParamUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.EquipmentAgingParamUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EquipmentAgingParamUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentAgingParam;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentAgingParamRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;

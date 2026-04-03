@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.MaintenanceLogQueryMapper">
 
-    <select id="selectMaintenanceLogList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogQueryResponse">
+    <select id="selectMaintenanceLogList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.MaintenanceLogQueryResponse">
         SELECT
             ml.maintenance_log_id AS maintenanceLogId,
             ml.equipment_id AS equipmentId,
@@ -42,7 +42,7 @@
         ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
     </select>
 
-    <select id="selectMaintenanceLogDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+    <select id="selectMaintenanceLogDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.MaintenanceLogDetailResponse">
         SELECT
             ml.maintenance_log_id AS maintenanceLogId,
             ml.equipment_id AS equipmentId,
@@ -61,7 +61,7 @@
         WHERE ml.maintenance_log_id = #{maintenanceLogId}
     </select>
 
-    <select id="selectLatestMaintenanceLogByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+    <select id="selectLatestMaintenanceLogByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.MaintenanceLogDetailResponse">
         SELECT
             ml.maintenance_log_id AS maintenanceLogId,
             ml.equipment_id AS equipmentId,
@@ -82,7 +82,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectLatestMaintenanceLogBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+    <select id="selectLatestMaintenanceLogBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.MaintenanceLogDetailResponse">
         SELECT
             ml.maintenance_log_id AS maintenanceLogId,
             ml.equipment_id AS equipmentId,
@@ -104,7 +104,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectFirstMaintenanceLogAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+    <select id="selectFirstMaintenanceLogAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.MaintenanceLogDetailResponse">
         SELECT
             ml.maintenance_log_id AS maintenanceLogId,
             ml.equipment_id AS equipmentId,
@@ -126,7 +126,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectAbnormalOrIncompleteMaintenanceLogList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogQueryResponse">
+    <select id="selectAbnormalOrIncompleteMaintenanceLogList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.MaintenanceLogQueryResponse">
         SELECT
             ml.maintenance_log_id AS maintenanceLogId,
             ml.equipment_id AS equipmentId,

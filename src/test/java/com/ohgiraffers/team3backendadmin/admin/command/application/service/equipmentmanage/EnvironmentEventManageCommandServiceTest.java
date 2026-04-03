@@ -1,9 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.EnvironmentEventCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.EnvironmentEventUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EnvironmentEventCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EnvironmentEventUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvDeviationType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentEvent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;

@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EnvironmentEventSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EnvironmentEventSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EnvironmentEventQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;

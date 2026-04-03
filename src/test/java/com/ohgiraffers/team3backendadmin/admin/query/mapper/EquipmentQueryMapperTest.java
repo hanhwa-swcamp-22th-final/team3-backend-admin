@@ -2,10 +2,10 @@ package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EquipmentSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

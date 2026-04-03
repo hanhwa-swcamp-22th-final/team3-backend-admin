@@ -1,9 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.FactoryLineSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.FactoryLineSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineEquipmentStatsResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

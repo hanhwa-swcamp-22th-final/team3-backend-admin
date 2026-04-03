@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EnvironmentEventQueryMapper">
 
-    <select id="selectEnvironmentEventList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventQueryResponse">
+    <select id="selectEnvironmentEventList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventQueryResponse">
         SELECT
             ee.environment_event_id AS environmentEventId,
             ee.equipment_id AS equipmentId,
@@ -37,7 +37,7 @@
         ORDER BY ee.environment_event_id DESC
     </select>
 
-    <select id="selectEnvironmentEventDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventDetailResponse">
+    <select id="selectEnvironmentEventDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
         SELECT
             ee.environment_event_id AS environmentEventId,
             ee.equipment_id AS equipmentId,
@@ -54,7 +54,7 @@
         WHERE ee.environment_event_id = #{environmentEventId}
     </select>
 
-    <select id="selectLatestEnvironmentEventByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventDetailResponse">
+    <select id="selectLatestEnvironmentEventByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
         SELECT
             ee.environment_event_id AS environmentEventId,
             ee.equipment_id AS equipmentId,
@@ -73,7 +73,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectLatestEnvironmentEventBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventDetailResponse">
+    <select id="selectLatestEnvironmentEventBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
         SELECT
             ee.environment_event_id AS environmentEventId,
             ee.equipment_id AS equipmentId,
@@ -93,7 +93,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectFirstEnvironmentEventAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventDetailResponse">
+    <select id="selectFirstEnvironmentEventAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
         SELECT
             ee.environment_event_id AS environmentEventId,
             ee.equipment_id AS equipmentId,
@@ -113,7 +113,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectUnresolvedEnvironmentEventList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventQueryResponse">
+    <select id="selectUnresolvedEnvironmentEventList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventQueryResponse">
         SELECT
             ee.environment_event_id AS environmentEventId,
             ee.equipment_id AS equipmentId,

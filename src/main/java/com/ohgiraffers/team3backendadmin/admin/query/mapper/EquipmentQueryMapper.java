@@ -1,14 +1,14 @@
 package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentAgingParamSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentBaselineSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EquipmentAgingParamSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EquipmentBaselineSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EquipmentSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentLatestSnapshotQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentSummaryQueryResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.FactoryLineQueryMapper">
 
-    <select id="selectFactoryLineList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse">
+    <select id="selectFactoryLineList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineQueryResponse">
         SELECT
             factory_line_id AS factoryLineId,
             factory_line_code AS factoryLineCode,
@@ -20,7 +20,7 @@
         ORDER BY factory_line_id DESC
     </select>
 
-    <select id="selectFactoryLineDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse">
+    <select id="selectFactoryLineDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineDetailResponse">
         SELECT
             factory_line_id AS factoryLineId,
             factory_line_code AS factoryLineCode,
@@ -30,7 +30,7 @@
           AND is_deleted = false
     </select>
 
-    <select id="selectFactoryLineEquipmentStats" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse">
+    <select id="selectFactoryLineEquipmentStats" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineEquipmentStatsResponse">
         SELECT
             COUNT(e.equipment_id) AS totalEquipmentCount,
             SUM(CASE WHEN e.equipment_status = 'OPERATING' THEN 1 ELSE 0 END) AS operatingEquipmentCount,

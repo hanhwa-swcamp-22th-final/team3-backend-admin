@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentAgingParamSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EquipmentAgingParamSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;

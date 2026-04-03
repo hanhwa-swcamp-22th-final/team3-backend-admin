@@ -1,9 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardCreateResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.EnvironmentStandardCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.EnvironmentStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EnvironmentStandardCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EnvironmentStandardUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;

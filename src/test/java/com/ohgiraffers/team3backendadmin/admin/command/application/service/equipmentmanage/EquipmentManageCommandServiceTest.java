@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
-import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.EquipmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage.EquipmentUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EquipmentCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;

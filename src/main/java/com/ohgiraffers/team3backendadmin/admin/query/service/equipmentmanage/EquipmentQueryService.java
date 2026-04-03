@@ -1,10 +1,10 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EquipmentSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentLatestSnapshotQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;

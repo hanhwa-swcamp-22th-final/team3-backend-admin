@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper">
 
-    <select id="selectEquipmentList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse">
+    <select id="selectEquipmentList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentQueryResponse">
         SELECT
             e.equipment_id AS equipmentId,
             e.equipment_code AS equipmentCode,
@@ -34,7 +34,7 @@
         ORDER BY e.equipment_id DESC
     </select>
 
-    <select id="selectEquipmentSummary" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse">
+    <select id="selectEquipmentSummary" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentSummaryQueryResponse">
         SELECT
             COUNT(*) AS totalCount,
             SUM(CASE WHEN equipment_status = 'OPERATING' THEN 1 ELSE 0 END) AS operatingCount,
@@ -44,7 +44,7 @@
         FROM equipment
     </select>
 
-    <select id="selectEquipmentListWithLatestSnapshots" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse">
+    <select id="selectEquipmentListWithLatestSnapshots" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentLatestSnapshotQueryResponse">
         SELECT
             e.equipment_id AS equipmentId,
             e.equipment_code AS equipmentCode,
@@ -213,7 +213,7 @@
         ORDER BY e.equipment_id DESC
     </select>
 
-    <select id="selectEquipmentDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse">
+    <select id="selectEquipmentDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentDetailResponse">
         SELECT
             e.equipment_id AS equipmentId,
             e.equipment_process_id AS equipmentProcessId,
@@ -256,7 +256,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectEquipmentAgingParamDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+    <select id="selectEquipmentAgingParamDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse">
         SELECT
             equipment_aging_param_id AS equipmentAgingParamId,
             equipment_id AS equipmentId,
@@ -270,7 +270,7 @@
         WHERE equipment_aging_param_id = #{equipmentAgingParamId}
     </select>
 
-    <select id="selectEquipmentAgingParamHistory" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+    <select id="selectEquipmentAgingParamHistory" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse">
         SELECT
             equipment_aging_param_id AS equipmentAgingParamId,
             equipment_id AS equipmentId,
@@ -299,7 +299,7 @@
                  equipment_aging_param_id DESC
     </select>
 
-    <select id="selectLatestEquipmentAgingParamByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+    <select id="selectLatestEquipmentAgingParamByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse">
         SELECT
             equipment_aging_param_id AS equipmentAgingParamId,
             equipment_id AS equipmentId,
@@ -317,7 +317,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectLatestEquipmentAgingParamBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+    <select id="selectLatestEquipmentAgingParamBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse">
         SELECT
             equipment_aging_param_id AS equipmentAgingParamId,
             equipment_id AS equipmentId,
@@ -334,7 +334,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectFirstEquipmentAgingParamAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+    <select id="selectFirstEquipmentAgingParamAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse">
         SELECT
             equipment_aging_param_id AS equipmentAgingParamId,
             equipment_id AS equipmentId,
@@ -351,7 +351,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectUncalculatedEquipmentAgingParamList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse">
+    <select id="selectUncalculatedEquipmentAgingParamList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse">
         SELECT
             equipment_aging_param_id AS equipmentAgingParamId,
             equipment_id AS equipmentId,
@@ -368,7 +368,7 @@
         ORDER BY equipment_aging_param_id DESC
     </select>
 
-    <select id="selectEquipmentBaselineDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+    <select id="selectEquipmentBaselineDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse">
         SELECT
             equipment_baseline_id AS equipmentBaselineId,
             equipment_id AS equipmentId,
@@ -382,7 +382,7 @@
         WHERE equipment_baseline_id = #{equipmentBaselineId}
     </select>
 
-    <select id="selectEquipmentBaselineHistory" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+    <select id="selectEquipmentBaselineHistory" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse">
         SELECT
             equipment_baseline_id AS equipmentBaselineId,
             equipment_id AS equipmentId,
@@ -411,7 +411,7 @@
                  equipment_baseline_id DESC
     </select>
 
-    <select id="selectLatestEquipmentBaselineByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+    <select id="selectLatestEquipmentBaselineByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse">
         SELECT
             equipment_baseline_id AS equipmentBaselineId,
             equipment_id AS equipmentId,
@@ -429,7 +429,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectLatestEquipmentBaselineBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+    <select id="selectLatestEquipmentBaselineBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse">
         SELECT
             equipment_baseline_id AS equipmentBaselineId,
             equipment_id AS equipmentId,
@@ -446,7 +446,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectFirstEquipmentBaselineAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+    <select id="selectFirstEquipmentBaselineAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse">
         SELECT
             equipment_baseline_id AS equipmentBaselineId,
             equipment_id AS equipmentId,
@@ -463,7 +463,7 @@
         LIMIT 1
     </select>
 
-    <select id="selectUncalculatedEquipmentBaselineList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse">
+    <select id="selectUncalculatedEquipmentBaselineList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse">
         SELECT
             equipment_baseline_id AS equipmentBaselineId,
             equipment_id AS equipmentId,
