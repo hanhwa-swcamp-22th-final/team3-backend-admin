@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class EmployeeCreateResponse {
-    private Long departmentId;
     private String employeeName;
     private String employeeEmail;
     private String employeePhone;

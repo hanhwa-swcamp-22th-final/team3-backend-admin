@@ -1,7 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeDepartmentMatchRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDepartmentMatchResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDeleteResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
@@ -48,9 +50,6 @@ public class EmployeeManageCommandService {
         employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(AdminAccessDeniedException::new);
 
-        departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(DepartmentNotFoundException::new);
-
         String encryptedEmail = aesEncryptor.encrypt(request.getEmployeeEmail());
         if (employeeRepository.existsByEmployeeEmail(encryptedEmail)) {
             throw new DuplicateFieldException("이미 사용중인 이메일 입니다");
@@ -65,7 +64,7 @@ public class EmployeeManageCommandService {
 
         Employee employee = Employee.builder()
                 .employeeId(idGenerator.generate())
-                .departmentId(request.getDepartmentId())
+                .departmentId(null)
                 .employeeCode(generatedCode)
                 .employeeName(request.getEmployeeName())
                 .employeeEmail(encryptedEmail)
@@ -106,7 +105,6 @@ public class EmployeeManageCommandService {
         consentRepository.save(defaultConsent);
 
         return EmployeeCreateResponse.builder()
-                .departmentId(request.getDepartmentId())
                 .employeeName(request.getEmployeeName())
                 .employeeEmail(request.getEmployeeEmail())
                 .employeePhone(request.getEmployeePhone())
@@ -137,5 +135,27 @@ public class EmployeeManageCommandService {
         target.deleteEmployee();
 
         return response;
+    }
+
+    // Match department to employee
+    @Transactional
+    public EmployeeDepartmentMatchResponse matchDepartment(EmployeeDepartmentMatchRequest request, String hrmCode) {
+
+        employeeRepository.findByEmployeeCode(hrmCode)
+                .orElseThrow(AdminAccessDeniedException::new);
+
+        Employee target = employeeRepository.findByEmployeeCode(request.getEmployeeCode())
+                .orElseThrow(EmployeeNotFoundException::new);
+
+        departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(DepartmentNotFoundException::new);
+
+        target.assignDepartment(request.getDepartmentId());
+
+        return EmployeeDepartmentMatchResponse.builder()
+                .employeeName(target.getEmployeeName())
+                .employeeCode(target.getEmployeeCode())
+                .departmentId(target.getDepartmentId())
+                .build();
     }
 }
