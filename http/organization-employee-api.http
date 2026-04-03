@@ -3,7 +3,7 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "employeeEmail": "hrmtest@company.com",
+  "employeeEmail": "sinseon2000@naver.com",
   "password": "password123!"
 }
 
@@ -108,6 +108,15 @@ Authorization: Bearer {{accessToken}}
   "effectiveDate": "2026-05-01T00:00:00"
 }
 
+
+### HRM 로그인 (accessToken 획득)
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "employeeEmail": "hrmtest@company.com",
+  "password": "password123!"
+}
 
 
 ### 사원 부서 배치 (HRM 권한 필요)
