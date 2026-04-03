@@ -5,6 +5,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipmen
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -196,6 +197,59 @@ class EquipmentQueryMapperTest {
     }
 
     @Test
+    @DisplayName("select equipment summary success")
+    void selectEquipmentSummary_success() {
+        Long stoppedEquipmentId = idGenerator.generate();
+        Long inspectionEquipmentId = idGenerator.generate();
+        Long disposedEquipmentId = idGenerator.generate();
+
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+        jdbcTemplate.update(
+            "INSERT INTO equipment (equipment_id, equipment_process_id, environment_standard_id, equipment_code, equipment_name, equipment_status, equipment_grade, equipment_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            stoppedEquipmentId,
+            equipmentProcessId,
+            environmentStandardId,
+            "EQ-SUM-STOP-" + uniqueSuffix,
+            "Summary Stopped " + uniqueSuffix,
+            "STOPPED",
+            "A",
+            "Stopped equipment"
+        );
+        jdbcTemplate.update(
+            "INSERT INTO equipment (equipment_id, equipment_process_id, environment_standard_id, equipment_code, equipment_name, equipment_status, equipment_grade, equipment_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            inspectionEquipmentId,
+            equipmentProcessId,
+            environmentStandardId,
+            "EQ-SUM-INSP-" + uniqueSuffix,
+            "Summary Inspection " + uniqueSuffix,
+            "UNDER_INSPECTION",
+            "B",
+            "Inspection equipment"
+        );
+        jdbcTemplate.update(
+            "INSERT INTO equipment (equipment_id, equipment_process_id, environment_standard_id, equipment_code, equipment_name, equipment_status, equipment_grade, equipment_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            disposedEquipmentId,
+            equipmentProcessId,
+            environmentStandardId,
+            "EQ-SUM-DISP-" + uniqueSuffix,
+            "Summary Disposed " + uniqueSuffix,
+            "DISPOSED",
+            "C",
+            "Disposed equipment"
+        );
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+        EquipmentSummaryQueryResponse result = equipmentQueryMapper.selectEquipmentSummary();
+
+        assertNotNull(result);
+        assertTrue(result.getTotalCount() >= 4L);
+        assertTrue(result.getOperatingCount() >= 1L);
+        assertTrue(result.getStoppedCount() >= 1L);
+        assertTrue(result.getUnderInspectionCount() >= 1L);
+        assertTrue(result.getDisposedCount() >= 1L);
+    }
+
+    @Test
     @DisplayName("select equipment detail by id success")
     void selectEquipmentDetailById_success() {
         EquipmentDetailResponse result = equipmentQueryMapper.selectEquipmentDetailById(equipmentId);
@@ -237,10 +291,26 @@ class EquipmentQueryMapperTest {
     }
 
     @Test
+    @DisplayName("select equipment aging param id by equipment id not found returns null")
+    void selectEquipmentAgingParamIdByEquipmentId_whenUnknownId_thenNull() {
+        Long result = equipmentQueryMapper.selectEquipmentAgingParamIdByEquipmentId(-1L);
+
+        assertNull(result);
+    }
+
+    @Test
     @DisplayName("select equipment baseline id by equipment id success")
     void selectEquipmentBaselineIdByEquipmentId_success() {
         Long result = equipmentQueryMapper.selectEquipmentBaselineIdByEquipmentId(equipmentId);
 
         assertEquals(equipmentBaselineId, result);
+    }
+
+    @Test
+    @DisplayName("select equipment baseline id by equipment id not found returns null")
+    void selectEquipmentBaselineIdByEquipmentId_whenUnknownId_thenNull() {
+        Long result = equipmentQueryMapper.selectEquipmentBaselineIdByEquipmentId(-1L);
+
+        assertNull(result);
     }
 }

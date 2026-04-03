@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -39,5 +40,71 @@ public class MaintenanceLogQueryService {
             throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
         }
         return response;
+    }
+
+    /**
+     * 특정 설비의 최신 유지보수 이력 1건을 조회한다.
+     * @param equipmentId 조회할 설비 ID
+     * @return 최신 유지보수 이력 상세 응답
+     */
+    public MaintenanceLogDetailResponse getLatestMaintenanceLog(Long equipmentId) {
+        validateEquipmentId(equipmentId);
+        MaintenanceLogDetailResponse response = maintenanceLogQueryMapper.selectLatestMaintenanceLogByEquipmentId(equipmentId);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
+        }
+        return response;
+    }
+
+    /**
+     * 특정 일자 이전 또는 동일 일자 기준으로 가장 최근의 유지보수 이력을 조회한다.
+     * @param equipmentId 조회할 설비 ID
+     * @param referenceDate 기준 일자
+     * @return 기준 일자 이전 최신 유지보수 이력 상세 응답
+     */
+    public MaintenanceLogDetailResponse getLatestMaintenanceLogBeforeOrAt(Long equipmentId, LocalDate referenceDate) {
+        validateEquipmentId(equipmentId);
+        validateReferenceDate(referenceDate);
+        MaintenanceLogDetailResponse response = maintenanceLogQueryMapper.selectLatestMaintenanceLogBeforeOrAt(equipmentId, referenceDate);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
+        }
+        return response;
+    }
+
+    /**
+     * 특정 일자 이후 또는 동일 일자 기준으로 가장 먼저 발생한 유지보수 이력을 조회한다.
+     * @param equipmentId 조회할 설비 ID
+     * @param referenceDate 기준 일자
+     * @return 기준 일자 이후 최초 유지보수 이력 상세 응답
+     */
+    public MaintenanceLogDetailResponse getFirstMaintenanceLogAfterOrAt(Long equipmentId, LocalDate referenceDate) {
+        validateEquipmentId(equipmentId);
+        validateReferenceDate(referenceDate);
+        MaintenanceLogDetailResponse response = maintenanceLogQueryMapper.selectFirstMaintenanceLogAfterOrAt(equipmentId, referenceDate);
+        if (response == null) {
+            throw new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND);
+        }
+        return response;
+    }
+
+    /**
+     * 비정상 결과이거나 점수/예상 정비 차이가 누락된 유지보수 이력 목록을 조회한다.
+     * @return 이상치 또는 미완성 유지보수 이력 목록
+     */
+    public List<MaintenanceLogQueryResponse> getAbnormalOrIncompleteMaintenanceLogList() {
+        return maintenanceLogQueryMapper.selectAbnormalOrIncompleteMaintenanceLogList();
+    }
+
+    private void validateEquipmentId(Long equipmentId) {
+        if (equipmentId == null) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "equipmentId is required.");
+        }
+    }
+
+    private void validateReferenceDate(LocalDate referenceDate) {
+        if (referenceDate == null) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "referenceDate is required.");
+        }
     }
 }

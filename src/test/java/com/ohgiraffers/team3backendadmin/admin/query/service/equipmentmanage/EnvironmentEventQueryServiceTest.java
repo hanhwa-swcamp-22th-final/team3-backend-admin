@@ -114,4 +114,26 @@ class EnvironmentEventQueryServiceTest {
         assertEquals("해당 환경 이벤트를 찾을 수 없습니다.", exception.getMessage());
         verify(environmentEventQueryMapper).selectEnvironmentEventDetailById(999L);
     }
+
+    @Test
+    @DisplayName("Get latest environment event success")
+    void getLatestEnvironmentEvent_success() {
+        when(environmentEventQueryMapper.selectLatestEnvironmentEventByEquipmentId(10L)).thenReturn(environmentEventDetailResponse);
+
+        EnvironmentEventDetailResponse result = environmentEventQueryService.getLatestEnvironmentEvent(10L);
+
+        assertEquals(1L, result.getEnvironmentEventId());
+        verify(environmentEventQueryMapper).selectLatestEnvironmentEventByEquipmentId(10L);
+    }
+
+    @Test
+    @DisplayName("Get unresolved environment event list success")
+    void getUnresolvedEnvironmentEventList_success() {
+        when(environmentEventQueryMapper.selectUnresolvedEnvironmentEventList()).thenReturn(List.of(environmentEventQueryResponse));
+
+        List<EnvironmentEventQueryResponse> result = environmentEventQueryService.getUnresolvedEnvironmentEventList();
+
+        assertEquals(1, result.size());
+        verify(environmentEventQueryMapper).selectUnresolvedEnvironmentEventList();
+    }
 }

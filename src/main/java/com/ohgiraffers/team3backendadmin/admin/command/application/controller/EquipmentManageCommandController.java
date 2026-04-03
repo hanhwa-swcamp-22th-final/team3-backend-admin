@@ -13,6 +13,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.E
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentEventUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EnvironmentStandardUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentAgingParamUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentBaselineUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
@@ -27,6 +29,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentStandardUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentAgingParamUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentBaselineUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
@@ -38,6 +42,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentEventManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentStandardManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentAgingParamManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentBaselineManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.FactoryLineManageCommandService;
@@ -55,6 +61,8 @@ public class EquipmentManageCommandController {
   private final FactoryLineManageCommandService factoryLineManageCommandService;
   private final EquipmentProcessManageCommandService equipmentProcessManageCommandService;
   private final EquipmentManageCommandService equipmentManageCommandService;
+  private final EquipmentAgingParamManageCommandService equipmentAgingParamManageCommandService;
+  private final EquipmentBaselineManageCommandService equipmentBaselineManageCommandService;
   private final EnvironmentStandardManageCommandService environmentStandardManageCommandService;
   private final EnvironmentEventManageCommandService environmentEventManageCommandService;
   private final MaintenanceItemStandardManageCommandService maintenanceItemStandardManageCommandService;
@@ -351,5 +359,37 @@ public class EquipmentManageCommandController {
   public ResponseEntity<ApiResponse<Void>> deleteEquipment(@PathVariable Long equipmentId) {
     equipmentManageCommandService.deleteEquipment(equipmentId);
     return ResponseEntity.ok(ApiResponse.success(null));
+  }
+
+  /**
+   * 설비 노후 파라미터 이력 정보를 수정한다.
+   * @param equipmentAgingParamId 수정할 설비 노후 파라미터 이력 식별자
+   * @param request 수정할 설비 노후 파라미터 요청 정보
+   * @return 수정된 설비 노후 파라미터 정보를 담은 응답
+   */
+  @PutMapping("/equipment-aging-params/{equipmentAgingParamId}")
+  public ResponseEntity<ApiResponse<EquipmentAgingParamUpdateResponse>> updateEquipmentAgingParam(
+      @PathVariable Long equipmentAgingParamId,
+      @RequestBody EquipmentAgingParamUpdateRequest request
+  ) {
+    EquipmentAgingParamUpdateResponse response =
+        equipmentAgingParamManageCommandService.updateEquipmentAgingParam(equipmentAgingParamId, request);
+    return ResponseEntity.ok(ApiResponse.success(response));
+  }
+
+  /**
+   * 설비 baseline 이력 정보를 수정한다.
+   * @param equipmentBaselineId 수정할 설비 baseline 이력 식별자
+   * @param request 수정할 설비 baseline 요청 정보
+   * @return 수정된 설비 baseline 정보를 담은 응답
+   */
+  @PutMapping("/equipment-baselines/{equipmentBaselineId}")
+  public ResponseEntity<ApiResponse<EquipmentBaselineUpdateResponse>> updateEquipmentBaseline(
+      @PathVariable Long equipmentBaselineId,
+      @RequestBody EquipmentBaselineUpdateRequest request
+  ) {
+    EquipmentBaselineUpdateResponse response =
+        equipmentBaselineManageCommandService.updateEquipmentBaseline(equipmentBaselineId, request);
+    return ResponseEntity.ok(ApiResponse.success(response));
   }
 }

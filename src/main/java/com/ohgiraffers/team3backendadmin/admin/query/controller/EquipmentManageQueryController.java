@@ -2,6 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EnvironmentEventSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EnvironmentStandardSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentAgingParamSearchRequest;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentBaselineSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentProcessSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.FactoryLineSearchRequest;
@@ -11,11 +13,16 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEve
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentEventQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EnvironmentStandardQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentAgingParamDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentBaselineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentProcessQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineEquipmentStatsResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.FactoryLineQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceItemStandardQueryResponse;
@@ -23,19 +30,26 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLog
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentEventQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EnvironmentStandardQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentAgingParamQueryService;
+import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentBaselineQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentProcessQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.FactoryLineQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.MaintenanceItemStandardQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.MaintenanceLogQueryService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
+import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -46,6 +60,8 @@ public class EquipmentManageQueryController {
     private final FactoryLineQueryService factoryLineQueryService;
     private final EquipmentProcessQueryService equipmentProcessQueryService;
     private final EquipmentQueryService equipmentQueryService;
+    private final EquipmentAgingParamQueryService equipmentAgingParamQueryService;
+    private final EquipmentBaselineQueryService equipmentBaselineQueryService;
     private final EnvironmentStandardQueryService environmentStandardQueryService;
     private final EnvironmentEventQueryService environmentEventQueryService;
     private final MaintenanceItemStandardQueryService maintenanceItemStandardQueryService;
@@ -70,6 +86,19 @@ public class EquipmentManageQueryController {
     @GetMapping("/factory-lines/{factoryLineId}")
     public ResponseEntity<ApiResponse<FactoryLineDetailResponse>> getFactoryLineDetail(@PathVariable Long factoryLineId) {
         FactoryLineDetailResponse response = factoryLineQueryService.getFactoryLineDetail(factoryLineId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 생산 라인별 설비 통계 정보를 조회한다.
+     * @param factoryLineId 조회할 생산 라인 ID
+     * @return 생산 라인 설비 통계 응답
+     */
+    @GetMapping("/factory-lines/{factoryLineId}/equipment-stats")
+    public ResponseEntity<ApiResponse<FactoryLineEquipmentStatsResponse>> getFactoryLineEquipmentStats(
+        @PathVariable Long factoryLineId
+    ) {
+        FactoryLineEquipmentStatsResponse response = factoryLineQueryService.getFactoryLineEquipmentStats(factoryLineId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -118,14 +147,50 @@ public class EquipmentManageQueryController {
     }
 
     /**
-     * 환경 이벤트 목록을 조회한다.
+     * 환경 이벤트를 조회한다.
+     * history, latest, as-of, next, unresolved 모드를 query string으로 분기한다.
      * @param request 목록 조회 조건 정보
-     * @return 환경 이벤트 목록 응답
+     * @param mode 조회 모드
+     * @param equipmentId 설비 기준 조회 시 사용할 설비 ID
+     * @param referenceTime 기준 시각 조회 시 사용할 시각
+     * @return 환경 이벤트 목록 또는 상세 응답
      */
     @GetMapping("/environment-events")
-    public ResponseEntity<ApiResponse<List<EnvironmentEventQueryResponse>>> getEnvironmentEventList(EnvironmentEventSearchRequest request) {
-        List<EnvironmentEventQueryResponse> responses = environmentEventQueryService.getEnvironmentEventList(request);
-        return ResponseEntity.ok(ApiResponse.success(responses));
+    public ResponseEntity<ApiResponse<?>> getEnvironmentEventList(
+        EnvironmentEventSearchRequest request,
+        @RequestParam(value = "mode", required = false, defaultValue = "history") String mode,
+        @RequestParam(required = false) Long equipmentId,
+        @RequestParam(required = false) LocalDateTime referenceTime
+    ) {
+        if ("history".equals(mode)) {
+            List<EnvironmentEventQueryResponse> responses = environmentEventQueryService.getEnvironmentEventList(request);
+            return ResponseEntity.ok(ApiResponse.success(responses));
+        }
+
+        if ("latest".equals(mode)) {
+            EnvironmentEventDetailResponse response = environmentEventQueryService.getLatestEnvironmentEvent(equipmentId);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("as-of".equals(mode)) {
+            EnvironmentEventDetailResponse response =
+                environmentEventQueryService.getLatestEnvironmentEventBeforeOrAt(equipmentId, referenceTime);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("next".equals(mode)) {
+            EnvironmentEventDetailResponse response =
+                environmentEventQueryService.getFirstEnvironmentEventAfterOrAt(equipmentId, referenceTime);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("unresolved".equals(mode)) {
+            List<EnvironmentEventQueryResponse> responses =
+                environmentEventQueryService.getUnresolvedEnvironmentEventList();
+            return ResponseEntity.ok(ApiResponse.success(responses));
+        }
+
+        throw invalidMode("environment-events", mode);
     }
 
     /**
@@ -166,14 +231,50 @@ public class EquipmentManageQueryController {
     }
 
     /**
-     * 유지보수 이력 목록을 조회한다.
+     * 유지보수 이력을 조회한다.
+     * history, latest, as-of, next, anomalies 모드를 query string으로 분기한다.
      * @param request 목록 조회 조건 정보
-     * @return 유지보수 이력 목록 응답
+     * @param mode 조회 모드
+     * @param equipmentId 설비 기준 조회 시 사용할 설비 ID
+     * @param referenceDate 기준 일자 조회 시 사용할 일자
+     * @return 유지보수 이력 목록 또는 상세 응답
      */
     @GetMapping("/maintenance-logs")
-    public ResponseEntity<ApiResponse<List<MaintenanceLogQueryResponse>>> getMaintenanceLogList(MaintenanceLogSearchRequest request) {
-        List<MaintenanceLogQueryResponse> responses = maintenanceLogQueryService.getMaintenanceLogList(request);
-        return ResponseEntity.ok(ApiResponse.success(responses));
+    public ResponseEntity<ApiResponse<?>> getMaintenanceLogList(
+        MaintenanceLogSearchRequest request,
+        @RequestParam(value = "mode", required = false, defaultValue = "history") String mode,
+        @RequestParam(required = false) Long equipmentId,
+        @RequestParam(required = false) LocalDate referenceDate
+    ) {
+        if ("history".equals(mode)) {
+            List<MaintenanceLogQueryResponse> responses = maintenanceLogQueryService.getMaintenanceLogList(request);
+            return ResponseEntity.ok(ApiResponse.success(responses));
+        }
+
+        if ("latest".equals(mode)) {
+            MaintenanceLogDetailResponse response = maintenanceLogQueryService.getLatestMaintenanceLog(equipmentId);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("as-of".equals(mode)) {
+            MaintenanceLogDetailResponse response =
+                maintenanceLogQueryService.getLatestMaintenanceLogBeforeOrAt(equipmentId, referenceDate);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("next".equals(mode)) {
+            MaintenanceLogDetailResponse response =
+                maintenanceLogQueryService.getFirstMaintenanceLogAfterOrAt(equipmentId, referenceDate);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("anomalies".equals(mode)) {
+            List<MaintenanceLogQueryResponse> responses =
+                maintenanceLogQueryService.getAbnormalOrIncompleteMaintenanceLogList();
+            return ResponseEntity.ok(ApiResponse.success(responses));
+        }
+
+        throw invalidMode("maintenance-logs", mode);
     }
 
     /**
@@ -189,11 +290,30 @@ public class EquipmentManageQueryController {
 
     /**
      * 설비 목록을 조회한다.
+     * history 기본 목록과 summary, latest-snapshots 요약 목록 모드를 query string으로 분기한다.
      * @param request 목록 조회 조건 정보
+     * @param mode 조회 모드
      * @return 설비 목록 응답
      */
     @GetMapping("/equipments")
-    public ResponseEntity<ApiResponse<List<EquipmentQueryResponse>>> getEquipmentList(EquipmentSearchRequest request) {
+    public ResponseEntity<ApiResponse<?>> getEquipmentList(
+        EquipmentSearchRequest request,
+        @RequestParam(value = "mode", required = false, defaultValue = "history") String mode
+    ) {
+        if ("summary".equals(mode)) {
+            EquipmentSummaryQueryResponse response = equipmentQueryService.getEquipmentSummary();
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("latest-snapshots".equals(mode)) {
+            List<EquipmentLatestSnapshotQueryResponse> responses = equipmentQueryService.getEquipmentListWithLatestSnapshots(request);
+            return ResponseEntity.ok(ApiResponse.success(responses));
+        }
+
+        if (!"history".equals(mode)) {
+            throw invalidMode("equipments", mode);
+        }
+
         List<EquipmentQueryResponse> responses = equipmentQueryService.getEquipmentList(request);
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
@@ -207,5 +327,139 @@ public class EquipmentManageQueryController {
     public ResponseEntity<ApiResponse<EquipmentDetailResponse>> getEquipmentDetail(@PathVariable Long equipmentId) {
         EquipmentDetailResponse response = equipmentQueryService.getEquipmentDetail(equipmentId);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 설비 노후 파라미터 이력 상세 정보를 조회한다.
+     * @param equipmentAgingParamId 조회할 설비 노후 파라미터 이력 ID
+     * @return 설비 노후 파라미터 상세 응답
+     */
+    @GetMapping("/equipment-aging-params/{equipmentAgingParamId}")
+    public ResponseEntity<ApiResponse<EquipmentAgingParamDetailResponse>> getEquipmentAgingParamDetail(
+        @PathVariable Long equipmentAgingParamId
+    ) {
+        EquipmentAgingParamDetailResponse response = equipmentAgingParamQueryService.getEquipmentAgingParamDetail(equipmentAgingParamId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/equipment-aging-params")
+    /**
+     * 설비 노후 파라미터 이력을 조회한다.
+     * history, latest, as-of, next, uncalculated 모드를 query string으로 분기한다.
+     * @param request 이력 조회 조건 정보
+     * @param mode 조회 모드
+     * @param equipmentId 설비 기준 조회 시 사용할 설비 ID
+     * @param referenceTime 기준 시각 조회 시 사용할 시각
+     * @return 설비 노후 파라미터 목록 또는 상세 응답
+     */
+    public ResponseEntity<ApiResponse<?>> getEquipmentAgingParamHistory(
+        EquipmentAgingParamSearchRequest request,
+        @RequestParam(value = "mode", required = false, defaultValue = "history") String mode,
+        @RequestParam(required = false) Long equipmentId,
+        @RequestParam(required = false) LocalDateTime referenceTime
+    ) {
+        if ("history".equals(mode)) {
+            return ResponseEntity.ok(ApiResponse.success(
+                equipmentAgingParamQueryService.getEquipmentAgingParamHistory(request)
+            ));
+        }
+
+        if ("latest".equals(mode)) {
+            EquipmentAgingParamDetailResponse response =
+                equipmentAgingParamQueryService.getLatestEquipmentAgingParam(equipmentId);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("as-of".equals(mode)) {
+            EquipmentAgingParamDetailResponse response =
+                equipmentAgingParamQueryService.getLatestEquipmentAgingParamBeforeOrAt(equipmentId, referenceTime);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("next".equals(mode)) {
+            EquipmentAgingParamDetailResponse response =
+                equipmentAgingParamQueryService.getFirstEquipmentAgingParamAfterOrAt(equipmentId, referenceTime);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("uncalculated".equals(mode)) {
+            return ResponseEntity.ok(ApiResponse.success(
+                equipmentAgingParamQueryService.getUncalculatedEquipmentAgingParamList()
+            ));
+        }
+
+        throw invalidMode("equipment-aging-params", mode);
+    }
+
+    /**
+     * 설비 baseline 이력 상세 정보를 조회한다.
+     * @param equipmentBaselineId 조회할 설비 baseline 이력 ID
+     * @return 설비 baseline 상세 응답
+     */
+    @GetMapping("/equipment-baselines/{equipmentBaselineId}")
+    public ResponseEntity<ApiResponse<EquipmentBaselineDetailResponse>> getEquipmentBaselineDetail(
+        @PathVariable Long equipmentBaselineId
+    ) {
+        EquipmentBaselineDetailResponse response = equipmentBaselineQueryService.getEquipmentBaselineDetail(equipmentBaselineId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/equipment-baselines")
+    /**
+     * 설비 baseline 이력을 조회한다.
+     * history, latest, as-of, next, uncalculated 모드를 query string으로 분기한다.
+     * @param request 이력 조회 조건 정보
+     * @param mode 조회 모드
+     * @param equipmentId 설비 기준 조회 시 사용할 설비 ID
+     * @param referenceTime 기준 시각 조회 시 사용할 시각
+     * @return 설비 baseline 목록 또는 상세 응답
+     */
+    public ResponseEntity<ApiResponse<?>> getEquipmentBaselineHistory(
+        EquipmentBaselineSearchRequest request,
+        @RequestParam(value = "mode", required = false, defaultValue = "history") String mode,
+        @RequestParam(required = false) Long equipmentId,
+        @RequestParam(required = false) LocalDateTime referenceTime
+    ) {
+        if ("history".equals(mode)) {
+            return ResponseEntity.ok(ApiResponse.success(
+                equipmentBaselineQueryService.getEquipmentBaselineHistory(request)
+            ));
+        }
+
+        if ("latest".equals(mode)) {
+            EquipmentBaselineDetailResponse response =
+                equipmentBaselineQueryService.getLatestEquipmentBaseline(equipmentId);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("as-of".equals(mode)) {
+            EquipmentBaselineDetailResponse response =
+                equipmentBaselineQueryService.getLatestEquipmentBaselineBeforeOrAt(equipmentId, referenceTime);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("next".equals(mode)) {
+            EquipmentBaselineDetailResponse response =
+                equipmentBaselineQueryService.getFirstEquipmentBaselineAfterOrAt(equipmentId, referenceTime);
+            return ResponseEntity.ok(ApiResponse.success(response));
+        }
+
+        if ("uncalculated".equals(mode)) {
+            return ResponseEntity.ok(ApiResponse.success(
+                equipmentBaselineQueryService.getUncalculatedEquipmentBaselineList()
+            ));
+        }
+
+        throw invalidMode("equipment-baselines", mode);
+    }
+
+    /**
+     * 지원하지 않는 조회 모드 요청을 공통 형식으로 예외 처리한다.
+     * @param resource 조회 대상 리소스명
+     * @param mode 요청으로 전달된 조회 모드
+     * @return 잘못된 모드 예외
+     */
+    private BusinessException invalidMode(String resource, String mode) {
+        return new BusinessException(ErrorCode.INVALID_INPUT, "Unsupported mode for " + resource + ": " + mode);
     }
 }

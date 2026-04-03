@@ -4,7 +4,9 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipmen
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.EquipmentSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentQueryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EquipmentSummaryQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EquipmentQueryMapper;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
@@ -36,7 +38,9 @@ class EquipmentQueryServiceTest {
 
     private EquipmentSearchRequest searchRequest;
     private EquipmentQueryResponse equipmentQueryResponse;
+    private EquipmentLatestSnapshotQueryResponse equipmentLatestSnapshotQueryResponse;
     private EquipmentDetailResponse equipmentDetailResponse;
+    private EquipmentSummaryQueryResponse equipmentSummaryQueryResponse;
 
     @BeforeEach
     void setUp() {
@@ -53,6 +57,11 @@ class EquipmentQueryServiceTest {
         equipmentQueryResponse.setEquipmentStatus(EquipmentStatus.OPERATING);
         equipmentQueryResponse.setEquipmentGrade(EquipmentGrade.S);
 
+        equipmentLatestSnapshotQueryResponse = new EquipmentLatestSnapshotQueryResponse();
+        equipmentLatestSnapshotQueryResponse.setEquipmentId(1L);
+        equipmentLatestSnapshotQueryResponse.setEquipmentCode("EQ-001");
+        equipmentLatestSnapshotQueryResponse.setEquipmentName("Printer");
+
         equipmentDetailResponse = new EquipmentDetailResponse();
         equipmentDetailResponse.setEquipmentId(1L);
         equipmentDetailResponse.setEquipmentCode("EQ-001");
@@ -60,6 +69,13 @@ class EquipmentQueryServiceTest {
         equipmentDetailResponse.setEquipmentStatus(EquipmentStatus.OPERATING);
         equipmentDetailResponse.setEquipmentGrade(EquipmentGrade.S);
         equipmentDetailResponse.setEquipmentDescription("Main line printer");
+
+        equipmentSummaryQueryResponse = new EquipmentSummaryQueryResponse();
+        equipmentSummaryQueryResponse.setTotalCount(10L);
+        equipmentSummaryQueryResponse.setOperatingCount(4L);
+        equipmentSummaryQueryResponse.setStoppedCount(3L);
+        equipmentSummaryQueryResponse.setUnderInspectionCount(2L);
+        equipmentSummaryQueryResponse.setDisposedCount(1L);
     }
 
     @Test
@@ -86,6 +102,34 @@ class EquipmentQueryServiceTest {
 
         assertTrue(result.isEmpty());
         verify(equipmentQueryMapper).selectEquipmentList(emptyRequest);
+    }
+
+    @Test
+    @DisplayName("Get equipment list with latest snapshots success")
+    void getEquipmentListWithLatestSnapshots_success() {
+        when(equipmentQueryMapper.selectEquipmentListWithLatestSnapshots(searchRequest))
+            .thenReturn(List.of(equipmentLatestSnapshotQueryResponse));
+
+        List<EquipmentLatestSnapshotQueryResponse> result = equipmentQueryService.getEquipmentListWithLatestSnapshots(searchRequest);
+
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getEquipmentId());
+        verify(equipmentQueryMapper).selectEquipmentListWithLatestSnapshots(searchRequest);
+    }
+
+    @Test
+    @DisplayName("Get equipment summary success")
+    void getEquipmentSummary_success() {
+        when(equipmentQueryMapper.selectEquipmentSummary()).thenReturn(equipmentSummaryQueryResponse);
+
+        EquipmentSummaryQueryResponse result = equipmentQueryService.getEquipmentSummary();
+
+        assertEquals(10L, result.getTotalCount());
+        assertEquals(4L, result.getOperatingCount());
+        assertEquals(3L, result.getStoppedCount());
+        assertEquals(2L, result.getUnderInspectionCount());
+        assertEquals(1L, result.getDisposedCount());
+        verify(equipmentQueryMapper).selectEquipmentSummary();
     }
 
     @Test

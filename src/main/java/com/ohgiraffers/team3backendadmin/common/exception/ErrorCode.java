@@ -21,6 +21,7 @@ public enum ErrorCode {
     MAINTENANCE_ITEM_STANDARD_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_010", "해당 유지보수 항목 기준을 찾을 수 없습니다."),
     MAINTENANCE_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_011", "해당 유지보수 이력을 찾을 수 없습니다."),
     OCSA_WEIGHT_CONFIG_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_012", "해당 OCSA 가중치 설정을 찾을 수 없습니다."),
+    EQUIPMENT_BASELINE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND_013", "해당 설비 baseline 정보를 찾을 수 없습니다."),
 
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH_001", "아이디 또는 비밀번호가 일치하지 않습니다."),
     EMPLOYEE_ON_LEAVE(HttpStatus.FORBIDDEN, "AUTH_002", "휴직 중인 사원은 로그인할 수 없습니다."),

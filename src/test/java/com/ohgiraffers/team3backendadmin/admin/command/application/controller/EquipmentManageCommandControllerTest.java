@@ -2,6 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentAgingParamUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentBaselineUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentProcessUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.EquipmentUpdateRequest;
@@ -16,6 +18,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.M
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.MaintenanceLogUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.FactoryLineUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentAgingParamUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentBaselineUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EquipmentProcessUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.EnvironmentEventCreateResponse;
@@ -29,6 +33,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.MaintenanceLogUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.FactoryLineUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentAgingParamManageCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentBaselineManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentProcessManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentEventManageCommandService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentStandardManageCommandService;
@@ -87,6 +93,12 @@ class EquipmentManageCommandControllerTest {
 
     @MockitoBean
     private EquipmentManageCommandService equipmentManageCommandService;
+
+    @MockitoBean
+    private EquipmentAgingParamManageCommandService equipmentAgingParamManageCommandService;
+
+    @MockitoBean
+    private EquipmentBaselineManageCommandService equipmentBaselineManageCommandService;
 
     @MockitoBean
     private EnvironmentStandardManageCommandService environmentStandardManageCommandService;
@@ -599,6 +611,61 @@ class EquipmentManageCommandControllerTest {
             .andExpect(jsonPath("$.data").doesNotExist());
     }
 
+    @Test
+    @DisplayName("Update equipment aging param API success: return updated aging param response")
+    void updateEquipmentAgingParam_success() throws Exception {
+        EquipmentAgingParamUpdateRequest request = createEquipmentAgingParamUpdateRequest();
+
+        EquipmentAgingParamUpdateResponse response = EquipmentAgingParamUpdateResponse.builder()
+            .equipmentAgingParamId(5001L)
+            .equipmentId(4001L)
+            .equipmentEtaAge(new BigDecimal("36.5"))
+            .equipmentWarrantyMonth(36)
+            .equipmentDesignLifeMonths(180)
+            .equipmentWearCoefficient(new BigDecimal("0.85"))
+            .equipmentAgeMonths(18)
+            .equipmentAgeCalculatedAt(LocalDateTime.of(2026, 4, 1, 12, 0))
+            .build();
+
+        when(equipmentAgingParamManageCommandService.updateEquipmentAgingParam(eq(5001L), any(EquipmentAgingParamUpdateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(put(BASE_URL + "/equipment-aging-params/5001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentAgingParamId").value(5001L));
+    }
+
+    @Test
+    @DisplayName("Update equipment baseline API success: return updated baseline response")
+    void updateEquipmentBaseline_success() throws Exception {
+        EquipmentBaselineUpdateRequest request = createEquipmentBaselineUpdateRequest();
+
+        EquipmentBaselineUpdateResponse response = EquipmentBaselineUpdateResponse.builder()
+            .equipmentBaselineId(6001L)
+            .equipmentId(4001L)
+            .equipmentAgingParamId(5001L)
+            .equipmentStandardPerformanceRate(new BigDecimal("97.5"))
+            .equipmentBaselineErrorRate(new BigDecimal("2.5"))
+            .equipmentEtaMaint(new BigDecimal("72.0"))
+            .equipmentIdx(new BigDecimal("88.5"))
+            .equipmentBaselineCalculatedAt(LocalDateTime.of(2026, 4, 1, 12, 30))
+            .build();
+
+        when(equipmentBaselineManageCommandService.updateEquipmentBaseline(eq(6001L), any(EquipmentBaselineUpdateRequest.class)))
+            .thenReturn(response);
+
+        mockMvc.perform(put(BASE_URL + "/equipment-baselines/6001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.equipmentBaselineId").value(6001L));
+    }
+
+
     private EnvironmentStandardCreateRequest createEnvironmentStandardCreateRequest() {
         return EnvironmentStandardCreateRequest.builder()
             .environmentType(EnvironmentType.DRYROOM)
@@ -661,6 +728,8 @@ class EquipmentManageCommandControllerTest {
             .equipmentWarrantyMonth(24)
             .equipmentDesignLifeMonths(120)
             .equipmentWearCoefficient(0.75)
+            .equipmentStandardPerformanceRate(98.5)
+            .equipmentBaselineErrorRate(1.5)
             .build();
     }
 
@@ -678,4 +747,26 @@ class EquipmentManageCommandControllerTest {
             .equipmentWearCoefficient(0.9)
             .build();
     }
+
+    private EquipmentAgingParamUpdateRequest createEquipmentAgingParamUpdateRequest() {
+        return EquipmentAgingParamUpdateRequest.builder()
+            .equipmentEtaAge(new BigDecimal("36.5"))
+            .equipmentWarrantyMonth(36)
+            .equipmentDesignLifeMonths(180)
+            .equipmentWearCoefficient(new BigDecimal("0.85"))
+            .equipmentAgeMonths(18)
+            .equipmentAgeCalculatedAt(LocalDateTime.of(2026, 4, 1, 12, 0))
+            .build();
+    }
+
+    private EquipmentBaselineUpdateRequest createEquipmentBaselineUpdateRequest() {
+        return EquipmentBaselineUpdateRequest.builder()
+            .equipmentStandardPerformanceRate(new BigDecimal("97.5"))
+            .equipmentBaselineErrorRate(new BigDecimal("2.5"))
+            .equipmentEtaMaint(new BigDecimal("72.0"))
+            .equipmentIdx(new BigDecimal("88.5"))
+            .equipmentBaselineCalculatedAt(LocalDateTime.of(2026, 4, 1, 12, 30))
+            .build();
+    }
+
 }

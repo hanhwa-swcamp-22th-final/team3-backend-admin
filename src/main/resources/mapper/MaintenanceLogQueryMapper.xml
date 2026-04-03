@@ -21,16 +21,25 @@
         INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
         INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
         WHERE 1 = 1
-        <if test="equipmentId != null">
-            AND ml.equipment_id = #{equipmentId}
+        <if test="request != null and request.equipmentId != null">
+            AND ml.equipment_id = #{request.equipmentId}
         </if>
-        <if test="maintenanceType != null">
-            AND ml.maintenance_type = #{maintenanceType}
+        <if test="request != null and request.maintenanceType != null">
+            AND ml.maintenance_type = #{request.maintenanceType}
         </if>
-        <if test="maintenanceResult != null">
-            AND ml.maintenance_result = #{maintenanceResult}
+        <if test="request != null and request.maintenanceResult != null">
+            AND ml.maintenance_result = #{request.maintenanceResult}
         </if>
-        ORDER BY ml.maintenance_log_id DESC
+        <if test="request != null and request.exactMaintenanceDate != null">
+            AND ml.maintenance_date = #{request.exactMaintenanceDate}
+        </if>
+        <if test="request != null and request.maintenanceDateFrom != null">
+            AND ml.maintenance_date &gt;= #{request.maintenanceDateFrom}
+        </if>
+        <if test="request != null and request.maintenanceDateTo != null">
+            AND ml.maintenance_date &lt;= #{request.maintenanceDateTo}
+        </if>
+        ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
     </select>
 
     <select id="selectMaintenanceLogDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
@@ -50,5 +59,92 @@
         INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
         INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
         WHERE ml.maintenance_log_id = #{maintenanceLogId}
+    </select>
+
+    <select id="selectLatestMaintenanceLogByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+        SELECT
+            ml.maintenance_log_id AS maintenanceLogId,
+            ml.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ml.maintenance_item_standard_id AS maintenanceItemStandardId,
+            mis.maintenance_item AS maintenanceItem,
+            ml.maintenance_type AS maintenanceType,
+            ml.maintenance_date AS maintenanceDate,
+            ml.maintenance_score AS maintenanceScore,
+            ml.eta_maint_delta AS etaMaintDelta,
+            ml.maintenance_result AS maintenanceResult
+        FROM maintenance_log ml
+        INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
+        INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
+        WHERE ml.equipment_id = #{equipmentId}
+        ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestMaintenanceLogBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+        SELECT
+            ml.maintenance_log_id AS maintenanceLogId,
+            ml.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ml.maintenance_item_standard_id AS maintenanceItemStandardId,
+            mis.maintenance_item AS maintenanceItem,
+            ml.maintenance_type AS maintenanceType,
+            ml.maintenance_date AS maintenanceDate,
+            ml.maintenance_score AS maintenanceScore,
+            ml.eta_maint_delta AS etaMaintDelta,
+            ml.maintenance_result AS maintenanceResult
+        FROM maintenance_log ml
+        INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
+        INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
+        WHERE ml.equipment_id = #{equipmentId}
+          AND ml.maintenance_date &lt;= #{referenceDate}
+        ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectFirstMaintenanceLogAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogDetailResponse">
+        SELECT
+            ml.maintenance_log_id AS maintenanceLogId,
+            ml.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ml.maintenance_item_standard_id AS maintenanceItemStandardId,
+            mis.maintenance_item AS maintenanceItem,
+            ml.maintenance_type AS maintenanceType,
+            ml.maintenance_date AS maintenanceDate,
+            ml.maintenance_score AS maintenanceScore,
+            ml.eta_maint_delta AS etaMaintDelta,
+            ml.maintenance_result AS maintenanceResult
+        FROM maintenance_log ml
+        INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
+        INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
+        WHERE ml.equipment_id = #{equipmentId}
+          AND ml.maintenance_date &gt;= #{referenceDate}
+        ORDER BY ml.maintenance_date ASC, ml.maintenance_log_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectAbnormalOrIncompleteMaintenanceLogList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.MaintenanceLogQueryResponse">
+        SELECT
+            ml.maintenance_log_id AS maintenanceLogId,
+            ml.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ml.maintenance_item_standard_id AS maintenanceItemStandardId,
+            mis.maintenance_item AS maintenanceItem,
+            ml.maintenance_type AS maintenanceType,
+            ml.maintenance_date AS maintenanceDate,
+            ml.maintenance_score AS maintenanceScore,
+            ml.eta_maint_delta AS etaMaintDelta,
+            ml.maintenance_result AS maintenanceResult
+        FROM maintenance_log ml
+        INNER JOIN equipment e ON ml.equipment_id = e.equipment_id
+        INNER JOIN maintenance_item_standard mis ON ml.maintenance_item_standard_id = mis.maintenance_item_standard_id
+        WHERE ml.maintenance_result &lt;&gt; 'NORMAL'
+           OR ml.maintenance_score IS NULL
+           OR ml.eta_maint_delta IS NULL
+        ORDER BY ml.maintenance_date DESC, ml.maintenance_log_id DESC
     </select>
 </mapper>

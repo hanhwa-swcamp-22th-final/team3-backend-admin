@@ -95,8 +95,57 @@ public class EquipmentAgingParam {
     public void update(Integer equipmentWarrantyMonth,
                        Integer equipmentDesignLifeMonths,
                        BigDecimal equipmentWearCoefficient) {
+        validateSpecification(equipmentWarrantyMonth, equipmentDesignLifeMonths, equipmentWearCoefficient);
+
         this.equipmentWarrantyMonth = equipmentWarrantyMonth;
         this.equipmentDesignLifeMonths = equipmentDesignLifeMonths;
         this.equipmentWearCoefficient = equipmentWearCoefficient;
+    }
+
+    public void updateCalculationInfo(BigDecimal equipmentEtaAge,
+                                      Integer equipmentAgeMonths,
+                                      LocalDateTime equipmentAgeCalculatedAt) {
+        validateCalculationInfo(equipmentEtaAge, equipmentAgeMonths, equipmentAgeCalculatedAt);
+
+        this.equipmentEtaAge = equipmentEtaAge;
+        this.equipmentAgeMonths = equipmentAgeMonths;
+        this.equipmentAgeCalculatedAt = equipmentAgeCalculatedAt;
+    }
+
+    private void validateSpecification(Integer equipmentWarrantyMonth,
+                                       Integer equipmentDesignLifeMonths,
+                                       BigDecimal equipmentWearCoefficient) {
+        if (equipmentWarrantyMonth == null) {
+            throw new IllegalArgumentException("Equipment warranty month must not be null.");
+        }
+        if (equipmentWarrantyMonth < 0) {
+            throw new IllegalArgumentException("Equipment warranty month must not be negative.");
+        }
+        if (equipmentDesignLifeMonths == null) {
+            throw new IllegalArgumentException("Equipment design life months must not be null.");
+        }
+        if (equipmentDesignLifeMonths < 0) {
+            throw new IllegalArgumentException("Equipment design life months must not be negative.");
+        }
+        if (equipmentWearCoefficient == null) {
+            throw new IllegalArgumentException("Equipment wear coefficient must not be null.");
+        }
+        if (equipmentWearCoefficient.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Equipment wear coefficient must not be negative.");
+        }
+    }
+
+    private void validateCalculationInfo(BigDecimal equipmentEtaAge,
+                                         Integer equipmentAgeMonths,
+                                         LocalDateTime equipmentAgeCalculatedAt) {
+        if (equipmentEtaAge != null && equipmentEtaAge.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Equipment eta age must not be negative.");
+        }
+        if (equipmentAgeMonths != null && equipmentAgeMonths < 0) {
+            throw new IllegalArgumentException("Equipment age months must not be negative.");
+        }
+        if (equipmentEtaAge != null && equipmentAgeCalculatedAt == null) {
+            throw new IllegalArgumentException("Equipment age calculated at must not be null when eta age exists.");
+        }
     }
 }
