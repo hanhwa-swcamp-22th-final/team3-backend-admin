@@ -1,6 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgmanagement;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeDepartmentMatchRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDepartmentMatchResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.consent.Consent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
@@ -88,7 +90,6 @@ class EmployeeManageCommandServiceTest {
 
         private EmployeeCreateRequest createRequest() {
             return new EmployeeCreateRequest(
-                    100L,
                     "홍길동",
                     "hong@company.com",
                     "010-1234-5678",
@@ -109,8 +110,6 @@ class EmployeeManageCommandServiceTest {
 
             given(employeeRepository.findByEmployeeCode("EMP-0001"))
                     .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(100L))
-                    .willReturn(Optional.of(Department.builder().departmentId(100L).build()));
             given(aesEncryptor.encrypt(anyString())).willAnswer(invocation -> "AES_" + invocation.getArgument(0));
             given(employeeRepository.existsByEmployeeEmail("AES_hong@company.com")).willReturn(false);
             given(employeeRepository.existsByEmployeePhone("AES_010-1234-5678")).willReturn(false);
@@ -127,7 +126,7 @@ class EmployeeManageCommandServiceTest {
 
             Employee saved = captor.getValue();
             assertEquals(5000L, saved.getEmployeeId());
-            assertEquals(100L, saved.getDepartmentId());
+            assertNull(saved.getDepartmentId());
             assertEquals("EMP2603001", saved.getEmployeeCode());
             assertEquals("홍길동", saved.getEmployeeName());
             assertEquals("AES_hong@company.com", saved.getEmployeeEmail());
@@ -147,25 +146,6 @@ class EmployeeManageCommandServiceTest {
 
             // 기본 약관 동의 레코드가 생성되는지 확인
             verify(consentRepository).save(any(Consent.class));
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 부서이면 예외가 발생한다")
-        void insertEmployeeDepartmentNotFound() {
-            // given
-            EmployeeCreateRequest request = createRequest();
-
-            given(employeeRepository.findByEmployeeCode("EMP-0001"))
-                    .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(100L))
-                    .willReturn(Optional.empty());
-
-            // when & then
-            DepartmentNotFoundException exception = assertThrows(
-                    DepartmentNotFoundException.class,
-                    () -> employeeManageCommandService.insertEmployee(request, "EMP-0001")
-            );
-            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
         }
 
         @Test
@@ -193,8 +173,6 @@ class EmployeeManageCommandServiceTest {
 
             given(employeeRepository.findByEmployeeCode("EMP-0001"))
                     .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(100L))
-                    .willReturn(Optional.of(Department.builder().departmentId(100L).build()));
             given(aesEncryptor.encrypt("hong@company.com"))
                     .willReturn("AES_hong@company.com");
             given(employeeRepository.existsByEmployeeEmail("AES_hong@company.com"))
@@ -216,8 +194,6 @@ class EmployeeManageCommandServiceTest {
 
             given(employeeRepository.findByEmployeeCode("EMP-0001"))
                     .willReturn(Optional.of(admin));
-            given(departmentRepository.findById(100L))
-                    .willReturn(Optional.of(Department.builder().departmentId(100L).build()));
             given(aesEncryptor.encrypt("hong@company.com"))
                     .willReturn("AES_hong@company.com");
             given(employeeRepository.existsByEmployeeEmail("AES_hong@company.com"))
@@ -295,6 +271,104 @@ class EmployeeManageCommandServiceTest {
             AdminAccessDeniedException exception = assertThrows(
                     AdminAccessDeniedException.class,
                     () -> employeeManageCommandService.deleteEmployee("EMP2603001", "UNKNOWN")
+            );
+            assertEquals("접근 권한이 없습니다.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("matchDepartment 메서드")
+    class MatchDepartment {
+
+        private Employee targetEmployee;
+
+        @BeforeEach
+        void setUp() {
+            targetEmployee = Employee.builder()
+                    .employeeId(5000L)
+                    .employeeCode("EMP2603001")
+                    .employeeName("홍길동")
+                    .departmentId(null)
+                    .employeeStatus(EmployeeStatus.ACTIVE)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("사원에게 부서가 정상적으로 배치된다")
+        void matchDepartmentSuccess() {
+            // given
+            EmployeeDepartmentMatchRequest request = new EmployeeDepartmentMatchRequest("EMP2603001", 100L);
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("EMP2603001"))
+                    .willReturn(Optional.of(targetEmployee));
+            given(departmentRepository.findById(100L))
+                    .willReturn(Optional.of(Department.builder().departmentId(100L).build()));
+
+            // when
+            EmployeeDepartmentMatchResponse response = employeeManageCommandService.matchDepartment(request, "EMP-0001");
+
+            // then
+            assertEquals(100L, targetEmployee.getDepartmentId());
+            assertEquals("홍길동", response.getEmployeeName());
+            assertEquals("EMP2603001", response.getEmployeeCode());
+            assertEquals(100L, response.getDepartmentId());
+        }
+
+        @Test
+        @DisplayName("대상 사원이 존재하지 않으면 예외가 발생한다")
+        void matchDepartmentEmployeeNotFound() {
+            // given
+            EmployeeDepartmentMatchRequest request = new EmployeeDepartmentMatchRequest("UNKNOWN", 100L);
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            EmployeeNotFoundException exception = assertThrows(
+                    EmployeeNotFoundException.class,
+                    () -> employeeManageCommandService.matchDepartment(request, "EMP-0001")
+            );
+            assertEquals("해당 사원을 찾을 수 없습니다.", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("부서가 존재하지 않으면 예외가 발생한다")
+        void matchDepartmentDepartmentNotFound() {
+            // given
+            EmployeeDepartmentMatchRequest request = new EmployeeDepartmentMatchRequest("EMP2603001", 999L);
+
+            given(employeeRepository.findByEmployeeCode("EMP-0001"))
+                    .willReturn(Optional.of(admin));
+            given(employeeRepository.findByEmployeeCode("EMP2603001"))
+                    .willReturn(Optional.of(targetEmployee));
+            given(departmentRepository.findById(999L))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
+                    () -> employeeManageCommandService.matchDepartment(request, "EMP-0001")
+            );
+            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("HRM 사원이 존재하지 않으면 예외가 발생한다")
+        void matchDepartmentHrmNotFound() {
+            // given
+            EmployeeDepartmentMatchRequest request = new EmployeeDepartmentMatchRequest("EMP2603001", 100L);
+
+            given(employeeRepository.findByEmployeeCode("UNKNOWN"))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            AdminAccessDeniedException exception = assertThrows(
+                    AdminAccessDeniedException.class,
+                    () -> employeeManageCommandService.matchDepartment(request, "UNKNOWN")
             );
             assertEquals("접근 권한이 없습니다.", exception.getMessage());
         }

@@ -54,17 +54,23 @@ public class AuthCommandService {
             throw new InvalidCredentialsException();
         }
 
-        // 3. 부서 정보 조회
-        Department department = this.departmentRepository.findById(employee.getDepartmentId())
-                .orElseThrow(DepartmentNotFoundException::new);
+        // 3. 부서 정보 조회 (미배치 사원은 부서 없이 로그인 허용)
+        String departmentName = null;
+        String teamName = null;
+        if (employee.getDepartmentId() != null) {
+            Department department = this.departmentRepository.findById(employee.getDepartmentId())
+                    .orElseThrow(DepartmentNotFoundException::new);
+            departmentName = department.getDepartmentName();
+            teamName = department.getTeamName();
+        }
 
         // 4. 비밀번호가 일치 -> 로그인 성공 -> 토큰 생성 -> 발급
         String accessToken = this.jwtTokenProvider.createToken(
                 employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), department.getDepartmentName(), department.getTeamName());
+                employee.getEmployeeName(), departmentName, teamName);
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
                 employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), department.getDepartmentName(), department.getTeamName());
+                employee.getEmployeeName(), departmentName, teamName);
 
         // 5. refresh token DB에 저장(보안 및 토큰 재발급 검증용)
         RefreshToken tokenEntity = RefreshToken.builder()
@@ -113,17 +119,23 @@ public class AuthCommandService {
         Employee employee = this.employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(EmployeeNotFoundException::new);
 
-        // 부서 정보 조회
-        Department department = this.departmentRepository.findById(employee.getDepartmentId())
-                .orElseThrow(DepartmentNotFoundException::new);
+        // 부서 정보 조회 (미배치 사원은 부서 없이 토큰 재발급 허용)
+        String departmentName = null;
+        String teamName = null;
+        if (employee.getDepartmentId() != null) {
+            Department department = this.departmentRepository.findById(employee.getDepartmentId())
+                    .orElseThrow(DepartmentNotFoundException::new);
+            departmentName = department.getDepartmentName();
+            teamName = department.getTeamName();
+        }
 
         // 새로운 token 발급
         String accessToken = this.jwtTokenProvider.createToken(
                 employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), department.getDepartmentName(), department.getTeamName());
+                employee.getEmployeeName(), departmentName, teamName);
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
                 employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), department.getDepartmentName(), department.getTeamName());
+                employee.getEmployeeName(), departmentName, teamName);
 
         // refresh token entity 생성 (저장용)
         RefreshToken tokenEntity = RefreshToken.builder()

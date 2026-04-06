@@ -13,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmployeeCreateRequest {
 
-    @NotNull(message = "부서 ID는 필수 입력 항목입니다")
-    private final Long departmentId;
-
     @NotBlank(message = "사원명은 필수 입력 항목입니다")
     private final String employeeName;
 

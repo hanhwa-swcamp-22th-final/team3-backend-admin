@@ -3,12 +3,14 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.department.DepartmentCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.department.DepartmentUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeCreateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeDepartmentMatchRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeRoleChangeRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeSkillUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.department.DepartmentCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.department.DepartmentDeleteResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.department.DepartmentUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeCreateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDepartmentMatchResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDeleteResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeRoleChangeResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeSkillUpdateResponse;
@@ -156,6 +158,23 @@ public class OrganizationManageCommandController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         EmployeeRoleChangeResponse response = employeeRoleManageCommandService.changeEmployeeRole(request, userDetails.getUsername());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 부서에 사원을 배치하는 Api
+     * @param request EmployeeDepartmentMatchRequest
+     * @param userDetails Login User의 권한 정보를 담고있는 객체
+     * @return ResponseEntity<ApiResponse<EmployeeDepartmentMatchResponse>>
+     */
+    @PutMapping("/employee/department")
+    @PreAuthorize("hasAuthority('HRM')")
+    public ResponseEntity<ApiResponse<EmployeeDepartmentMatchResponse>> matchDepartment(
+            @Valid @RequestBody EmployeeDepartmentMatchRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        EmployeeDepartmentMatchResponse response = employeeManageCommandService.matchDepartment(request, userDetails.getUsername());
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

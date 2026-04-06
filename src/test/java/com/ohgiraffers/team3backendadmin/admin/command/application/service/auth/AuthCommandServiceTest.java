@@ -186,6 +186,46 @@ class AuthCommandServiceTest {
         }
 
         @Test
+        @DisplayName("미배치 사원(부서 없음)도 정상 로그인된다")
+        void loginSuccessWithoutDepartment() {
+            // given
+            Employee noDeptEmployee = Employee.builder()
+                    .employeeId(2L)
+                    .departmentId(null)
+                    .employeeCode("EMP-0002")
+                    .employeeName("김신입")
+                    .employeeEmail("new@company.com")
+                    .employeePassword("$2a$10$encodedPassword")
+                    .employeeRole(EmployeeRole.HRM)
+                    .employeeStatus(EmployeeStatus.ACTIVE)
+                    .build();
+
+            LoginRequest request = new LoginRequest("new@company.com", "rawPassword");
+
+            given(aesEncryptor.encrypt("new@company.com")).willReturn("encrypted-new");
+            given(employeeRepository.findByEmployeeEmail("encrypted-new"))
+                    .willReturn(Optional.of(noDeptEmployee));
+            given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
+                    .willReturn(true);
+            given(jwtTokenProvider.createToken(
+                    eq("EMP-0002"), eq("HRM"), eq("김신입"), isNull(), isNull()))
+                    .willReturn("access-token-no-dept");
+            given(jwtTokenProvider.createRefreshToken(
+                    eq("EMP-0002"), eq("HRM"), eq("김신입"), isNull(), isNull()))
+                    .willReturn("refresh-token-no-dept");
+            given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
+
+            // when
+            TokenResponse response = authCommandService.login(request);
+
+            // then
+            assertNotNull(response);
+            assertEquals("access-token-no-dept", response.getAccessToken());
+            assertEquals("refresh-token-no-dept", response.getRefreshToken());
+            verify(jpaAuthRepository).save(any(RefreshToken.class));
+        }
+
+        @Test
         @DisplayName("부서 정보가 없을 경우 예외가 발생한다")
         void loginFailDepartmentNotFound() {
             // given

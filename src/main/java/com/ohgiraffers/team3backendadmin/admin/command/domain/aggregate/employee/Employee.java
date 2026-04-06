@@ -23,7 +23,7 @@ public class Employee {
     @Column(name = "employee_id")
     private Long employeeId;
 
-    @Column(name = "department_id", nullable = false)
+    @Column(name = "department_id")
     private Long departmentId;
 
     @Column(name = "employee_code")
@@ -105,6 +105,10 @@ public class Employee {
 
     public void changePassword(String encodedPassword) {
         this.employeePassword = encodedPassword;
+    }
+
+    public void assignDepartment(Long departmentId) {
+        this.departmentId = departmentId;
     }
 
     public void deleteEmployee() {
