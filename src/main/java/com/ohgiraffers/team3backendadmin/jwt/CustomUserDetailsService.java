@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth;
+package com.ohgiraffers.team3backendadmin.jwt;
 
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
@@ -30,7 +30,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new CustomUserDetails(
                 employee.getEmployeeId(),
                 employee.getEmployeeCode(),
-                employee.getEmployeePassword(),
                 Collections.singleton(new SimpleGrantedAuthority(employee.getEmployeeRole().name()))
         );
     }
