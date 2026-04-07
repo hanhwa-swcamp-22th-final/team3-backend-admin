@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.config;
 
 
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
 import com.ohgiraffers.team3backendadmin.jwt.JwtAuthenticationFilter;
 import com.ohgiraffers.team3backendadmin.jwt.JwtTokenProvider;
 import com.ohgiraffers.team3backendadmin.jwt.RestAccessDeniedHandler;
@@ -29,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+    private final AuthRepository authRepository;
     private final RestAccessDeniedHandler restAccessDeniedHandler;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
@@ -77,7 +79,7 @@ public class SecurityConfig {
                 )
                 // UsernamePasswordAuthenticationFilter 앞에 jwtAuthenticationFilter 필터를 추가
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
+                        new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, authRepository),
                         UsernamePasswordAuthenticationFilter.class
                 );
         return http.build();

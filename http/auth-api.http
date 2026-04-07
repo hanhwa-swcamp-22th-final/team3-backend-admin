@@ -46,7 +46,7 @@ Authorization: Bearer {{accessToken}}
 {
   "employeeName": "김신우의아이디다",
   "employeeEmail": null,
-  "employeePhone": null,
+  "employeePhone": "010-9999-8888",
   "employeeAddress": "신검단중앙",
   "employeeEmergencyContact": "112-112-112"
 }

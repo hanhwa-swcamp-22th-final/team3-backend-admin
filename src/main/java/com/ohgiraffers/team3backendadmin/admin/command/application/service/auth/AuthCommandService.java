@@ -3,16 +3,13 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.LoginRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.TokenResponse;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
-import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeOnLeaveException;
 import com.ohgiraffers.team3backendadmin.common.exception.InvalidCredentialsException;
@@ -33,7 +30,6 @@ import java.util.Date;
 public class AuthCommandService {
 
     private final EmployeeRepository employeeRepository;
-    private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRepository jpaAuthRepository;
@@ -54,23 +50,11 @@ public class AuthCommandService {
             throw new InvalidCredentialsException();
         }
 
-        // 3. 부서 정보 조회 (미배치 사원은 부서 없이 로그인 허용)
-        String departmentName = null;
-        String teamName = null;
-        if (employee.getDepartmentId() != null) {
-            Department department = this.departmentRepository.findById(employee.getDepartmentId())
-                    .orElseThrow(DepartmentNotFoundException::new);
-            departmentName = department.getDepartmentName();
-            teamName = department.getTeamName();
-        }
-
-        // 4. 비밀번호가 일치 -> 로그인 성공 -> 토큰 생성 -> 발급
+        // 3. 비밀번호가 일치 -> 로그인 성공 -> 토큰 생성 -> 발급
         String accessToken = this.jwtTokenProvider.createToken(
-                employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), departmentName, teamName);
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
-                employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), departmentName, teamName);
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
 
         // 5. refresh token DB에 저장(보안 및 토큰 재발급 검증용)
         RefreshToken tokenEntity = RefreshToken.builder()
@@ -119,23 +103,11 @@ public class AuthCommandService {
         Employee employee = this.employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(EmployeeNotFoundException::new);
 
-        // 부서 정보 조회 (미배치 사원은 부서 없이 토큰 재발급 허용)
-        String departmentName = null;
-        String teamName = null;
-        if (employee.getDepartmentId() != null) {
-            Department department = this.departmentRepository.findById(employee.getDepartmentId())
-                    .orElseThrow(DepartmentNotFoundException::new);
-            departmentName = department.getDepartmentName();
-            teamName = department.getTeamName();
-        }
-
         // 새로운 token 발급
         String accessToken = this.jwtTokenProvider.createToken(
-                employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), departmentName, teamName);
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
-                employee.getEmployeeCode(), employee.getEmployeeRole().name(),
-                employee.getEmployeeName(), departmentName, teamName);
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
 
         // refresh token entity 생성 (저장용)
         RefreshToken tokenEntity = RefreshToken.builder()

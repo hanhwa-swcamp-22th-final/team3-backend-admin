@@ -1,5 +1,9 @@
 package com.ohgiraffers.team3backendadmin.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
+import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,9 +13,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/* 인증 실패 핸들러 */
+/* 인증 실패 핸들러 (401 Unauthorized) */
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
 
     @Override
     public void commence(HttpServletRequest request,
@@ -19,7 +26,11 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          AuthenticationException authException) throws IOException, ServletException {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        String jsonResponse = "{\"error\": \"Unauthorized\", \"message\": \"" + authException.getMessage() + "\"}";
-        response.getWriter().write(jsonResponse);
+
+        ApiResponse<Void> apiResponse = ApiResponse.failure(
+                ErrorCode.INVALID_TOKEN.getCode(),
+                ErrorCode.INVALID_TOKEN.getMessage()
+        );
+        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
     }
 }
