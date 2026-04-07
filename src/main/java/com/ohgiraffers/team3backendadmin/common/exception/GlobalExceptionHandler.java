@@ -4,6 +4,8 @@ import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -43,6 +45,17 @@ public class GlobalExceptionHandler {
             ErrorCode.INVALID_INPUT.getMessage()
         );
         return ResponseEntity.status(ErrorCode.INVALID_INPUT.getStatus()).body(response);
+    }
+
+    /* Spring Security 예외는 RestAccessDeniedHandler / RestAuthenticationEntryPoint 에서 처리 */
+    @ExceptionHandler(AccessDeniedException.class)
+    public void handleAccessDeniedException(AccessDeniedException e) throws AccessDeniedException {
+        throw e;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public void handleAuthenticationException(AuthenticationException e) throws AuthenticationException {
+        throw e;
     }
 
     @ExceptionHandler(Exception.class)

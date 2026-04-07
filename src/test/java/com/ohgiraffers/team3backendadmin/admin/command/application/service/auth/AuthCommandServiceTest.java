@@ -3,12 +3,10 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.auth
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.auth.LoginRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.auth.TokenResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.*;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.AuthRepository;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
@@ -25,7 +23,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeOnLeaveException;
 import com.ohgiraffers.team3backendadmin.common.exception.InvalidCredentialsException;
 import com.ohgiraffers.team3backendadmin.common.exception.InvalidTokenException;
@@ -50,9 +47,6 @@ class AuthCommandServiceTest {
     private EmployeeRepository employeeRepository;
 
     @Mock
-    private DepartmentRepository departmentRepository;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -65,27 +59,17 @@ class AuthCommandServiceTest {
     private AesEncryptor aesEncryptor;
 
     private Employee employee;
-    private Department department;
 
     @BeforeEach
     void setUp() {
         employee = Employee.builder()
                 .employeeId(1L)
-                .departmentId(1L)
                 .employeeCode("EMP-0001")
                 .employeeName("김관리")
                 .employeeEmail("admin@company.com")
                 .employeePassword("$2a$10$encodedPassword")
                 .employeeRole(EmployeeRole.ADMIN)
                 .employeeStatus(EmployeeStatus.ACTIVE)
-                .build();
-
-        department = Department.builder()
-                .departmentId(1L)
-                .parentDepartmentId(1L)
-                .departmentName("경영지원본부")
-                .teamName("시스템관리팀")
-                .depth("Root")
                 .build();
     }
 
@@ -104,13 +88,11 @@ class AuthCommandServiceTest {
                     .willReturn(Optional.of(employee));
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);
-            given(departmentRepository.findById(1L))
-                    .willReturn(Optional.of(department));
             given(jwtTokenProvider.createToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
                     .willReturn("access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
                     .willReturn("refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
@@ -186,12 +168,11 @@ class AuthCommandServiceTest {
         }
 
         @Test
-        @DisplayName("미배치 사원(부서 없음)도 정상 로그인된다")
-        void loginSuccessWithoutDepartment() {
+        @DisplayName("다른 역할의 사원도 정상 로그인된다")
+        void loginSuccessWithDifferentRole() {
             // given
-            Employee noDeptEmployee = Employee.builder()
+            Employee hrmEmployee = Employee.builder()
                     .employeeId(2L)
-                    .departmentId(null)
                     .employeeCode("EMP-0002")
                     .employeeName("김신입")
                     .employeeEmail("new@company.com")
@@ -204,15 +185,15 @@ class AuthCommandServiceTest {
 
             given(aesEncryptor.encrypt("new@company.com")).willReturn("encrypted-new");
             given(employeeRepository.findByEmployeeEmail("encrypted-new"))
-                    .willReturn(Optional.of(noDeptEmployee));
+                    .willReturn(Optional.of(hrmEmployee));
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);
             given(jwtTokenProvider.createToken(
-                    eq("EMP-0002"), eq("HRM"), eq("김신입"), isNull(), isNull()))
-                    .willReturn("access-token-no-dept");
+                    eq(2L), eq("EMP-0002"), eq("HRM")))
+                    .willReturn("access-token-hrm");
             given(jwtTokenProvider.createRefreshToken(
-                    eq("EMP-0002"), eq("HRM"), eq("김신입"), isNull(), isNull()))
-                    .willReturn("refresh-token-no-dept");
+                    eq(2L), eq("EMP-0002"), eq("HRM")))
+                    .willReturn("refresh-token-hrm");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
             // when
@@ -220,31 +201,9 @@ class AuthCommandServiceTest {
 
             // then
             assertNotNull(response);
-            assertEquals("access-token-no-dept", response.getAccessToken());
-            assertEquals("refresh-token-no-dept", response.getRefreshToken());
+            assertEquals("access-token-hrm", response.getAccessToken());
+            assertEquals("refresh-token-hrm", response.getRefreshToken());
             verify(jpaAuthRepository).save(any(RefreshToken.class));
-        }
-
-        @Test
-        @DisplayName("부서 정보가 없을 경우 예외가 발생한다")
-        void loginFailDepartmentNotFound() {
-            // given
-            LoginRequest request = new LoginRequest("admin@company.com", "rawPassword");
-
-            given(aesEncryptor.encrypt("admin@company.com")).willReturn("encrypted-email");
-            given(employeeRepository.findByEmployeeEmail("encrypted-email"))
-                    .willReturn(Optional.of(employee));
-            given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
-                    .willReturn(true);
-            given(departmentRepository.findById(1L))
-                    .willReturn(Optional.empty());
-
-            // when & then
-            DepartmentNotFoundException exception = assertThrows(
-                    DepartmentNotFoundException.class,
-                    () -> authCommandService.login(request)
-            );
-            assertEquals("해당 부서를 찾을 수 없습니다.", exception.getMessage());
         }
     }
 
@@ -289,12 +248,11 @@ class AuthCommandServiceTest {
             given(jwtTokenProvider.getEmployeeCodeFromJWT(provideRefreshToken)).willReturn("EMP-0001");
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(storedToken));
             given(employeeRepository.findByEmployeeCode("EMP-0001")).willReturn(Optional.of(employee));
-            given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
             given(jwtTokenProvider.createToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
                     .willReturn("new-access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("경영지원본부"), eq("시스템관리팀")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
                     .willReturn("new-refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 

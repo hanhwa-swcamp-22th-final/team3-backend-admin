@@ -33,18 +33,14 @@ public class JwtTokenProvider {
     }
 
     /* access token 생성 메서드 */
-    public String createToken(String employeeCode, String role,
-                              String employeeName, String departmentName, String teamName) {
+    public String createToken(Long employeeId, String employeeCode, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
-        // JWT 토큰 생성 -> Header, Payload(Claims), Signature
         return Jwts.builder()
-                .subject(employeeCode)                    // payload: subject (사원코드)
+                .subject(String.valueOf(employeeId))      // payload: subject (사원 ID)
+                .claim("employeeCode", employeeCode)      // payload: employeeCode (사원코드)
                 .claim("role", role)                      // payload: role (권한 정보)
-                .claim("employeeName", employeeName)      // 사원명
-                .claim("departmentName", departmentName)  // 부서명
-                .claim("teamName", teamName)              // 팀명
                 .issuedAt(now)                            // payload: issuedAt (발행 시간)
                 .expiration(expiryDate)                   // payload: Expiration time (토큰 만료 시간)
                 .signWith(secretKey)                      // signature: 비밀키 서명 (위변조 방지)
@@ -52,18 +48,14 @@ public class JwtTokenProvider {
     }
 
     /* refresh token 생성 메서드 */
-    public String createRefreshToken(String employeeCode, String role,
-                                     String employeeName, String departmentName, String teamName) {
+    public String createRefreshToken(Long employeeId, String employeeCode, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtRefreshExpiration);
 
-        // JWT 토큰 생성 -> Header, Payload(Claims), Signature
         return Jwts.builder()
-                .subject(employeeCode)                    // payload: subject (사원코드)
+                .subject(String.valueOf(employeeId))      // payload: subject (사원 ID)
+                .claim("employeeCode", employeeCode)      // payload: employeeCode (사원코드)
                 .claim("role", role)                      // payload: role (권한 정보)
-                .claim("employeeName", employeeName)      // 사원명
-                .claim("departmentName", departmentName)  // 부서명
-                .claim("teamName", teamName)              // 팀명
                 .issuedAt(now)                            // payload: issuedAt (발행 시간)
                 .expiration(expiryDate)                   // payload: Expiration time (토큰 만료 시간)
                 .signWith(secretKey)                      // signature: 비밀키 서명 (위변조 방지)
@@ -92,41 +84,24 @@ public class JwtTokenProvider {
 
     }
 
-    /* JWT Token 중 payload의 claim 중에서 subject(사원코드)의 값을 반환하는 메서드 */
+    /* JWT Token 중 payload의 subject(사원 ID)의 값을 반환하는 메서드 */
+    public Long getEmployeeIdFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return Long.valueOf(claims.getSubject());
+    }
+
+    /* JWT Token 중 payload의 claim 중에서 employeeCode(사원코드)의 값을 반환하는 메서드 */
     public String getEmployeeCodeFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims.getSubject();
-    }
-
-    public String getEmployeeNameFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("employeeName", String.class);
-    }
-
-    public String getDepartmentNameFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("departmentName", String.class);
-    }
-
-    public String getTeamNameFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("teamName", String.class);
+        return claims.get("employeeCode", String.class);
     }
 
 }
