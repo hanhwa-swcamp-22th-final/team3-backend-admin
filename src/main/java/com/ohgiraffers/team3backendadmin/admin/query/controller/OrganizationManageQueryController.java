@@ -67,7 +67,7 @@ public class OrganizationManageQueryController {
      * @return ResponseEntity<ApiResponse<List<EmployeeResponse>>>
      */
     @GetMapping("/employees")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM')")
     public ResponseEntity<ApiResponse<List<EmployeeResponse>>> getAllEmployees() {
         List<EmployeeResponse> employees = employeeManageQueryService.getAllEmployees();
         return ResponseEntity.ok(ApiResponse.success(employees));
