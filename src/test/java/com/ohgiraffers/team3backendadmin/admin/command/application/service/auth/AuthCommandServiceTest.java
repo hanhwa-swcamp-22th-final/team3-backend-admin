@@ -378,7 +378,7 @@ class AuthCommandServiceTest {
             assertTrue(cookie.isHttpOnly());
             assertEquals("/", cookie.getPath());
             assertEquals(Duration.ofDays(7), cookie.getMaxAge());
-            assertEquals("Lax", cookie.getSameSite());
+            assertEquals("Strict", cookie.getSameSite());
         }
     }
 
@@ -397,7 +397,7 @@ class AuthCommandServiceTest {
             assertTrue(cookie.isHttpOnly());
             assertEquals("/", cookie.getPath());
             assertEquals(Duration.ZERO, cookie.getMaxAge());
-            assertEquals("Lax", cookie.getSameSite());
+            assertEquals("Strict", cookie.getSameSite());
         }
     }
 }

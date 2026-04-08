@@ -61,8 +61,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // CSRF 처리 비활성화 (기본값 : 활성화)
-        // JWT는 세션 이용X (stateless) -> CSRF 보호가 필수적이지 않음
+        // CSRF 비활성화: 모든 인증은 Authorization 헤더(Bearer JWT) 또는
+        // SameSite=Strict HttpOnly 쿠키(refreshToken)로 처리되므로 CSRF 공격 벡터 없음
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 // 세션 로그인X -> 토큰 로그인 설정 O

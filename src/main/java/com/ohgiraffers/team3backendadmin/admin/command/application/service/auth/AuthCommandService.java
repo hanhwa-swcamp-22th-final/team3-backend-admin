@@ -137,7 +137,7 @@ public class AuthCommandService {
                 // .secure(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .build();
     }
 
@@ -148,7 +148,7 @@ public class AuthCommandService {
                 // .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .build();
     }
 
