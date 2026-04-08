@@ -12,6 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EmployeeResponse {
 
+    private Long employeeId;
     private String employeeCode;
     private String employeeName;
     private String employeeEmail;

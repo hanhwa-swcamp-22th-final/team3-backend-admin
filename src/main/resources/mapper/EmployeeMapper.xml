@@ -6,6 +6,7 @@
 
     <resultMap id="employeeResultMap"
                type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse">
+        <result property="employeeId" column="employee_id"/>
         <result property="employeeCode" column="employee_code"/>
         <result property="employeeName" column="employee_name"/>
         <result property="employeeEmail" column="employee_email"/>
@@ -18,7 +19,8 @@
     </resultMap>
 
     <select id="findByEmployeeCode" resultMap="employeeResultMap">
-        SELECT employee_code,
+        SELECT employee_id,
+               employee_code,
                employee_name,
                employee_email,
                employee_phone,
@@ -32,7 +34,8 @@
     </select>
 
     <select id="findAll" resultMap="employeeResultMap">
-        SELECT employee_code,
+        SELECT employee_id,
+               employee_code,
                employee_name,
                employee_email,
                employee_phone,
