@@ -52,9 +52,9 @@ public class AuthCommandService {
 
         // 3. 비밀번호가 일치 -> 로그인 성공 -> 토큰 생성 -> 발급
         String accessToken = this.jwtTokenProvider.createToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
 
         // 5. refresh token DB에 저장(보안 및 토큰 재발급 검증용)
         RefreshToken tokenEntity = RefreshToken.builder()
@@ -105,9 +105,9 @@ public class AuthCommandService {
 
         // 새로운 token 발급
         String accessToken = this.jwtTokenProvider.createToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
 
         // refresh token entity 생성 (저장용)
         RefreshToken tokenEntity = RefreshToken.builder()

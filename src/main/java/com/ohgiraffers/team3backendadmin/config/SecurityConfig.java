@@ -21,6 +21,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,13 +44,27 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     /* Spring Security와 연결된 설정 객체 */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // CSRF 처리 비활성화 (기본값 : 활성화)
-        // JWT는 세션 이용X (stateless) -> CSRF 보호가 필수적이지 않음
-        http.csrf(AbstractHttpConfigurer::disable)
+        // CSRF 비활성화: 모든 인증은 Authorization 헤더(Bearer JWT) 또는
+        // SameSite=Strict HttpOnly 쿠키(refreshToken)로 처리되므로 CSRF 공격 벡터 없음
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
                 // 세션 로그인X -> 토큰 로그인 설정 O
                 // 세션을 생성하지 않고, SecurityContextHolder에서 세션 저장 X
                 // 모든 요청에 독립적, 인증 정보는 클라이언트 요청 시 전달된 토큰에 의지함
