@@ -1,0 +1,88 @@
+### 로그인 후 accessToken 발급
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "employeeEmail": "masterAdmin@company.com",
+  "password": "password123!"
+}
+
+> {%
+    client.global.set("refreshToken", response.body.data.refreshToken);
+    client.global.set("accessToken", response.body.data.accessToken);
+%}
+
+### 설비 노후도 이력 상세 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-aging-params/6001
+Authorization: Bearer {{accessToken}}
+
+### 설비 노후도 이력 목록 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-aging-params?equipmentId=4001&calculatedFrom=2026-03-01T00:00:00&calculatedTo=2026-04-30T23:59:59
+Authorization: Bearer {{accessToken}}
+
+### 설비 노후도 최신 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-aging-params?mode=latest&equipmentId=4001
+Authorization: Bearer {{accessToken}}
+
+### 설비 노후도 기준 시점 이전 최신 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-aging-params?mode=as-of&equipmentId=4001&referenceTime=2026-04-01T09:00:00
+Authorization: Bearer {{accessToken}}
+
+### 설비 노후도 기준 시점 이후 첫 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-aging-params?mode=next&equipmentId=4001&referenceTime=2026-04-01T09:00:00
+Authorization: Bearer {{accessToken}}
+
+### 미계산 설비 노후도 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-aging-params?mode=uncalculated
+Authorization: Bearer {{accessToken}}
+
+### 설비 노후도 이력 수정
+PUT http://localhost:8080/api/v1/equipment-management/equipment-aging-params/6001
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "equipmentEtaAge": 12.50,
+  "equipmentWarrantyMonth": 24,
+  "equipmentDesignLifeMonths": 120,
+  "equipmentWearCoefficient": 0.85,
+  "equipmentAgeMonths": 14,
+  "equipmentAgeCalculatedAt": "2026-04-02T09:30:00"
+}
+
+### 설비 baseline 이력 상세 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-baselines/7001
+Authorization: Bearer {{accessToken}}
+
+### 설비 baseline 이력 목록 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-baselines?equipmentId=4001&calculatedFrom=2026-03-01T00:00:00&calculatedTo=2026-04-30T23:59:59
+Authorization: Bearer {{accessToken}}
+
+### 설비 baseline 최신 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-baselines?mode=latest&equipmentId=4001
+Authorization: Bearer {{accessToken}}
+
+### 설비 baseline 기준 시점 이전 최신 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-baselines?mode=as-of&equipmentId=4001&referenceTime=2026-04-01T09:00:00
+Authorization: Bearer {{accessToken}}
+
+### 설비 baseline 기준 시점 이후 첫 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-baselines?mode=next&equipmentId=4001&referenceTime=2026-04-01T09:00:00
+Authorization: Bearer {{accessToken}}
+
+### 미계산 설비 baseline 이력 조회
+GET http://localhost:8080/api/v1/equipment-management/equipment-baselines?mode=uncalculated
+Authorization: Bearer {{accessToken}}
+
+### 설비 baseline 이력 수정
+PUT http://localhost:8080/api/v1/equipment-management/equipment-baselines/7001
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "equipmentStandardPerformanceRate": 98.50,
+  "equipmentBaselineErrorRate": 1.20,
+  "equipmentEtaMaint": 3.75,
+  "equipmentIdx": 89.10,
+  "equipmentBaselineCalculatedAt": "2026-04-02T09:30:00"
+}

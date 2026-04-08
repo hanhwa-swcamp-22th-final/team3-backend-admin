@@ -20,13 +20,13 @@ import java.util.Date;
 public class RefreshToken {
 
     @Id
-    @Column(nullable = false)
+    @Column(name = "employee_code", nullable = false)
     private String employeeCode;
 
-    @Column(nullable = false, length = 1000)
+    @Column(name = "token", nullable = false, length = 1000)
     private String token;
 
-    @Column(nullable = false)
+    @Column(name = "expiry_date", nullable = false)
     private Date expiryDate;
 
 }

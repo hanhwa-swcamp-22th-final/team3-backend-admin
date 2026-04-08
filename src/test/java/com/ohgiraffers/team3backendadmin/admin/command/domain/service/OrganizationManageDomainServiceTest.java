@@ -1,7 +1,9 @@
 package com.ohgiraffers.team3backendadmin.admin.command.domain.service;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +29,9 @@ class OrganizationManageDomainServiceTest {
 
     @Mock
     private DepartmentRepository departmentRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
 
     @Nested
     @DisplayName("buildVerifiedDepartment 메서드")
@@ -117,11 +126,66 @@ class OrganizationManageDomainServiceTest {
             given(departmentRepository.findById(999L)).willReturn(Optional.empty());
 
             // when & then
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            DepartmentNotFoundException exception = assertThrows(
+                    DepartmentNotFoundException.class,
                     () -> organizationManageDomainService.buildVerifiedDepartment(input)
             );
             assertEquals("상위 부서를 찾을 수 없습니다", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("generateEmployeeCode 메서드")
+    class GenerateEmployeeCode {
+
+        @Test
+        @DisplayName("기존 사원이 없으면 001부터 시작한다")
+        void firstEmployeeOfMonth() {
+            // given
+            String prefix = "EMP" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyMM"));
+            given(employeeRepository.findTopByEmployeeCodeStartingWithOrderByEmployeeCodeDesc(prefix))
+                    .willReturn(Optional.empty());
+
+            // when
+            String code = organizationManageDomainService.generateEmployeeCode();
+
+            // then
+            assertEquals(prefix + "001", code);
+        }
+
+        @Test
+        @DisplayName("기존 사원이 있으면 코드가 순차 증가한다")
+        void incrementExistingCode() {
+            // given
+            String prefix = "EMP" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyMM"));
+            Employee existing = Employee.builder()
+                    .employeeCode(prefix + "005")
+                    .build();
+
+            given(employeeRepository.findTopByEmployeeCodeStartingWithOrderByEmployeeCodeDesc(prefix))
+                    .willReturn(Optional.of(existing));
+
+            // when
+            String code = organizationManageDomainService.generateEmployeeCode();
+
+            // then
+            assertEquals(prefix + "006", code);
+        }
+
+        @Test
+        @DisplayName("사원 코드 형식이 EMP + YY + MM + NNN이다")
+        void codeFormatIsYYMM() {
+            // given
+            String prefix = "EMP" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyMM"));
+            given(employeeRepository.findTopByEmployeeCodeStartingWithOrderByEmployeeCodeDesc(prefix))
+                    .willReturn(Optional.empty());
+
+            // when
+            String code = organizationManageDomainService.generateEmployeeCode();
+
+            // then
+            assertTrue(code.startsWith("EMP"));
+            assertEquals(10, code.length()); // EMP(3) + YY(2) + MM(2) + NNN(3) = 10
         }
     }
 }

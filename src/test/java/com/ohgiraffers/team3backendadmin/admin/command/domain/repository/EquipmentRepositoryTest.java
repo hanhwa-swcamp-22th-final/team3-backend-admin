@@ -1,12 +1,12 @@
 package com.ohgiraffers.team3backendadmin.admin.command.domain.repository;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentStandard;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EnvironmentType;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Equipment;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentGrade;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentProcess;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.EquipmentStatus;
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.FactoryLine;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -68,8 +68,8 @@ class EquipmentRepositoryTest {
             EnvironmentStandard.builder()
                 .environmentStandardId(idGenerator.generate())
                 .environmentType(EnvironmentType.DRYROOM)
-                .enviromentCode("ENV-" + idGenerator.generate())
-                .enviromentName("Dry Room Standard")
+                .environmentCode("ENV-" + idGenerator.generate())
+                .environmentName("Dry Room Standard")
                 .envTempMin(BigDecimal.valueOf(20.0))
                 .envTempMax(BigDecimal.valueOf(25.0))
                 .envHumidityMin(BigDecimal.valueOf(30.0))

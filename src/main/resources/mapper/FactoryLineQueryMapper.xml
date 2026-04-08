@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.FactoryLineQueryMapper">
+
+    <select id="selectFactoryLineList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineQueryResponse">
+        SELECT
+            factory_line_id AS factoryLineId,
+            factory_line_code AS factoryLineCode,
+            factory_line_name AS factoryLineName
+        FROM factory_line
+        WHERE is_deleted = false
+        <if test="request != null and request.keyword != null and request.keyword != ''">
+            AND (
+                factory_line_code LIKE CONCAT('%', #{request.keyword}, '%')
+                OR factory_line_name LIKE CONCAT('%', #{request.keyword}, '%')
+            )
+        </if>
+        ORDER BY factory_line_id DESC
+    </select>
+
+    <select id="selectFactoryLineDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineDetailResponse">
+        SELECT
+            factory_line_id AS factoryLineId,
+            factory_line_code AS factoryLineCode,
+            factory_line_name AS factoryLineName
+        FROM factory_line
+        WHERE factory_line_id = #{factoryLineId}
+          AND is_deleted = false
+    </select>
+
+    <select id="selectFactoryLineEquipmentStats" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.FactoryLineEquipmentStatsResponse">
+        SELECT
+            COUNT(e.equipment_id) AS totalEquipmentCount,
+            SUM(CASE WHEN e.equipment_status = 'OPERATING' THEN 1 ELSE 0 END) AS operatingEquipmentCount,
+            CASE
+                WHEN COUNT(e.equipment_id) = 0 THEN 0
+                ELSE ROUND(SUM(CASE WHEN e.equipment_status = 'OPERATING' THEN 1 ELSE 0 END) / COUNT(e.equipment_id) * 100, 2)
+            END AS operationRate
+        FROM factory_line fl
+        LEFT JOIN equipment_process ep
+            ON fl.factory_line_id = ep.factory_line_id
+        LEFT JOIN equipment e
+            ON ep.equipment_process_id = e.equipment_process_id
+        WHERE fl.factory_line_id = #{factoryLineId}
+          AND fl.is_deleted = false
+    </select>
+
+    <select id="selectFactoryLineIdByCode" resultType="java.lang.Long">
+        SELECT factory_line_id
+        FROM factory_line
+        WHERE factory_line_code = #{factoryLineCode}
+          AND is_deleted = false
+        LIMIT 1
+    </select>
+</mapper>

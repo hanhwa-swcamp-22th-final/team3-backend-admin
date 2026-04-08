@@ -1,15 +1,21 @@
 package com.ohgiraffers.team3backendadmin.admin.command.domain.service;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.Department;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.DepartmentRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EmployeeRepository;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
 public class OrganizationManageDomainService {
 
     private final DepartmentRepository departmentRepository;
+    private final EmployeeRepository employeeRepository;
 
     /**
      * 부서 등록 시 depth, teamName을 검증/결정한다.
@@ -30,7 +36,7 @@ public class OrganizationManageDomainService {
         }
 
         Department parentDepartment = departmentRepository.findById(parentDepartmentId)
-                .orElseThrow(() -> new IllegalArgumentException("상위 부서를 찾을 수 없습니다"));
+                .orElseThrow(() -> new DepartmentNotFoundException("상위 부서를 찾을 수 없습니다"));
 
         int parentLevel = Integer.parseInt(parentDepartment.getDepth().substring(1));
         String depth = "L" + (parentLevel + 1);
@@ -42,5 +48,17 @@ public class OrganizationManageDomainService {
                 .teamName(department.getTeamName())
                 .depth(depth)
                 .build();
+    }
+
+    public String generateEmployeeCode() {
+        String prefix = "EMP" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyMM"));
+
+        return employeeRepository.findTopByEmployeeCodeStartingWithOrderByEmployeeCodeDesc(prefix)
+                .map(employee -> {
+                    String lastCode = employee.getEmployeeCode();
+                    int lastNum = Integer.parseInt(lastCode.substring(prefix.length()));
+                    return prefix + String.format("%03d", lastNum + 1);
+                })
+                .orElse(prefix + "001");
     }
 }
