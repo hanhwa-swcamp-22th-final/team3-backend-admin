@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.AlgorithmVersionQueryMapper">
+
+    <select id="selectAlgorithmVersionList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.algorithmversion.AlgorithmVersionQueryResponse">
+        SELECT
+            algorithm_version_id AS algorithmVersionId,
+            version_no AS versionNo,
+            implementation_key AS implementationKey,
+            description AS description,
+            is_active AS isActive
+        FROM algorithm_version
+        WHERE 1 = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                version_no LIKE CONCAT('%', #{keyword}, '%')
+                OR implementation_key LIKE CONCAT('%', #{keyword}, '%')
+                OR description LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="isActive != null">
+            AND is_active = #{isActive}
+        </if>
+        ORDER BY algorithm_version_id DESC
+    </select>
+
+    <select id="selectAlgorithmVersionDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.algorithmversion.AlgorithmVersionDetailResponse">
+        SELECT
+            algorithm_version_id AS algorithmVersionId,
+            version_no AS versionNo,
+            implementation_key AS implementationKey,
+            description AS description,
+            is_active AS isActive,
+            created_at AS createdAt,
+            created_by AS createdBy,
+            updated_at AS updatedAt,
+            updated_by AS updatedBy
+        FROM algorithm_version
+        WHERE algorithm_version_id = #{algorithmVersionId}
+    </select>
+</mapper>
