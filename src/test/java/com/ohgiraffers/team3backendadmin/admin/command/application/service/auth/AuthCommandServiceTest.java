@@ -89,10 +89,10 @@ class AuthCommandServiceTest {
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);
             given(jwtTokenProvider.createToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
                     .willReturn("access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
                     .willReturn("refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
@@ -189,10 +189,10 @@ class AuthCommandServiceTest {
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);
             given(jwtTokenProvider.createToken(
-                    eq(2L), eq("EMP-0002"), eq("HRM")))
+                    eq(2L), eq("EMP-0002"), eq("HRM"), eq("김신입")))
                     .willReturn("access-token-hrm");
             given(jwtTokenProvider.createRefreshToken(
-                    eq(2L), eq("EMP-0002"), eq("HRM")))
+                    eq(2L), eq("EMP-0002"), eq("HRM"), eq("김신입")))
                     .willReturn("refresh-token-hrm");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
@@ -249,10 +249,10 @@ class AuthCommandServiceTest {
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(storedToken));
             given(employeeRepository.findByEmployeeCode("EMP-0001")).willReturn(Optional.of(employee));
             given(jwtTokenProvider.createToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
                     .willReturn("new-access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
                     .willReturn("new-refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
@@ -378,7 +378,7 @@ class AuthCommandServiceTest {
             assertTrue(cookie.isHttpOnly());
             assertEquals("/", cookie.getPath());
             assertEquals(Duration.ofDays(7), cookie.getMaxAge());
-            assertEquals("Strict", cookie.getSameSite());
+            assertEquals("Lax", cookie.getSameSite());
         }
     }
 
@@ -397,7 +397,7 @@ class AuthCommandServiceTest {
             assertTrue(cookie.isHttpOnly());
             assertEquals("/", cookie.getPath());
             assertEquals(Duration.ZERO, cookie.getMaxAge());
-            assertEquals("Strict", cookie.getSameSite());
+            assertEquals("Lax", cookie.getSameSite());
         }
     }
 }

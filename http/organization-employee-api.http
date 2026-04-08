@@ -18,13 +18,13 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "employeeName": "HRM테스트계정",
-  "employeeEmail": "hrmtest@company.com",
-  "employeePhone": "010-3399-9933",
+  "employeeName": "dL테스트계정",
+  "employeeEmail": "dlTest@test.com",
+  "employeePhone": "010-1122-2233",
   "employeeAddress": "서울시 양천구 목동 777",
-  "employeeEmergencyContact": "010-8118-8181",
+  "employeeEmergencyContact": "010-8787-1414",
   "employeePassword": "password123!",
-  "employeeRole": "HRM",
+  "employeeRole": "DL",
   "employeeStatus": "ACTIVE",
   "employeeTier": "S"
 }
