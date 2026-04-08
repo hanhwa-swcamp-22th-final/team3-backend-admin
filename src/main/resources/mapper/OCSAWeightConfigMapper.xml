@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.OCSAWeightConfigMapper">
+
+    <resultMap id="ocsaWeightConfigResultMap"
+               type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.OCSAWeightConfigResponse">
+        <id property="configId" column="config_id"/>
+        <result property="industryPresetName" column="industry_preset_name"/>
+        <result property="weightV1" column="weight_v1"/>
+        <result property="weightV2" column="weight_v2"/>
+        <result property="weightV3" column="weight_v3"/>
+        <result property="weightV4" column="weight_v4"/>
+        <result property="alphaWeight" column="alpha_weight"/>
+        <result property="effectiveDate" column="effective_date"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="updatedBy" column="updated_by"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="ocsaWeightConfigResultMap">
+        SELECT config_id,
+               industry_preset_name,
+               weight_v1,
+               weight_v2,
+               weight_v3,
+               weight_v4,
+               alpha_weight,
+               effective_date,
+               created_at,
+               created_by,
+               updated_at,
+               updated_by
+          FROM OCSA_weight_config
+         WHERE industry_preset_name != 'DELETED'
+         ORDER BY config_id
+    </select>
+
+</mapper>

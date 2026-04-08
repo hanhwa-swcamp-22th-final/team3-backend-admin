@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EnvironmentEventQueryMapper">
+
+    <select id="selectEnvironmentEventList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventQueryResponse">
+        SELECT
+            ee.environment_event_id AS environmentEventId,
+            ee.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ee.env_temperature AS envTemperature,
+            ee.env_humidity AS envHumidity,
+            ee.env_particle_cnt AS envParticleCnt,
+            ee.env_deviation_type AS envDeviationType,
+            ee.env_correction_applied AS envCorrectionApplied,
+            ee.env_detected_at AS envDetectedAt
+        FROM environment_event ee
+        INNER JOIN equipment e ON ee.equipment_id = e.equipment_id
+        WHERE 1 = 1
+        <if test="request != null and request.equipmentId != null">
+            AND ee.equipment_id = #{request.equipmentId}
+        </if>
+        <if test="request != null and request.envDeviationType != null">
+            AND ee.env_deviation_type = #{request.envDeviationType}
+        </if>
+        <if test="request != null and request.exactDetectedAt != null">
+            AND ee.env_detected_at = #{request.exactDetectedAt}
+        </if>
+        <if test="request != null and request.envDetectedFrom != null">
+            AND ee.env_detected_at &gt;= #{request.envDetectedFrom}
+        </if>
+        <if test="request != null and request.envDetectedTo != null">
+            AND ee.env_detected_at &lt;= #{request.envDetectedTo}
+        </if>
+        ORDER BY ee.environment_event_id DESC
+    </select>
+
+    <select id="selectEnvironmentEventDetailById" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
+        SELECT
+            ee.environment_event_id AS environmentEventId,
+            ee.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ee.env_temperature AS envTemperature,
+            ee.env_humidity AS envHumidity,
+            ee.env_particle_cnt AS envParticleCnt,
+            ee.env_deviation_type AS envDeviationType,
+            ee.env_correction_applied AS envCorrectionApplied,
+            ee.env_detected_at AS envDetectedAt
+        FROM environment_event ee
+        INNER JOIN equipment e ON ee.equipment_id = e.equipment_id
+        WHERE ee.environment_event_id = #{environmentEventId}
+    </select>
+
+    <select id="selectLatestEnvironmentEventByEquipmentId" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
+        SELECT
+            ee.environment_event_id AS environmentEventId,
+            ee.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ee.env_temperature AS envTemperature,
+            ee.env_humidity AS envHumidity,
+            ee.env_particle_cnt AS envParticleCnt,
+            ee.env_deviation_type AS envDeviationType,
+            ee.env_correction_applied AS envCorrectionApplied,
+            ee.env_detected_at AS envDetectedAt
+        FROM environment_event ee
+        INNER JOIN equipment e ON ee.equipment_id = e.equipment_id
+        WHERE ee.equipment_id = #{equipmentId}
+        ORDER BY ee.env_detected_at DESC, ee.environment_event_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestEnvironmentEventBeforeOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
+        SELECT
+            ee.environment_event_id AS environmentEventId,
+            ee.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ee.env_temperature AS envTemperature,
+            ee.env_humidity AS envHumidity,
+            ee.env_particle_cnt AS envParticleCnt,
+            ee.env_deviation_type AS envDeviationType,
+            ee.env_correction_applied AS envCorrectionApplied,
+            ee.env_detected_at AS envDetectedAt
+        FROM environment_event ee
+        INNER JOIN equipment e ON ee.equipment_id = e.equipment_id
+        WHERE ee.equipment_id = #{equipmentId}
+          AND ee.env_detected_at &lt;= #{referenceTime}
+        ORDER BY ee.env_detected_at DESC, ee.environment_event_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectFirstEnvironmentEventAfterOrAt" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventDetailResponse">
+        SELECT
+            ee.environment_event_id AS environmentEventId,
+            ee.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ee.env_temperature AS envTemperature,
+            ee.env_humidity AS envHumidity,
+            ee.env_particle_cnt AS envParticleCnt,
+            ee.env_deviation_type AS envDeviationType,
+            ee.env_correction_applied AS envCorrectionApplied,
+            ee.env_detected_at AS envDetectedAt
+        FROM environment_event ee
+        INNER JOIN equipment e ON ee.equipment_id = e.equipment_id
+        WHERE ee.equipment_id = #{equipmentId}
+          AND ee.env_detected_at &gt;= #{referenceTime}
+        ORDER BY ee.env_detected_at ASC, ee.environment_event_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectUnresolvedEnvironmentEventList" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EnvironmentEventQueryResponse">
+        SELECT
+            ee.environment_event_id AS environmentEventId,
+            ee.equipment_id AS equipmentId,
+            e.equipment_code AS equipmentCode,
+            e.equipment_name AS equipmentName,
+            ee.env_temperature AS envTemperature,
+            ee.env_humidity AS envHumidity,
+            ee.env_particle_cnt AS envParticleCnt,
+            ee.env_deviation_type AS envDeviationType,
+            ee.env_correction_applied AS envCorrectionApplied,
+            ee.env_detected_at AS envDetectedAt
+        FROM environment_event ee
+        INNER JOIN equipment e ON ee.equipment_id = e.equipment_id
+        WHERE ee.env_correction_applied = false
+        ORDER BY ee.env_detected_at DESC, ee.environment_event_id DESC
+    </select>
+</mapper>

@@ -1,0 +1,62 @@
+### 로그인
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "employeeEmail": "sinseon2000@naver.com",
+  "password": "password123!"
+}
+
+> {%
+    client.global.set("refreshToken", response.body.data.refreshToken);
+    client.global.set("accessToken", response.body.data.accessToken);
+%}
+
+### 토큰 갱신 (refreshToken 쿠키 필요)
+POST http://localhost:8080/api/v1/auth/refresh
+Cookie: refreshToken={{refreshToken}}
+
+> {%
+    client.global.set("refreshToken", response.body.data.refreshToken);
+    client.global.set("accessToken", response.body.data.accessToken);
+%}
+
+### 로그아웃 (refreshToken 쿠키 필요)
+POST http://localhost:8080/api/v1/auth/logout
+Cookie: refreshToken={{refreshToken}}
+
+### 프로필 수정 - 전체 필드 수정
+PUT http://localhost:8080/api/v1/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeName": "김신우",
+  "employeeEmail": "sinseon2000@naver.com",
+  "employeePhone": "010-7162-1888",
+  "employeeAddress": "강남구 용산구 마포구",
+  "employeeEmergencyContact": "010-1111-2222"
+}
+
+### 프로필 수정 - 특정 필드만 수정
+PUT http://localhost:8080/api/v1/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeName": "김신우의아이디다",
+  "employeeEmail": null,
+  "employeePhone": "010-9999-8888",
+  "employeeAddress": "신검단중앙",
+  "employeeEmergencyContact": "112-112-112"
+}
+
+### 비밀번호 변경
+PUT http://localhost:8080/api/v1/auth/password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "currentPassword": "password1237!",
+  "newPassword": "password123!"
+}

@@ -1,0 +1,99 @@
+### 로그인 후 accessToken 발급
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "employeeEmail": "masterAdmin@company.com",
+  "password": "password123!"
+}
+
+> {%
+    client.global.set("refreshToken", response.body.data.refreshToken);
+    client.global.set("accessToken", response.body.data.accessToken);
+%}
+
+### 환경 기준 생성
+POST http://localhost:8080/api/v1/equipment-management/environment-standards
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "environmentType": "CLEANROOM",
+  "environmentCode": "ENV-API-002",
+  "environmentName": "API Cleanroom Standard",
+  "envTempMin": 18.0,
+  "envTempMax": 24.0,
+  "envHumidityMin": 40.0,
+  "envHumidityMax": 55.0,
+  "envParticleLimit": 1000
+}
+
+### 환경 기준 수정
+PUT http://localhost:8080/api/v1/equipment-management/environment-standards/1774945495578737
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "environmentType": "CLEANROOM",
+  "environmentCode": "ENV-API-999",
+  "environmentName": "API Updated Cleanroom Standard",
+  "envTempMin": 19.0,
+  "envTempMax": 23.0,
+  "envHumidityMin": 42.0,
+  "envHumidityMax": 53.0,
+  "envParticleLimit": 800
+}
+
+### 환경 기준 삭제
+DELETE http://localhost:8080/api/v1/equipment-management/environment-standards/1774942628513365
+Authorization: Bearer {{accessToken}}
+
+### 환경 기준 목록 조회
+GET http://localhost:8080/api/v1/equipment-management/environment-standards?keyword=API&environmentType=CLEANROOM
+Authorization: Bearer {{accessToken}}
+
+### 환경 기준 상세 조회
+GET http://localhost:8080/api/v1/equipment-management/environment-standards/3001
+Authorization: Bearer {{accessToken}}
+
+### 환경 이벤트 생성
+POST http://localhost:8080/api/v1/equipment-management/environment-events
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "equipmentId": 4001,
+  "envTemperature": 25.8,
+  "envHumidity": 61.2,
+  "envParticleCnt": 1500,
+  "envDeviationType": "TEMP_DEVIATION",
+  "envCorrectionApplied": false,
+  "envDetectedAt": "2026-03-31T09:30:00"
+}
+
+### 환경 이벤트 수정
+PUT http://localhost:8080/api/v1/equipment-management/environment-events/5001
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "equipmentId": 4001,
+  "envTemperature": 23.4,
+  "envHumidity": 49.8,
+  "envParticleCnt": 900,
+  "envDeviationType": "HUMIDITY_DEVIATION",
+  "envCorrectionApplied": true,
+  "envDetectedAt": "2026-03-31T10:15:00"
+}
+
+### 환경 이벤트 삭제
+DELETE http://localhost:8080/api/v1/equipment-management/environment-events/5001
+Authorization: Bearer {{accessToken}}
+
+### 환경 이벤트 목록 조회
+GET http://localhost:8080/api/v1/equipment-management/environment-events?equipmentId=4001&envDeviationType=TEMP_DEVIATION
+Authorization: Bearer {{accessToken}}
+
+### 환경 이벤트 상세 조회
+GET http://localhost:8080/api/v1/equipment-management/environment-events/5001
+Authorization: Bearer {{accessToken}}

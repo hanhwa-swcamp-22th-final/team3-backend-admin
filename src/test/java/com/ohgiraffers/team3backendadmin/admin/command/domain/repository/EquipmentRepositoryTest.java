@@ -1,6 +1,12 @@
 package com.ohgiraffers.team3backendadmin.admin.command.domain.repository;
 
-import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.*;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentProcess;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentStatus;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.FactoryLine;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,136 +18,107 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class EquipmentRepositoryTest {
 
-  @Autowired
-  private EquipmentRepository equipmentRepository;
+    @Autowired
+    private EquipmentRepository equipmentRepository;
 
-  @Autowired
-  private FactoryLineRepository factoryLineRepository;
+    @Autowired
+    private FactoryLineRepository factoryLineRepository;
 
-  @Autowired
-  private EquipmentProcessRepository equipmentProcessRepository;
+    @Autowired
+    private EquipmentProcessRepository equipmentProcessRepository;
 
-  @Autowired
-  private EnvironmentStandardRepository environmentStandardRepository;
+    @Autowired
+    private EnvironmentStandardRepository environmentStandardRepository;
 
-  private final TimeBasedIdGenerator idGenerator = new TimeBasedIdGenerator();
+    private final TimeBasedIdGenerator idGenerator = new TimeBasedIdGenerator();
 
-  private FactoryLine factoryLine;
-  private EquipmentProcess equipmentProcess;
-  private EnvironmentStandard environmentStandard;
+    private FactoryLine factoryLine;
+    private EquipmentProcess equipmentProcess;
+    private EnvironmentStandard environmentStandard;
+    private Equipment equipment;
 
-  @BeforeEach
-  void setUp() {
-    factoryLine = factoryLineRepository.save(
-        new FactoryLine(
-            idGenerator.generate(),
-            "LINE-" + idGenerator.generate(),
-            "1라인"
-        )
-    );
+    @BeforeEach
+    void setUp() {
+        factoryLine = factoryLineRepository.save(
+            new FactoryLine(
+                idGenerator.generate(),
+                "LINE-" + idGenerator.generate(),
+                "Line 1"
+            )
+        );
 
-    equipmentProcess = equipmentProcessRepository.save(
-        new EquipmentProcess(
-            idGenerator.generate(),
-            factoryLine.getFactoryLineId(),
-            "PROC-" + idGenerator.generate(),
-            "건조 공정"
-        )
-    );
+        equipmentProcess = equipmentProcessRepository.save(
+            new EquipmentProcess(
+                idGenerator.generate(),
+                factoryLine.getFactoryLineId(),
+                "PROC-" + idGenerator.generate(),
+                "Drying Process"
+            )
+        );
 
-    environmentStandard = environmentStandardRepository.save(
-        new EnvironmentStandard(
-            idGenerator.generate(),
-            EnvironmentType.DRYROOM,
-            BigDecimal.valueOf(20.0),
-            BigDecimal.valueOf(25.0),
-            BigDecimal.valueOf(30.0),
-            BigDecimal.valueOf(40.0),
-            1000
-        )
-    );
-  }
+        environmentStandard = environmentStandardRepository.save(
+            EnvironmentStandard.builder()
+                .environmentStandardId(idGenerator.generate())
+                .environmentType(EnvironmentType.DRYROOM)
+                .environmentCode("ENV-" + idGenerator.generate())
+                .environmentName("Dry Room Standard")
+                .envTempMin(BigDecimal.valueOf(20.0))
+                .envTempMax(BigDecimal.valueOf(25.0))
+                .envHumidityMin(BigDecimal.valueOf(30.0))
+                .envHumidityMax(BigDecimal.valueOf(40.0))
+                .envParticleLimit(1000)
+                .build()
+        );
 
-  @Test
-  @DisplayName("설비 저장 성공: 엔티티가 저장된다")
-  void save_success() {
-    Equipment equipment = new Equipment(
-        idGenerator.generate(),
-        equipmentProcess.getEquipmentProcessId(),
-        environmentStandard.getEnvironmentStandardId(),
-        "EQ-" + idGenerator.generate(),
-        "건조 설비",
-        EquipmentStatus.OPERATING,
-        EquipmentGrade.A,
-        "초기 설명"
-    );
+        equipment = Equipment.builder()
+            .equipmentId(idGenerator.generate())
+            .equipmentProcessId(equipmentProcess.getEquipmentProcessId())
+            .environmentStandardId(environmentStandard.getEnvironmentStandardId())
+            .equipmentCode("EQ-" + idGenerator.generate())
+            .equipmentName("Drying Equipment")
+            .equipmentStatus(EquipmentStatus.OPERATING)
+            .equipmentGrade(EquipmentGrade.A)
+            .equipmentDescription("Initial description")
+            .build();
+    }
 
-    Equipment savedEquipment = equipmentRepository.save(equipment);
+    @Test
+    @DisplayName("Save equipment success: entity is stored")
+    void save_success() {
+        Equipment savedEquipment = equipmentRepository.save(equipment);
 
-    assertNotNull(savedEquipment);
-    assertEquals(equipment.getEquipmentId(), savedEquipment.getEquipmentId());
-    assertEquals(equipment.getEquipmentCode(), savedEquipment.getEquipmentCode());
-  }
+        assertNotNull(savedEquipment);
+        assertEquals(equipment.getEquipmentId(), savedEquipment.getEquipmentId());
+        assertEquals(equipment.getEquipmentCode(), savedEquipment.getEquipmentCode());
+        assertEquals("Drying Equipment", savedEquipment.getEquipmentName());
+    }
 
-  @Test
-  @DisplayName("설비 ID 조회 성공: 저장한 설비를 조회한다")
-  void findById_success() {
-    Equipment equipment = equipmentRepository.save(
-        new Equipment(
-            idGenerator.generate(),
-            equipmentProcess.getEquipmentProcessId(),
-            environmentStandard.getEnvironmentStandardId(),
-            "EQ-" + idGenerator.generate(),
-            "혼합 설비",
-            EquipmentStatus.OPERATING,
-            EquipmentGrade.B,
-            "상세 설명"
-        )
-    );
+    @Test
+    @DisplayName("Find equipment by id success: stored equipment is returned")
+    void findById_success() {
+        Equipment savedEquipment = equipmentRepository.save(equipment);
 
-    Optional<Equipment> result = equipmentRepository.findById(equipment.getEquipmentId());
+        Optional<Equipment> result = equipmentRepository.findById(savedEquipment.getEquipmentId());
 
-    assertTrue(result.isPresent());
-    assertEquals(equipment.getEquipmentId(), result.get().getEquipmentId());
-    assertEquals("혼합 설비", result.get().getEquipmentName());
-  }
+        assertTrue(result.isPresent());
+        assertEquals(savedEquipment.getEquipmentId(), result.get().getEquipmentId());
+        assertEquals("Drying Equipment", result.get().getEquipmentName());
+        assertEquals(EquipmentGrade.A, result.get().getEquipmentGrade());
+    }
 
-  @Test
-  @DisplayName("설비 코드 조회 성공: 등록된 코드로 설비를 조회한다")
-  void findByEquipmentCode_success() {
-    String equipmentCode = "EQ-" + idGenerator.generate();
+    @Test
+    @DisplayName("Find equipment by id failure: return empty when id does not exist")
+    void findById_whenNotFound_thenEmpty() {
+        Optional<Equipment> result = equipmentRepository.findById(-1L);
 
-    equipmentRepository.save(
-        new Equipment(
-            idGenerator.generate(),
-            equipmentProcess.getEquipmentProcessId(),
-            environmentStandard.getEnvironmentStandardId(),
-            equipmentCode,
-            "코팅 설비",
-            EquipmentStatus.OPERATING,
-            EquipmentGrade.S,
-            "코드 조회 테스트"
-        )
-    );
-
-    Optional<Equipment> result = equipmentRepository.findByEquipmentCode(equipmentCode);
-
-    assertTrue(result.isPresent());
-    assertEquals(equipmentCode, result.get().getEquipmentCode());
-    assertEquals("코팅 설비", result.get().getEquipmentName());
-  }
-
-  @Test
-  @DisplayName("설비 코드 조회 실패: 존재하지 않는 코드면 empty를 반환한다")
-  void findByEquipmentCode_whenNotFound_thenEmpty() {
-    Optional<Equipment> result = equipmentRepository.findByEquipmentCode("EQ-NOT-FOUND");
-
-    assertTrue(result.isEmpty());
-  }
+        assertTrue(result.isEmpty());
+    }
 }
