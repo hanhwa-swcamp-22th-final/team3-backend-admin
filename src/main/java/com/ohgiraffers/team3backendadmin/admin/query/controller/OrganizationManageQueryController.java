@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.DepartmentResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.DepartmentManageQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.EmployeeManageQueryService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
@@ -71,5 +72,16 @@ public class OrganizationManageQueryController {
     public ResponseEntity<ApiResponse<List<EmployeeResponse>>> getAllEmployees() {
         List<EmployeeResponse> employees = employeeManageQueryService.getAllEmployees();
         return ResponseEntity.ok(ApiResponse.success(employees));
+    }
+
+    /**
+     * 사원 요약 목록 조회 (이름, 코드, 등급, 입사일, 라인명, 설비명)
+     * @return ResponseEntity<ApiResponse<List<EmployeeSummaryResponse>>>
+     */
+    @GetMapping("/employees/summary")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<ApiResponse<List<EmployeeSummaryResponse>>> getEmployeeSummaries() {
+        List<EmployeeSummaryResponse> summaries = employeeManageQueryService.getAllEmployeeSummaries();
+        return ResponseEntity.ok(ApiResponse.success(summaries));
     }
 }

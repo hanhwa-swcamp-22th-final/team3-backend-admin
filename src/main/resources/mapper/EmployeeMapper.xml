@@ -16,6 +16,7 @@
         <result property="employeeRole" column="employee_role"/>
         <result property="employeeStatus" column="employee_status"/>
         <result property="employeeTier" column="employee_tier"/>
+        <result property="hireDate" column="hire_date"/>
     </resultMap>
 
     <select id="findByEmployeeCode" resultMap="employeeResultMap">
@@ -28,7 +29,8 @@
                employee_emergency_contact,
                employee_role,
                employee_status,
-               employee_tier
+               employee_tier,
+               hire_date
           FROM employee
          WHERE employee_code = #{employeeCode}
     </select>
@@ -43,9 +45,35 @@
                employee_emergency_contact,
                employee_role,
                employee_status,
-               employee_tier
+               employee_tier,
+               hire_date
           FROM employee
          ORDER BY employee_id
+    </select>
+
+    <resultMap id="employeeSummaryResultMap"
+               type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse">
+        <result property="employeeName" column="employee_name"/>
+        <result property="employeeCode" column="employee_code"/>
+        <result property="employeeTier" column="employee_tier"/>
+        <result property="hireDate" column="hire_date"/>
+        <result property="factoryLineName" column="factory_line_name"/>
+        <result property="equipmentName" column="equipment_name"/>
+    </resultMap>
+
+    <select id="findAllSummary" resultMap="employeeSummaryResultMap">
+        SELECT e.employee_name,
+               e.employee_code,
+               e.employee_tier,
+               e.hire_date,
+               fl.factory_line_name,
+               eq.equipment_name
+          FROM employee e
+          LEFT JOIN worker_deployment wd ON e.employee_id = wd.employee_id
+          LEFT JOIN equipment eq ON wd.equipment_id = eq.equipment_id
+          LEFT JOIN equipment_process ep ON eq.equipment_process_id = ep.equipment_process_id
+          LEFT JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+         ORDER BY e.employee_id
     </select>
 
 </mapper>

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -58,6 +59,9 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     @Column(name = "employee_tier")
     private EmployeeTier employeeTier;
+
+    @Column(name = "hire_date")
+    private LocalDate hireDate;
 
     @Builder.Default
     @Column(name = "mfa_enabled")

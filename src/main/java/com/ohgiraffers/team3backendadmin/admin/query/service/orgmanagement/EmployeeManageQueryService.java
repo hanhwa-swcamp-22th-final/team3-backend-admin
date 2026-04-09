@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EmployeeMapper;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
@@ -28,6 +29,10 @@ public class EmployeeManageQueryService {
         List<EmployeeResponse> employees = employeeMapper.findAll();
         employees.forEach(this::decryptEmployeeInfo);
         return employees;
+    }
+
+    public List<EmployeeSummaryResponse> getAllEmployeeSummaries() {
+        return employeeMapper.findAllSummary();
     }
 
     private EmployeeResponse decryptEmployeeInfo(EmployeeResponse employee) {

@@ -1,0 +1,19 @@
+package com.ohgiraffers.team3backendadmin.admin.query.dto.response;
+
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+
+@Getter
+@NoArgsConstructor
+public class EmployeeSummaryResponse {
+
+    private String employeeName;
+    private String employeeCode;
+    private EmployeeTier employeeTier;
+    private LocalDate hireDate;
+    private String factoryLineName;
+    private String equipmentName;
+}

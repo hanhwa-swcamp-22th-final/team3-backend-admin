@@ -2,6 +2,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgm
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeDepartmentMatchRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDepartmentMatchResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.consent.Consent;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.department.Department;
@@ -32,6 +33,9 @@ import com.ohgiraffers.team3backendadmin.common.exception.DuplicateFieldExceptio
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.math.BigDecimal;
+
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,7 +102,14 @@ class EmployeeManageCommandServiceTest {
                     "password123",
                     EmployeeRole.WORKER,
                     EmployeeStatus.ACTIVE,
-                    EmployeeTier.B
+                    EmployeeTier.B,
+                    LocalDate.of(2026, 4, 9),
+                    new BigDecimal("85.00"),
+                    new BigDecimal("70.00"),
+                    new BigDecimal("60.00"),
+                    new BigDecimal("90.00"),
+                    new BigDecimal("75.00"),
+                    new BigDecimal("80.00")
             );
         }
 
@@ -118,9 +129,11 @@ class EmployeeManageCommandServiceTest {
             given(passwordEncoder.encode(anyString())).willAnswer(invocation -> "$2a$10$" + invocation.getArgument(0));
 
             // when
-            employeeManageCommandService.insertEmployee(request, "EMP-0001");
+            EmployeeCreateResponse response = employeeManageCommandService.insertEmployee(request, "EMP-0001");
 
             // then
+            assertEquals("EMP2603001", response.getEmployeeCode());
+
             ArgumentCaptor<Employee> captor = ArgumentCaptor.forClass(Employee.class);
             verify(employeeRepository).save(captor.capture());
 
@@ -137,12 +150,25 @@ class EmployeeManageCommandServiceTest {
             assertEquals(EmployeeRole.WORKER, saved.getEmployeeRole());
             assertEquals(EmployeeStatus.ACTIVE, saved.getEmployeeStatus());
             assertEquals(EmployeeTier.B, saved.getEmployeeTier());
+            assertEquals(LocalDate.of(2026, 4, 9), saved.getHireDate());
             assertFalse(saved.getMfaEnabled());
             assertEquals(0, saved.getLoginFailCount());
             assertFalse(saved.getIsLocked());
 
-            // 6개의 기본 스킬 레코드가 생성되는지 확인
-            verify(skillRepository, times(6)).save(any(Skill.class));
+            // 6개의 스킬 레코드가 사용자 입력값으로 생성되는지 확인
+            ArgumentCaptor<Skill> skillCaptor = ArgumentCaptor.forClass(Skill.class);
+            verify(skillRepository, times(6)).save(skillCaptor.capture());
+
+            java.util.List<Skill> savedSkills = skillCaptor.getAllValues();
+            java.util.Map<com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory, BigDecimal> scoreMap = new java.util.HashMap<>();
+            savedSkills.forEach(s -> scoreMap.put(s.getSkillCategory(), s.getSkillScore()));
+
+            assertEquals(new BigDecimal("85.00"), scoreMap.get(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory.EQUIPMENT_RESPONSE));
+            assertEquals(new BigDecimal("70.00"), scoreMap.get(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory.TECHNICAL_TRANSFER));
+            assertEquals(new BigDecimal("60.00"), scoreMap.get(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory.INNOVATION_PROPOSAL));
+            assertEquals(new BigDecimal("90.00"), scoreMap.get(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory.SAFETY_COMPLIANCE));
+            assertEquals(new BigDecimal("75.00"), scoreMap.get(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory.QUALITY_MANAGEMENT));
+            assertEquals(new BigDecimal("80.00"), scoreMap.get(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory.PRODUCTIVITY));
 
             // 기본 약관 동의 레코드가 생성되는지 확인
             verify(consentRepository).save(any(Consent.class));
