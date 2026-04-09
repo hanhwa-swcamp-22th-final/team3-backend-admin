@@ -13,16 +13,17 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnvironmentEventSnapshotEvent {
+public class EnvironmentStandardSnapshotEvent {
 
-    private Long environmentEventId;
-    private Long equipmentId;
-    private BigDecimal envTemperature;
-    private BigDecimal envHumidity;
-    private Integer envParticleCnt;
-    private String envDeviationType;
-    private Boolean envCorrectionApplied;
-    private LocalDateTime envDetectedAt;
+    private Long environmentStandardId;
+    private String environmentType;
+    private String environmentCode;
+    private String environmentName;
+    private BigDecimal envTempMin;
+    private BigDecimal envTempMax;
+    private BigDecimal envHumidityMin;
+    private BigDecimal envHumidityMax;
+    private Integer envParticleLimit;
     private Boolean deleted;
     private LocalDateTime occurredAt;
 }

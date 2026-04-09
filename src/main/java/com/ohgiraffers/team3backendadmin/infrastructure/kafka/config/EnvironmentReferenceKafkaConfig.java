@@ -1,6 +1,6 @@
 package com.ohgiraffers.team3backendadmin.infrastructure.kafka.config;
 
-import com.ohgiraffers.team3backendadmin.infrastructure.kafka.dto.EnvironmentEventSnapshotEvent;
+import com.ohgiraffers.team3backendadmin.infrastructure.kafka.dto.EnvironmentStandardSnapshotEvent;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -20,7 +20,7 @@ public class EnvironmentReferenceKafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, EnvironmentEventSnapshotEvent> environmentEventSnapshotProducerFactory() {
+    public ProducerFactory<String, EnvironmentStandardSnapshotEvent> environmentStandardSnapshotProducerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -30,7 +30,7 @@ public class EnvironmentReferenceKafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, EnvironmentEventSnapshotEvent> environmentEventSnapshotKafkaTemplate() {
-        return new KafkaTemplate<>(environmentEventSnapshotProducerFactory());
+    public KafkaTemplate<String, EnvironmentStandardSnapshotEvent> environmentStandardSnapshotKafkaTemplate() {
+        return new KafkaTemplate<>(environmentStandardSnapshotProducerFactory());
     }
 }
