@@ -12,21 +12,53 @@ Content-Type: application/json
     client.global.set("refreshToken", response.body.data.refreshToken);
 %}
 
-### 사원 등록
+### 신규 사원 등록
 POST http://localhost:8080/api/v1/organization/employee
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "employeeName": "dL테스트계정",
-  "employeeEmail": "dlTest@test.com",
-  "employeePhone": "010-1122-2233",
-  "employeeAddress": "서울시 양천구 목동 777",
-  "employeeEmergencyContact": "010-8787-1414",
+  "employeeName": "테스트하고싶어요",
+  "employeeEmail": "test99test@test.com",
+  "employeePhone": "010-1122-3111",
+  "employeeAddress": "서울시마포구서포구양천구용산구관악구",
+  "employeeEmergencyContact": "010-8778-0001",
   "employeePassword": "password123!",
+  "employeeRole": "WORKER",
+  "employeeStatus": "ACTIVE",
+  "employeeTier": "A",
+  "hireDate": "2026-01-15",
+  "equipmentResponse": 59.3,
+  "technicalTransfer": 60.0,
+  "innovationProposal": 65,
+  "safetyCompliance": 60,
+  "qualityManagement": 60,
+  "productivity": 60
+}
+
+### 사원 정보 수정 (부분 업데이트 - null 필드는 변경되지 않음)
+PUT http://localhost:8080/api/v1/organization/employee
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "employeeId": 1775720022100564,
+  "employeeName": "테스트9테스트8",
+  "employeeEmail":  null,
+  "employeePhone": null,
+  "employeeAddress": null,
+  "employeeEmergencyContact": null,
+  "employeePassword": null,
   "employeeRole": "DL",
   "employeeStatus": "ACTIVE",
-  "employeeTier": "S"
+  "employeeTier": null,
+  "hireDate": "2026-09-16",
+  "equipmentResponse": 77.7,
+  "technicalTransfer": 77.7,
+  "innovationProposal": 77.7,
+  "safetyCompliance": 77.7,
+  "qualityManagement": 77.7,
+  "productivity": 77.7
 }
 
 ### 사원 등록 실패 - 필수 항목 누락 (400 Bad Request)

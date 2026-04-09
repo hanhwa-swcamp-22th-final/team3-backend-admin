@@ -2,9 +2,11 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgm
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeDepartmentMatchRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.employee.EmployeeUpdateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDepartmentMatchResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDeleteResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
@@ -167,6 +169,80 @@ public class EmployeeManageCommandService {
                 .employeeName(target.getEmployeeName())
                 .employeeCode(target.getEmployeeCode())
                 .departmentId(target.getDepartmentId())
+                .build();
+    }
+
+    // Update Employee
+    @Transactional
+    public EmployeeUpdateResponse updateEmployee(EmployeeUpdateRequest request, String adminCode) {
+
+        employeeRepository.findByEmployeeCode(adminCode)
+                .orElseThrow(AdminAccessDeniedException::new);
+
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
+                .orElseThrow(EmployeeNotFoundException::new);
+
+        // 이메일 변경 시 중복 체크
+        String encryptedEmail = null;
+        if (request.getEmployeeEmail() != null) {
+            encryptedEmail = aesEncryptor.encrypt(request.getEmployeeEmail());
+            if (employeeRepository.existsByEmployeeEmailAndEmployeeIdNot(encryptedEmail, employee.getEmployeeId())) {
+                throw new DuplicateFieldException("이미 사용중인 이메일 입니다");
+            }
+        }
+
+        // 전화번호 변경 시 중복 체크
+        String encryptedPhone = null;
+        if (request.getEmployeePhone() != null) {
+            encryptedPhone = aesEncryptor.encrypt(request.getEmployeePhone());
+            if (employeeRepository.existsByEmployeePhoneAndEmployeeIdNot(encryptedPhone, employee.getEmployeeId())) {
+                throw new DuplicateFieldException("이미 사용중인 전화번호 입니다");
+            }
+        }
+
+        // 비밀번호 인코딩
+        String encodedPassword = request.getEmployeePassword() != null
+                ? passwordEncoder.encode(request.getEmployeePassword())
+                : null;
+
+        // 암호화 처리된 값으로 엔티티 업데이트
+        employee.updateByAdmin(
+                request.getEmployeeName(),
+                encryptedEmail,
+                encryptedPhone,
+                request.getEmployeeAddress() != null ? aesEncryptor.encrypt(request.getEmployeeAddress()) : null,
+                request.getEmployeeEmergencyContact() != null ? aesEncryptor.encrypt(request.getEmployeeEmergencyContact()) : null,
+                encodedPassword,
+                request.getEmployeeRole(),
+                request.getEmployeeStatus(),
+                request.getEmployeeTier(),
+                request.getHireDate()
+        );
+
+        // 스킬 점수 업데이트 (non-null인 항목만)
+        Arrays.stream(SkillCategory.values())
+                .forEach(category -> {
+                    BigDecimal score = request.getScoreFor(category);
+                    if (score != null) {
+                        skillRepository.findByEmployeeIdAndSkillCategory(employee.getEmployeeId(), category)
+                                .ifPresent(skill -> skill.updateScore(score));
+                    }
+                });
+
+        publishEmployeeSnapshotAfterCommit(employee);
+
+        return EmployeeUpdateResponse.builder()
+                .employeeId(employee.getEmployeeId())
+                .employeeCode(employee.getEmployeeCode())
+                .employeeName(employee.getEmployeeName())
+                .employeeEmail(request.getEmployeeEmail() != null ? request.getEmployeeEmail() : aesEncryptor.decrypt(employee.getEmployeeEmail()))
+                .employeePhone(request.getEmployeePhone() != null ? request.getEmployeePhone() : aesEncryptor.decrypt(employee.getEmployeePhone()))
+                .employeeAddress(request.getEmployeeAddress() != null ? request.getEmployeeAddress() : aesEncryptor.decrypt(employee.getEmployeeAddress()))
+                .employeeEmergencyContact(request.getEmployeeEmergencyContact() != null ? request.getEmployeeEmergencyContact() : aesEncryptor.decrypt(employee.getEmployeeEmergencyContact()))
+                .employeeRole(employee.getEmployeeRole())
+                .employeeStatus(employee.getEmployeeStatus())
+                .employeeTier(employee.getEmployeeTier())
+                .hireDate(employee.getHireDate())
                 .build();
     }
 
