@@ -1,6 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service;
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EmployeeMapper;
 import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.EmployeeManageQueryService;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
@@ -13,11 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeManageQueryServiceTest {
@@ -45,6 +49,7 @@ class EmployeeManageQueryServiceTest {
             response.setEmployeePhone("ENCRYPTED_PHONE");
             response.setEmployeeAddress("ENCRYPTED_ADDR");
             response.setEmployeeEmergencyContact("ENCRYPTED_CONTACT");
+            response.setHireDate(LocalDate.of(2026, 1, 15));
 
             given(employeeMapper.findByEmployeeCode("EMP001")).willReturn(response);
             given(aesEncryptor.decrypt(anyString())).willAnswer(invocation -> "DECRYPTED_" + invocation.getArgument(0));
@@ -56,6 +61,7 @@ class EmployeeManageQueryServiceTest {
             assertNotNull(result);
             assertEquals("DECRYPTED_ENCRYPTED_EMAIL", result.getEmployeeEmail());
             assertEquals("DECRYPTED_ENCRYPTED_PHONE", result.getEmployeePhone());
+            assertEquals(LocalDate.of(2026, 1, 15), result.getHireDate());
         }
 
         @Test
@@ -96,6 +102,41 @@ class EmployeeManageQueryServiceTest {
             assertEquals(2, result.size());
             assertEquals("D_E1", result.get(0).getEmployeeEmail());
             assertEquals("D_E2", result.get(1).getEmployeeEmail());
+        }
+    }
+
+    @Nested
+    @DisplayName("getAllEmployeeSummaries 메서드")
+    class GetAllEmployeeSummaries {
+
+        @Test
+        @DisplayName("사원 요약 목록을 조회한다")
+        void getAllEmployeeSummariesSuccess() {
+            // given
+            EmployeeSummaryResponse summary1 = new EmployeeSummaryResponse();
+            EmployeeSummaryResponse summary2 = new EmployeeSummaryResponse();
+
+            given(employeeMapper.findAllSummary()).willReturn(List.of(summary1, summary2));
+
+            // when
+            List<EmployeeSummaryResponse> result = employeeManageQueryService.getAllEmployeeSummaries();
+
+            // then
+            assertEquals(2, result.size());
+            verify(employeeMapper).findAllSummary();
+        }
+
+        @Test
+        @DisplayName("사원이 없으면 빈 목록을 반환한다")
+        void getAllEmployeeSummariesEmpty() {
+            // given
+            given(employeeMapper.findAllSummary()).willReturn(List.of());
+
+            // when
+            List<EmployeeSummaryResponse> result = employeeManageQueryService.getAllEmployeeSummaries();
+
+            // then
+            assertTrue(result.isEmpty());
         }
     }
 }

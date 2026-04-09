@@ -75,21 +75,22 @@ public class EmployeeManageCommandService {
                 .employeeRole(request.getEmployeeRole())
                 .employeeStatus(request.getEmployeeStatus())
                 .employeeTier(request.getEmployeeTier())
+                .hireDate(request.getHireDate())
                 .build();
 
         employeeRepository.save(employee);
 
-        // 새 사원 생성 시, 각 스킬 카테고리에 대해 기본 레코드 생성 (총 6개)
+        // 새 사원 생성 시, 각 스킬 카테고리에 대해 레코드 생성 (총 6개, 사용자 입력값 또는 0)
         Arrays.stream(SkillCategory.values())
                 .forEach(category -> {
-                    Skill defaultSkill = Skill.builder()
+                    Skill skill = Skill.builder()
                             .skillId(idGenerator.generate())
                             .employeeId(employee.getEmployeeId())
                             .skillCategory(category)
-                            .skillScore(BigDecimal.ZERO)
+                            .skillScore(request.getScoreFor(category))
                             .evaluatedAt(LocalDateTime.now())
                             .build();
-                    skillRepository.save(defaultSkill);
+                    skillRepository.save(skill);
                 });
 
         // 새 사원 생성 시, 약관 처리 테이블에 기본 레코드 생성.
@@ -105,6 +106,7 @@ public class EmployeeManageCommandService {
         consentRepository.save(defaultConsent);
 
         return EmployeeCreateResponse.builder()
+                .employeeCode(generatedCode)
                 .employeeName(request.getEmployeeName())
                 .employeeEmail(request.getEmployeeEmail())
                 .employeePhone(request.getEmployeePhone())
@@ -114,6 +116,7 @@ public class EmployeeManageCommandService {
                 .employeeRole(request.getEmployeeRole())
                 .employeeStatus(request.getEmployeeStatus())
                 .employeeTier(request.getEmployeeTier())
+                .hireDate(request.getHireDate())
                 .build();
     }
 

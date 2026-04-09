@@ -8,11 +8,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class EmployeeCreateResponse {
+    private String employeeCode;
     private String employeeName;
     private String employeeEmail;
     private String employeePhone;
@@ -22,4 +25,5 @@ public class EmployeeCreateResponse {
     private EmployeeRole employeeRole;
     private EmployeeStatus employeeStatus;
     private EmployeeTier employeeTier;
+    private LocalDate hireDate;
 }

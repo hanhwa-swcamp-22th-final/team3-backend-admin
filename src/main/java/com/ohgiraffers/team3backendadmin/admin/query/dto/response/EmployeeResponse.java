@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,4 +24,5 @@ public class EmployeeResponse {
     private EmployeeRole employeeRole;
     private EmployeeStatus employeeStatus;
     private EmployeeTier employeeTier;
+    private LocalDate hireDate;
 }
