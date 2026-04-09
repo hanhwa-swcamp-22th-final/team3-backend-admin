@@ -33,6 +33,8 @@
             implementation_key AS implementationKey,
             description AS description,
             is_active AS isActive,
+            parameters AS parameters,
+            reference_values AS referenceValues,
             created_at AS createdAt,
             created_by AS createdBy,
             updated_at AS updatedAt,

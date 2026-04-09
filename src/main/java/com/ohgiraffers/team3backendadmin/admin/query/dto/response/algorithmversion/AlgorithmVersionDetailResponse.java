@@ -13,6 +13,8 @@ public class AlgorithmVersionDetailResponse {
     private String implementationKey;
     private String description;
     private Boolean isActive;
+    private String parameters;
+    private String referenceValues;
     private LocalDateTime createdAt;
     private Long createdBy;
     private LocalDateTime updatedAt;
