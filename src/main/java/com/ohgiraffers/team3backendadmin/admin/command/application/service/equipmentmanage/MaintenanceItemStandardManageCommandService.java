@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MaintenanceItemStandardManageCommandService {
 
     private final MaintenanceItemStandardRepository maintenanceItemStandardRepository;
+    private final MaintenanceItemStandardSnapshotCommandService maintenanceItemStandardSnapshotCommandService;
     private final IdGenerator idGenerator;
 
     /**
@@ -35,6 +36,7 @@ public class MaintenanceItemStandardManageCommandService {
             .build();
 
         maintenanceItemStandardRepository.save(maintenanceItemStandard);
+        maintenanceItemStandardSnapshotCommandService.publishSnapshotAfterCommit(maintenanceItemStandard);
 
         return MaintenanceItemStandardCreateResponse.builder()
             .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())
@@ -60,6 +62,7 @@ public class MaintenanceItemStandardManageCommandService {
             request.getMaintenanceWeight(),
             request.getMaintenanceScoreMax()
         );
+        maintenanceItemStandardSnapshotCommandService.publishSnapshotAfterCommit(maintenanceItemStandard);
 
         return MaintenanceItemStandardUpdateResponse.builder()
             .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())
@@ -80,6 +83,7 @@ public class MaintenanceItemStandardManageCommandService {
             .orElseThrow(() -> new BusinessException(ErrorCode.MAINTENANCE_ITEM_STANDARD_NOT_FOUND));
 
         maintenanceItemStandard.softDelete();
+        maintenanceItemStandardSnapshotCommandService.publishSnapshotAfterCommit(maintenanceItemStandard);
 
         return MaintenanceItemStandardUpdateResponse.builder()
             .maintenanceItemStandardId(maintenanceItemStandard.getMaintenanceItemStandardId())

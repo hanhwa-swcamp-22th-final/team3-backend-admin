@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EquipmentAgingParamManageCommandService {
 
     private final EquipmentAgingParamRepository equipmentAgingParamRepository;
+    private final EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
 
     /**
      * 설비 노후 파라미터와 계산 결과를 함께 수정한다.
@@ -38,6 +39,7 @@ public class EquipmentAgingParamManageCommandService {
             request.getEquipmentAgeMonths(),
             request.getEquipmentAgeCalculatedAt()
         );
+        equipmentReferenceSnapshotCommandService.publishSnapshotAfterCommit(equipmentAgingParam.getEquipmentId());
 
         return EquipmentAgingParamUpdateResponse.builder()
             .equipmentAgingParamId(equipmentAgingParam.getEquipmentAgingParamId())

@@ -21,6 +21,7 @@ public class EnvironmentEventManageCommandService {
 
     private final EnvironmentEventRepository environmentEventRepository;
     private final EquipmentRepository equipmentRepository;
+    private final EnvironmentEventSnapshotCommandService environmentEventSnapshotCommandService;
     private final IdGenerator idGenerator;
 
     /**
@@ -44,6 +45,7 @@ public class EnvironmentEventManageCommandService {
             .build();
 
         environmentEventRepository.save(environmentEvent);
+        environmentEventSnapshotCommandService.publishSnapshotAfterCommit(environmentEvent);
 
         return EnvironmentEventCreateResponse.builder()
             .environmentEventId(environmentEvent.getEnvironmentEventId())
@@ -75,6 +77,7 @@ public class EnvironmentEventManageCommandService {
             request.getEnvCorrectionApplied(),
             request.getEnvDetectedAt()
         );
+        environmentEventSnapshotCommandService.publishSnapshotAfterCommit(environmentEvent);
 
         return EnvironmentEventUpdateResponse.builder()
             .environmentEventId(environmentEvent.getEnvironmentEventId())
@@ -94,6 +97,7 @@ public class EnvironmentEventManageCommandService {
             .orElseThrow(() -> new BusinessException(ErrorCode.ENVIRONMENT_EVENT_NOT_FOUND));
 
         environmentEventRepository.delete(environmentEvent);
+        environmentEventSnapshotCommandService.publishDeletedSnapshotAfterCommit(environmentEvent);
 
         return EnvironmentEventUpdateResponse.builder()
             .environmentEventId(environmentEvent.getEnvironmentEventId())

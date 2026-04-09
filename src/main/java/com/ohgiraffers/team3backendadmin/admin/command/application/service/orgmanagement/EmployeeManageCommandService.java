@@ -6,6 +6,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDepartmentMatchResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDeleteResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.consent.Consent;
@@ -164,6 +165,15 @@ public class EmployeeManageCommandService {
                 .employeeCode(target.getEmployeeCode())
                 .departmentId(target.getDepartmentId())
                 .build();
+    }
+
+    @Transactional
+    public void updateEmployeeTier(Long employeeId, EmployeeTier employeeTier) {
+        Employee employee = employeeRepository.findById(employeeId)
+            .orElseThrow(EmployeeNotFoundException::new);
+
+        employee.updateTier(employeeTier);
+        publishEmployeeSnapshotAfterCommit(employee);
     }
 
     private void publishEmployeeSnapshotAfterCommit(Employee employee) {
