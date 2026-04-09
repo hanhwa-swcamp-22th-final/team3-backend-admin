@@ -33,6 +33,7 @@ public class EquipmentManageCommandService {
   private final EquipmentBaselineRepository equipmentBaselineRepository;
   private final EquipmentQueryService equipmentQueryService;
   private final IdGenerator idGenerator;
+  private final EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
 
   /**
    * 설비 생성 요청을 검증한 뒤 설비, 노후 파라미터, baseline 정보를 함께 저장한다.
@@ -87,6 +88,7 @@ public class EquipmentManageCommandService {
     equipmentRepository.save(equipment);
     equipmentAgingParamRepository.save(equipmentAgingParam);
     equipmentBaselineRepository.save(equipmentBaseline);
+    equipmentReferenceSnapshotCommandService.publishSnapshotAfterCommit(equipmentId);
 
     return EquipmentCreateResponse.builder()
         .equipmentId(equipment.getEquipmentId())
@@ -144,6 +146,7 @@ public class EquipmentManageCommandService {
         request.getEquipmentDesignLifeMonths(),
         toBigDecimal(request.getEquipmentWearCoefficient())
     );
+    equipmentReferenceSnapshotCommandService.publishSnapshotAfterCommit(equipmentId);
   }
 
   /**
@@ -165,6 +168,10 @@ public class EquipmentManageCommandService {
       equipmentAgingParamRepository.deleteById(equipmentAgingParamId);
     }
 
+    equipmentReferenceSnapshotCommandService.publishDeletedSnapshotAfterCommit(
+        equipment.getEquipmentId(),
+        equipment.getEquipmentCode()
+    );
     equipmentRepository.delete(equipment);
   }
 

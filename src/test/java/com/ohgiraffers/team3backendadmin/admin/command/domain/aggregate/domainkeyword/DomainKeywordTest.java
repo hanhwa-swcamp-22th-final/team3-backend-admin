@@ -21,7 +21,7 @@ class DomainKeywordTest {
             .domainKeywordId(1L)
             .domainKeyword("정비 대응")
             .domainKeywordDescription("설비 정비 상황에 즉시 대응하는 역량")
-            .domainCompetencyCategory(DomainCompetencyCategory.TECHNICAL_COMPETENCY)
+            .domainCompetencyCategory(DomainCompetencyCategory.TECHNICAL_COMPETENCE)
             .domainBaseScore(BigDecimal.valueOf(5.0))
             .domainWeight(BigDecimal.valueOf(2.0))
             .domainIsActive(true)

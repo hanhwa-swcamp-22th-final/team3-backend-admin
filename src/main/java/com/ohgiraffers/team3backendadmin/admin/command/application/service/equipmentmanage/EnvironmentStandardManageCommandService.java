@@ -5,10 +5,12 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.e
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EnvironmentStandardCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EnvironmentStandardUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class EnvironmentStandardManageCommandService {
 
     private final EnvironmentStandardRepository environmentStandardRepository;
+    private final EquipmentRepository equipmentRepository;
     private final IdGenerator idGenerator;
+    private final EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
 
     /**
      * 환경 기준 생성 요청 정보를 기반으로 중복 코드를 확인한 뒤 새로운 환경 기준을 등록한다.
@@ -79,6 +83,11 @@ public class EnvironmentStandardManageCommandService {
             request.getEnvHumidityMax(),
             request.getEnvParticleLimit()
         );
+        equipmentReferenceSnapshotCommandService.publishSnapshotsAfterCommit(
+            equipmentRepository.findByEnvironmentStandardId(environmentStandardId).stream()
+                .map(equipment -> equipment.getEquipmentId())
+                .collect(Collectors.toSet())
+        );
 
         return EnvironmentStandardUpdateResponse.builder()
             .environmentStandardId(environmentStandard.getEnvironmentStandardId())
@@ -98,6 +107,11 @@ public class EnvironmentStandardManageCommandService {
             .orElseThrow(() -> new BusinessException(ErrorCode.ENVIRONMENT_STANDARD_NOT_FOUND));
 
         environmentStandard.softDelete();
+        equipmentReferenceSnapshotCommandService.publishSnapshotsAfterCommit(
+            equipmentRepository.findByEnvironmentStandardId(environmentStandardId).stream()
+                .map(equipment -> equipment.getEquipmentId())
+                .collect(Collectors.toSet())
+        );
 
         return EnvironmentStandardUpdateResponse.builder()
             .environmentStandardId(environmentStandard.getEnvironmentStandardId())

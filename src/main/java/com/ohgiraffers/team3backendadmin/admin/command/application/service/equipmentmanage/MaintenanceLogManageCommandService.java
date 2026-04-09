@@ -23,6 +23,7 @@ public class MaintenanceLogManageCommandService {
     private final MaintenanceLogRepository maintenanceLogRepository;
     private final EquipmentRepository equipmentRepository;
     private final MaintenanceItemStandardRepository maintenanceItemStandardRepository;
+    private final MaintenanceLogSnapshotCommandService maintenanceLogSnapshotCommandService;
     private final IdGenerator idGenerator;
 
     /**
@@ -48,6 +49,7 @@ public class MaintenanceLogManageCommandService {
             .build();
 
         maintenanceLogRepository.save(maintenanceLog);
+        maintenanceLogSnapshotCommandService.publishSnapshotAfterCommit(maintenanceLog);
 
         return MaintenanceLogCreateResponse.builder()
             .maintenanceLogId(maintenanceLog.getMaintenanceLogId())
@@ -82,6 +84,7 @@ public class MaintenanceLogManageCommandService {
             request.getEtaMaintDelta(),
             request.getMaintenanceResult()
         );
+        maintenanceLogSnapshotCommandService.publishSnapshotAfterCommit(maintenanceLog);
 
         return MaintenanceLogUpdateResponse.builder()
             .maintenanceLogId(maintenanceLog.getMaintenanceLogId())
@@ -102,6 +105,7 @@ public class MaintenanceLogManageCommandService {
             .orElseThrow(() -> new BusinessException(ErrorCode.MAINTENANCE_LOG_NOT_FOUND));
 
         maintenanceLogRepository.delete(maintenanceLog);
+        maintenanceLogSnapshotCommandService.publishDeletedSnapshotAfterCommit(maintenanceLog);
 
         return MaintenanceLogUpdateResponse.builder()
             .maintenanceLogId(maintenanceLog.getMaintenanceLogId())

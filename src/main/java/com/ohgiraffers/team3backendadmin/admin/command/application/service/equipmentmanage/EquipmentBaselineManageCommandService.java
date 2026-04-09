@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EquipmentBaselineManageCommandService {
 
     private final EquipmentBaselineRepository equipmentBaselineRepository;
+    private final EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
 
     /**
      * 설비 baseline 정보를 수정한다.
@@ -36,6 +37,7 @@ public class EquipmentBaselineManageCommandService {
             request.getEquipmentIdx(),
             request.getEquipmentBaselineCalculatedAt()
         );
+        equipmentReferenceSnapshotCommandService.publishSnapshotAfterCommit(equipmentBaseline.getEquipmentId());
 
         return EquipmentBaselineUpdateResponse.builder()
             .equipmentBaselineId(equipmentBaseline.getEquipmentBaselineId())

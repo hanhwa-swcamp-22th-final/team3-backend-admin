@@ -103,6 +103,10 @@ public class Employee {
         this.employeeRole = newRole;
     }
 
+    public void updateTier(EmployeeTier newTier) {
+        this.employeeTier = newTier;
+    }
+
     public void changePassword(String encodedPassword) {
         this.employeePassword = encodedPassword;
     }
