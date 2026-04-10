@@ -24,6 +24,7 @@ public class EnvironmentStandardManageCommandService {
     private final EquipmentRepository equipmentRepository;
     private final IdGenerator idGenerator;
     private final EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
+    private final EnvironmentStandardSnapshotCommandService environmentStandardSnapshotCommandService;
 
     /**
      * 환경 기준 생성 요청 정보를 기반으로 중복 코드를 확인한 뒤 새로운 환경 기준을 등록한다.
@@ -48,6 +49,7 @@ public class EnvironmentStandardManageCommandService {
             .build();
 
         environmentStandardRepository.save(environmentStandard);
+        environmentStandardSnapshotCommandService.publishSnapshotAfterCommit(environmentStandard);
 
         return EnvironmentStandardCreateResponse.builder()
             .environmentStandardId(environmentStandard.getEnvironmentStandardId())
@@ -88,6 +90,7 @@ public class EnvironmentStandardManageCommandService {
                 .map(equipment -> equipment.getEquipmentId())
                 .collect(Collectors.toSet())
         );
+        environmentStandardSnapshotCommandService.publishSnapshotAfterCommit(environmentStandard);
 
         return EnvironmentStandardUpdateResponse.builder()
             .environmentStandardId(environmentStandard.getEnvironmentStandardId())
@@ -112,6 +115,7 @@ public class EnvironmentStandardManageCommandService {
                 .map(equipment -> equipment.getEquipmentId())
                 .collect(Collectors.toSet())
         );
+        environmentStandardSnapshotCommandService.publishDeletedSnapshotAfterCommit(environmentStandard);
 
         return EnvironmentStandardUpdateResponse.builder()
             .environmentStandardId(environmentStandard.getEnvironmentStandardId())

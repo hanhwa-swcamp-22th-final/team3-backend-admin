@@ -1,6 +1,6 @@
 package com.ohgiraffers.team3backendadmin.infrastructure.kafka.publisher;
 
-import com.ohgiraffers.team3backendadmin.infrastructure.kafka.dto.EnvironmentEventSnapshotEvent;
+import com.ohgiraffers.team3backendadmin.infrastructure.kafka.dto.EnvironmentStandardSnapshotEvent;
 import com.ohgiraffers.team3backendadmin.infrastructure.kafka.support.EnvironmentReferenceKafkaTopics;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -14,14 +14,18 @@ public class EnvironmentReferenceEventPublisher {
 
     private static final Logger log = LoggerFactory.getLogger(EnvironmentReferenceEventPublisher.class);
 
-    private final KafkaTemplate<String, EnvironmentEventSnapshotEvent> environmentEventSnapshotKafkaTemplate;
+    private final KafkaTemplate<String, EnvironmentStandardSnapshotEvent> environmentStandardSnapshotKafkaTemplate;
 
-    public void publishEnvironmentEventSnapshot(EnvironmentEventSnapshotEvent event) {
-        environmentEventSnapshotKafkaTemplate.send(
-            EnvironmentReferenceKafkaTopics.ENVIRONMENT_EVENT_SNAPSHOT,
-            String.valueOf(event.getEnvironmentEventId()),
+    public void publishEnvironmentStandardSnapshot(EnvironmentStandardSnapshotEvent event) {
+        environmentStandardSnapshotKafkaTemplate.send(
+            EnvironmentReferenceKafkaTopics.ENVIRONMENT_STANDARD_SNAPSHOT,
+            String.valueOf(event.getEnvironmentStandardId()),
             event
         );
-        log.info("Published environment event snapshot. environmentEventId={}, deleted={}", event.getEnvironmentEventId(), event.getDeleted());
+        log.info(
+            "Published environment standard snapshot. environmentStandardId={}, deleted={}",
+            event.getEnvironmentStandardId(),
+            event.getDeleted()
+        );
     }
 }
