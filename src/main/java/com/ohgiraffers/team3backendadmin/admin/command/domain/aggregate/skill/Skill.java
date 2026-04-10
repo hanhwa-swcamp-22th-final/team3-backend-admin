@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Entity
@@ -56,5 +57,20 @@ public class Skill {
     public void updateScore(BigDecimal score) {
         this.skillScore = score;
         this.evaluatedAt = LocalDateTime.now();
+    }
+
+    public void applyMonthlyContribution(BigDecimal contributionScore, BigDecimal alpha, LocalDateTime evaluatedAt) {
+        BigDecimal current = skillScore == null ? BigDecimal.ZERO : skillScore;
+        BigDecimal safeAlpha = alpha == null ? new BigDecimal("0.01") : alpha;
+        BigDecimal safeContribution = contributionScore == null ? BigDecimal.ZERO : contributionScore;
+
+        BigDecimal nextScore = current
+            .add(safeContribution.multiply(safeAlpha))
+            .max(BigDecimal.ZERO)
+            .min(new BigDecimal("100.00"))
+            .setScale(2, RoundingMode.HALF_UP);
+
+        this.skillScore = nextScore;
+        this.evaluatedAt = evaluatedAt == null ? LocalDateTime.now() : evaluatedAt;
     }
 }
