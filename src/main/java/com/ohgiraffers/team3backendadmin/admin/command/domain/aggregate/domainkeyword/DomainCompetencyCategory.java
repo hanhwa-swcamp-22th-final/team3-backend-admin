@@ -6,5 +6,5 @@ public enum DomainCompetencyCategory {
     SAFETY,               // 안전
     INNOVATION,           // 혁신
     COLLABORATION,        // 협업
-    OTHER                 // 기타
+    OTHERS                 // 기타
 }
