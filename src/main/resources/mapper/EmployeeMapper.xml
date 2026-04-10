@@ -55,6 +55,7 @@
                type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse">
         <result property="employeeName" column="employee_name"/>
         <result property="employeeCode" column="employee_code"/>
+        <result property="employeeRole" column="employee_role"/>
         <result property="employeeTier" column="employee_tier"/>
         <result property="hireDate" column="hire_date"/>
         <result property="factoryLineName" column="factory_line_name"/>
@@ -64,6 +65,7 @@
     <select id="findAllSummary" resultMap="employeeSummaryResultMap">
         SELECT e.employee_name,
                e.employee_code,
+               e.employee_role,
                e.employee_tier,
                e.hire_date,
                fl.factory_line_name,
