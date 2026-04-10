@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.dto.response;
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ public class EmployeeSummaryResponse {
 
     private String employeeName;
     private String employeeCode;
+    private EmployeeRole employeeRole;
     private EmployeeTier employeeTier;
     private LocalDate hireDate;
     private String factoryLineName;

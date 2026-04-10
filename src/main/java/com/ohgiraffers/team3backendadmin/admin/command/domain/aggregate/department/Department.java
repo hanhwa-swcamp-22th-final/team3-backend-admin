@@ -35,6 +35,10 @@ public class Department {
     @Column(name = "depth")
     private String depth;
 
+    @Builder.Default
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -61,6 +65,7 @@ public class Department {
     }
 
     public void softDelete() {
+        this.isDeleted = true;
         this.departmentName = "삭제됨";
         this.teamName = "삭제됨";
         this.parentDepartmentId = null;
