@@ -9,10 +9,7 @@
             domain_keyword_id AS domainKeywordId,
             domain_keyword AS domainKeyword,
             domain_keyword_description AS domainKeywordDescription,
-            CASE
-                WHEN domain_competency_category = 'OTHERS' THEN 'OTHER'
-                ELSE domain_competency_category
-            END AS domainCompetencyCategory,
+            domain_competency_category AS domainCompetencyCategory,
             domain_base_score AS domainBaseScore,
             domain_weight AS domainWeight,
             domain_is_active AS domainIsActive
@@ -35,10 +32,7 @@
             domain_keyword_id AS domainKeywordId,
             domain_keyword AS domainKeyword,
             domain_keyword_description AS domainKeywordDescription,
-            CASE
-                WHEN domain_competency_category = 'OTHERS' THEN 'OTHER'
-                ELSE domain_competency_category
-            END AS domainCompetencyCategory,
+            domain_competency_category AS domainCompetencyCategory,
             domain_base_score AS domainBaseScore,
             domain_weight AS domainWeight,
             domain_is_active AS domainIsActive
