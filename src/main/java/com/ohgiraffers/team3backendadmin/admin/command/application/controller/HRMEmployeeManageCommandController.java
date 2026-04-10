@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/employees")
-public class AdminEmployeeCommandController {
+public class HRMEmployeeManageCommandController {
 
     private final EmployeeManageCommandService employeeManageCommandService;
 
     @PatchMapping("/{employeeId}/tier")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM')")
+    @PreAuthorize("hasAuthority('HRM')")
     public ResponseEntity<ApiResponse<Void>> updateEmployeeTier(
         @PathVariable Long employeeId,
         @RequestBody EmployeeTierUpdateRequest request

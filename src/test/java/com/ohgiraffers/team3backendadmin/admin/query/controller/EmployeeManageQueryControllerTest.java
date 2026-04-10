@@ -22,9 +22,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AdminEmployeeQueryController.class)
+@WebMvcTest(EmployeeManageQueryController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class AdminEmployeeQueryControllerTest {
+class EmployeeManageQueryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

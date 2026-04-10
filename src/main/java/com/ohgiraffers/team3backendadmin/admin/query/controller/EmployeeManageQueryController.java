@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/employees")
-public class AdminEmployeeQueryController {
+public class EmployeeManageQueryController {
 
     private final EmployeeHrQueryService employeeHrQueryService;
 

@@ -19,9 +19,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AdminEmployeeCommandController.class)
+@WebMvcTest(HRMEmployeeManageCommandController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class AdminEmployeeCommandControllerTest {
+class HRMEmployeeManageCommandControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
