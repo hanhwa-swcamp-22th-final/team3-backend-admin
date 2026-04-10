@@ -119,6 +119,23 @@ public class Employee {
         this.departmentId = departmentId;
     }
 
+    public void updateByAdmin(String name, String email, String phone,
+                              String address, String emergencyContact,
+                              String password, EmployeeRole role,
+                              EmployeeStatus status, EmployeeTier tier,
+                              LocalDate hireDate) {
+        if (name != null) this.employeeName = name;
+        if (email != null) this.employeeEmail = email;
+        if (phone != null) this.employeePhone = phone;
+        if (address != null) this.employeeAddress = address;
+        if (emergencyContact != null) this.employeeEmergencyContact = emergencyContact;
+        if (password != null) this.employeePassword = password;
+        if (role != null) this.employeeRole = role;
+        if (status != null) this.employeeStatus = status;
+        if (tier != null) this.employeeTier = tier;
+        if (hireDate != null) this.hireDate = hireDate;
+    }
+
     public void deleteEmployee() {
         this.employeeStatus = EmployeeStatus.ON_LEAVE;
     }
