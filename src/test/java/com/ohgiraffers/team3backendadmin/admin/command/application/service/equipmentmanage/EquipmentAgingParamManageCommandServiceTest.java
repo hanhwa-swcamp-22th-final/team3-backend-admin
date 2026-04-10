@@ -28,6 +28,9 @@ class EquipmentAgingParamManageCommandServiceTest {
     @Mock
     private EquipmentAgingParamRepository equipmentAgingParamRepository;
 
+    @Mock
+    private EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
+
     @InjectMocks
     private EquipmentAgingParamManageCommandService equipmentAgingParamManageCommandService;
 

@@ -39,6 +39,10 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.Equipme
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.FactoryLineRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.MaintenanceItemStandardRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.MaintenanceLogRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EquipmentReferenceSnapshotCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.EnvironmentStandardSnapshotCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.MaintenanceItemStandardSnapshotCommandService;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.equipmentmanage.MaintenanceLogSnapshotCommandService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.TimeBasedIdGenerator;
 import jakarta.persistence.EntityManager;
@@ -48,6 +52,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.web.servlet.MockMvc;
@@ -71,6 +76,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @Transactional
 class EquipmentManageCommandControllerIntegrationTest {
+
+    @MockBean
+    private EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
+
+    @MockBean
+    private EnvironmentStandardSnapshotCommandService environmentStandardSnapshotCommandService;
+
+    @MockBean
+    private MaintenanceItemStandardSnapshotCommandService maintenanceItemStandardSnapshotCommandService;
+
+    @MockBean
+    private MaintenanceLogSnapshotCommandService maintenanceLogSnapshotCommandService;
 
     @Autowired
     private MockMvc mockMvc;
