@@ -6,6 +6,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage.EnvironmentStandardUpdateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentStandard;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +41,15 @@ class EnvironmentStandardManageCommandServiceTest {
 
     @Mock
     private IdGenerator idGenerator;
+
+    @Mock
+    private EquipmentRepository equipmentRepository;
+
+    @Mock
+    private EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
+
+    @Mock
+    private EnvironmentStandardSnapshotCommandService environmentStandardSnapshotCommandService;
 
     @InjectMocks
     private EnvironmentStandardManageCommandService environmentStandardManageCommandService;
@@ -136,6 +147,8 @@ class EnvironmentStandardManageCommandServiceTest {
             .thenReturn(Optional.of(environmentStandard));
         when(environmentStandardRepository.findByEnvironmentCode("ENV-999"))
             .thenReturn(Optional.empty());
+        when(equipmentRepository.findByEnvironmentStandardId(3001L))
+            .thenReturn(Collections.emptyList());
 
         EnvironmentStandardUpdateResponse response = environmentStandardManageCommandService.updateEnvironmentStandard(3001L, updateRequest);
 
@@ -196,6 +209,8 @@ class EnvironmentStandardManageCommandServiceTest {
     void deleteEnvironmentStandard_success() {
         when(environmentStandardRepository.findById(3001L))
             .thenReturn(Optional.of(environmentStandard));
+        when(equipmentRepository.findByEnvironmentStandardId(3001L))
+            .thenReturn(Collections.emptyList());
 
         EnvironmentStandardUpdateResponse response = environmentStandardManageCommandService.deleteEnvironmentStandard(3001L);
 

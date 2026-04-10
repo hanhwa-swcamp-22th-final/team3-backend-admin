@@ -52,6 +52,9 @@ class MaintenanceLogManageCommandServiceTest {
     @Mock
     private IdGenerator idGenerator;
 
+    @Mock
+    private MaintenanceLogSnapshotCommandService maintenanceLogSnapshotCommandService;
+
     @InjectMocks
     private MaintenanceLogManageCommandService maintenanceLogManageCommandService;
 

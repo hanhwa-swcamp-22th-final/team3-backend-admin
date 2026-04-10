@@ -65,6 +65,9 @@ class EquipmentManageCommandServiceTest {
     @Mock
     private IdGenerator idGenerator;
 
+    @Mock
+    private EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
+
     @InjectMocks
     private EquipmentManageCommandService equipmentCommandService;
 

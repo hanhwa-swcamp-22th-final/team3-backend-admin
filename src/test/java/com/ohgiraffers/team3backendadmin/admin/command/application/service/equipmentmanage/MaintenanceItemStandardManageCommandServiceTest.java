@@ -37,6 +37,9 @@ class MaintenanceItemStandardManageCommandServiceTest {
     @Mock
     private IdGenerator idGenerator;
 
+    @Mock
+    private MaintenanceItemStandardSnapshotCommandService maintenanceItemStandardSnapshotCommandService;
+
     @InjectMocks
     private MaintenanceItemStandardManageCommandService maintenanceItemStandardManageCommandService;
 

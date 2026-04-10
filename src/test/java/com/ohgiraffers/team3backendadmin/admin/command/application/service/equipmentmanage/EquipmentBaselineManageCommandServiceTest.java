@@ -28,6 +28,9 @@ class EquipmentBaselineManageCommandServiceTest {
     @Mock
     private EquipmentBaselineRepository equipmentBaselineRepository;
 
+    @Mock
+    private EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
+
     @InjectMocks
     private EquipmentBaselineManageCommandService equipmentBaselineManageCommandService;
 
