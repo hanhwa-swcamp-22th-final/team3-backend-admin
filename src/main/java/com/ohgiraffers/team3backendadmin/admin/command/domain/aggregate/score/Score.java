@@ -28,11 +28,8 @@ public class Score {
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 
-    @Column(name = "evaluation_year")
-    private Integer evaluationYear;
-
-    @Column(name = "evaluation_period", length = 50)
-    private String evaluationPeriod;
+    @Column(name = "eval_period_id", nullable = false)
+    private Long evalPeriodId;
 
     @Column(name = "capability_index")
     private BigDecimal capabilityIndex;
