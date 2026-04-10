@@ -103,7 +103,7 @@ class DomainKeywordManageCommandControllerIntegrationTest {
         DomainKeywordUpdateRequest request = DomainKeywordUpdateRequest.builder()
             .domainKeyword("협업 강화")
             .domainKeywordDescription("팀 간 협업을 촉진하는 역량")
-            .domainCompetencyCategory(DomainCompetencyCategory.OTHER)
+            .domainCompetencyCategory(DomainCompetencyCategory.OTHERS)
             .domainBaseScore(new BigDecimal("4.00"))
             .domainWeight(new BigDecimal("2.50"))
             .domainIsActive(false)
