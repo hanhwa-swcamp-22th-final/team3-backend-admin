@@ -18,6 +18,7 @@ public class EquipmentDetailResponse {
     private String equipmentName;
     private EquipmentStatus equipmentStatus;
     private EquipmentGrade equipmentGrade;
+    private EquipmentGrade currentEquipmentGrade;
     private LocalDateTime equipmentInstallDate;
     private String equipmentDescription;
     private String equipmentProcessName;

@@ -55,6 +55,9 @@ public class Equipment {
   @Column(name = "equipment_description")
   private String equipmentDescription;
 
+  @Column(name = "is_deleted", nullable = false)
+  private Boolean isDeleted;
+
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
@@ -81,6 +84,7 @@ public class Equipment {
                    EquipmentGrade equipmentGrade,
                    LocalDateTime equipmentInstallDate,
                    String equipmentDescription,
+                   Boolean isDeleted,
                    LocalDateTime createdAt,
                    Long createdBy,
                    LocalDateTime updatedAt,
@@ -94,6 +98,7 @@ public class Equipment {
     this.equipmentGrade = equipmentGrade;
     this.equipmentInstallDate = equipmentInstallDate;
     this.equipmentDescription = equipmentDescription;
+    this.isDeleted = isDeleted == null ? false : isDeleted;
     this.createdAt = createdAt;
     this.createdBy = createdBy;
     this.updatedAt = updatedAt;
@@ -126,6 +131,7 @@ public class Equipment {
                      String equipmentName,
                      EquipmentStatus equipmentStatus,
                      EquipmentGrade equipmentGrade,
+                     LocalDateTime equipmentInstallDate,
                      String equipmentDescription) {
     if (equipmentProcessId == null || environmentStandardId == null || equipmentCode == null || equipmentCode.isBlank()
         || equipmentName == null || equipmentName.isBlank() || equipmentStatus == null || equipmentGrade == null) {
@@ -138,6 +144,11 @@ public class Equipment {
     this.equipmentName = equipmentName;
     this.equipmentStatus = equipmentStatus;
     this.equipmentGrade = equipmentGrade;
+    this.equipmentInstallDate = equipmentInstallDate;
     this.equipmentDescription = equipmentDescription;
+  }
+
+  public void softDelete() {
+    this.isDeleted = true;
   }
 }

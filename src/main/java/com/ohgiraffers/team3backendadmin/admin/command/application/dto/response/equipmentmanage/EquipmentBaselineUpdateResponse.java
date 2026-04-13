@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.equipmentmanage;
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class EquipmentBaselineUpdateResponse {
     private BigDecimal equipmentBaselineErrorRate;
     private BigDecimal equipmentEtaMaint;
     private BigDecimal equipmentIdx;
+    private EquipmentGrade currentEquipmentGrade;
     private LocalDateTime equipmentBaselineCalculatedAt;
 }
 

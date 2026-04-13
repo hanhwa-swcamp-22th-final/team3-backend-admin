@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,6 +35,7 @@ public class EquipmentCreateRequest {
 
   @NotNull(message = "설비 등급은 필수입니다.")
   private EquipmentGrade equipmentGrade;
+  private LocalDate equipmentInstallDate;
   private String equipmentDescription;
 
   @NotNull(message = "보증 개월 수는 필수입니다.")

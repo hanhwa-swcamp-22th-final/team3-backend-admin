@@ -47,6 +47,7 @@ public class EquipmentBaselineManageCommandService {
             .equipmentBaselineErrorRate(equipmentBaseline.getEquipmentBaselineErrorRate())
             .equipmentEtaMaint(equipmentBaseline.getEquipmentEtaMaint())
             .equipmentIdx(equipmentBaseline.getEquipmentIdx())
+            .currentEquipmentGrade(equipmentBaseline.getCurrentEquipmentGrade())
             .equipmentBaselineCalculatedAt(equipmentBaseline.getEquipmentBaselineCalculatedAt())
             .build();
     }

@@ -32,3 +32,14 @@ mybatis:
 jwt:
   expiration: 1800000 # 30 minutes
   refresh-expiration: 604800000 # 7 days
+# Google AI policy review
+nlp:
+  google:
+    credentials-location: ${NLP_GOOGLE_CREDENTIALS_LOCATION:classpath:gcp-key.json}
+
+google:
+  ai:
+    credentials-location: ${NLP_GOOGLE_CREDENTIALS_LOCATION:${nlp.google.credentials-location}}
+    project-id: ${GOOGLE_AI_PROJECT_ID:}
+    location: ${GOOGLE_AI_LOCATION:global}
+    model: ${GOOGLE_AI_MODEL:gemini-3-flash-preview}

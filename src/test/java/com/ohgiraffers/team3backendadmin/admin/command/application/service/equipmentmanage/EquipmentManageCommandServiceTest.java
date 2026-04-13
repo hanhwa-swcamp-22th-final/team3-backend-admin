@@ -35,6 +35,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -325,17 +326,18 @@ class EquipmentManageCommandServiceTest {
     }
 
     @Test
-    @DisplayName("Delete equipment success: delete baseline, aging parameters, and equipment in order")
+    @DisplayName("Delete equipment success: soft delete equipment and publish deleted snapshot")
     void deleteEquipment_success() {
         when(equipmentRepository.findById(4001L)).thenReturn(Optional.of(existingEquipment));
-        when(equipmentQueryService.getEquipmentBaselineIdByEquipmentId(4001L)).thenReturn(6001L);
-        when(equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(4001L)).thenReturn(5001L);
 
         equipmentCommandService.deleteEquipment(4001L);
 
-        verify(equipmentBaselineRepository).deleteById(6001L);
-        verify(equipmentAgingParamRepository).deleteById(5001L);
-        verify(equipmentRepository).delete(existingEquipment);
+        assertTrue(existingEquipment.getIsDeleted());
+        verify(equipmentReferenceSnapshotCommandService)
+            .publishDeletedSnapshotAfterCommit(existingEquipment.getEquipmentId(), existingEquipment.getEquipmentCode());
+        verify(equipmentBaselineRepository, never()).deleteById(any());
+        verify(equipmentAgingParamRepository, never()).deleteById(any());
+        verify(equipmentRepository, never()).delete(existingEquipment);
     }
 
     @Test

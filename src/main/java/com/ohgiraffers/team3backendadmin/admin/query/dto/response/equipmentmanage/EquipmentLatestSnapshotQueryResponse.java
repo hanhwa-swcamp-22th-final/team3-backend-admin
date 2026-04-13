@@ -20,6 +20,7 @@ public class EquipmentLatestSnapshotQueryResponse {
     private String equipmentName;
     private EquipmentStatus equipmentStatus;
     private EquipmentGrade equipmentGrade;
+    private EquipmentGrade currentEquipmentGrade;
     private String equipmentProcessName;
     private String factoryLineName;
     private String environmentName;
@@ -34,6 +35,7 @@ public class EquipmentLatestSnapshotQueryResponse {
     private BigDecimal latestEquipmentBaselineErrorRate;
     private BigDecimal latestEquipmentEtaMaint;
     private BigDecimal latestEquipmentIdx;
+    private BigDecimal currentEquipmentIdx;
     private LocalDateTime latestEquipmentBaselineCalculatedAt;
 
     private Long latestEnvironmentEventId;

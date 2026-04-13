@@ -25,6 +25,8 @@ public class AlgorithmVersionCreateRequest {
     @Size(max = 500, message = "설명은 500자 이하여야 합니다.")
     private String description;
 
+    private String policyConfig;
+
     @NotNull(message = "활성 여부는 필수입니다.")
     private Boolean isActive;
 }

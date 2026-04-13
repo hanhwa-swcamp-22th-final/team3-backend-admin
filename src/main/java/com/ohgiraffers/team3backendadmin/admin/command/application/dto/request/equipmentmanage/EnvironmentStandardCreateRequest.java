@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.environment.EnvironmentType;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -16,28 +17,43 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class EnvironmentStandardCreateRequest {
-    @NotNull(message = "환경 유형은 필수입니다.")
+    @NotNull(message = "Environment type is required.")
     private EnvironmentType environmentType;
 
-    @NotBlank(message = "환경 기준 코드는 필수입니다.")
+    @NotBlank(message = "Environment standard code is required.")
     private String environmentCode;
 
-    @NotBlank(message = "환경 기준명은 필수입니다.")
+    @NotBlank(message = "Environment standard name is required.")
     private String environmentName;
 
-    @NotNull(message = "최소 온도는 필수입니다.")
+    @NotNull(message = "Minimum temperature is required.")
     private BigDecimal envTempMin;
 
-    @NotNull(message = "최대 온도는 필수입니다.")
+    @NotNull(message = "Maximum temperature is required.")
     private BigDecimal envTempMax;
 
-    @NotNull(message = "최소 습도는 필수입니다.")
     private BigDecimal envHumidityMin;
 
-    @NotNull(message = "최대 습도는 필수입니다.")
     private BigDecimal envHumidityMax;
 
-    @NotNull(message = "입자 허용치는 필수입니다.")
-    @PositiveOrZero(message = "입자 허용치는 음수일 수 없습니다.")
+    @PositiveOrZero(message = "Particle limit must be zero or positive.")
     private Integer envParticleLimit;
+
+    @AssertTrue(message = "Humidity range is required for DRYROOM and CLEANROOM.")
+    public boolean isHumidityRangeRequiredByType() {
+        if (environmentType == null || environmentType == EnvironmentType.GENERAL) {
+            return true;
+        }
+
+        return envHumidityMin != null && envHumidityMax != null;
+    }
+
+    @AssertTrue(message = "Particle limit is required for CLEANROOM.")
+    public boolean isParticleLimitRequiredByType() {
+        if (environmentType == null || environmentType != EnvironmentType.CLEANROOM) {
+            return true;
+        }
+
+        return envParticleLimit != null;
+    }
 }

@@ -46,13 +46,13 @@ public class EnvironmentStandard {
     @Column(name = "env_temp_max", nullable = false)
     private BigDecimal envTempMax;
 
-    @Column(name = "env_humidity_min", nullable = false)
+    @Column(name = "env_humidity_min")
     private BigDecimal envHumidityMin;
 
-    @Column(name = "env_humidity_max", nullable = false)
+    @Column(name = "env_humidity_max")
     private BigDecimal envHumidityMax;
 
-    @Column(name = "env_particle_limit", nullable = false)
+    @Column(name = "env_particle_limit")
     private Integer envParticleLimit;
 
     @Column(name = "is_deleted", nullable = false)
@@ -102,6 +102,9 @@ public class EnvironmentStandard {
                                Long createdBy,
                                LocalDateTime updatedAt,
                                Long updatedBy) {
+        validate(environmentType, environmentCode, environmentName, envTempMin, envTempMax,
+            envHumidityMin, envHumidityMax, envParticleLimit);
+
         this.environmentStandardId = environmentStandardId;
         this.environmentType = environmentType;
         this.environmentCode = environmentCode;
@@ -166,14 +169,19 @@ public class EnvironmentStandard {
         if (envTempMin.compareTo(envTempMax) > 0) {
             throw new IllegalArgumentException("Minimum temperature must be less than or equal to maximum temperature.");
         }
-        if (envHumidityMin == null || envHumidityMax == null) {
-            throw new IllegalArgumentException("Humidity range must not be null.");
+        if (environmentType != EnvironmentType.GENERAL) {
+            if (envHumidityMin == null || envHumidityMax == null) {
+                throw new IllegalArgumentException("Humidity range is required for DRYROOM and CLEANROOM.");
+            }
+            if (envHumidityMin.compareTo(envHumidityMax) > 0) {
+                throw new IllegalArgumentException("Minimum humidity must be less than or equal to maximum humidity.");
+            }
         }
-        if (envHumidityMin.compareTo(envHumidityMax) > 0) {
-            throw new IllegalArgumentException("Minimum humidity must be less than or equal to maximum humidity.");
+        if (environmentType == EnvironmentType.CLEANROOM && envParticleLimit == null) {
+            throw new IllegalArgumentException("Particle limit is required for CLEANROOM.");
         }
-        if (envParticleLimit == null) {
-            throw new IllegalArgumentException("Particle limit must not be null.");
+        if (envParticleLimit != null && envParticleLimit < 0) {
+            throw new IllegalArgumentException("Particle limit must be zero or positive.");
         }
     }
 }

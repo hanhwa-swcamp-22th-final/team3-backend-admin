@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.algorithmversion;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,12 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AlgorithmVersionUpdateResponse {
+public class AlgorithmPolicyReviewResponse {
 
-    private Long algorithmVersionId;
-    private String versionNo;
-    private String implementationKey;
-    private String description;
-    private String policyConfig;
-    private Boolean isActive;
+    private String provider;
+    private String model;
+    private Boolean aiEnabled;
+    private String review;
+    private LocalDateTime reviewedAt;
 }

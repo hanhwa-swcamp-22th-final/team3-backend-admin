@@ -275,6 +275,16 @@ class EquipmentQueryMapperTest {
     }
 
     @Test
+    @DisplayName("select equipment detail by id returns null when equipment is soft deleted")
+    void selectEquipmentDetailById_whenSoftDeleted_thenNull() {
+        jdbcTemplate.update("UPDATE equipment SET is_deleted = true WHERE equipment_id = ?", equipmentId);
+
+        EquipmentDetailResponse result = equipmentQueryMapper.selectEquipmentDetailById(equipmentId);
+
+        assertNull(result);
+    }
+
+    @Test
     @DisplayName("select equipment id by code success")
     void selectEquipmentIdByCode_success() {
         Long result = equipmentQueryMapper.selectEquipmentIdByCode(equipmentCode);

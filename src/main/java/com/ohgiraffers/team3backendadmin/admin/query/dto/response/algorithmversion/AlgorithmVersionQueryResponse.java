@@ -11,5 +11,6 @@ public class AlgorithmVersionQueryResponse {
     private String versionNo;
     private String implementationKey;
     private String description;
+    private String policyConfig;
     private Boolean isActive;
 }

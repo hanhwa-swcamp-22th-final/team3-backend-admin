@@ -14,6 +14,7 @@ public class EquipmentQueryResponse {
     private String equipmentName;
     private EquipmentStatus equipmentStatus;
     private EquipmentGrade equipmentGrade;
+    private EquipmentGrade currentEquipmentGrade;
     private String equipmentProcessName;
     private String factoryLineName;
     private String environmentName;
