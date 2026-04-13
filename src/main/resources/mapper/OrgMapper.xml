@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.OrgMapper">
+
+    <resultMap id="orgEmployeeResultMap"
+               type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.org.OrgEmployeeItem">
+        <result property="employeeId"     column="employee_id"/>
+        <result property="name"           column="name"/>
+        <result property="currentTier"    column="current_tier"/>
+        <result property="role"           column="role"/>
+        <result property="departmentName" column="department_name"/>
+        <result property="teamName"       column="team_name"/>
+    </resultMap>
+
+    <!-- 직원 목록 (부서/팀/키워드 필터, 페이징) -->
+    <select id="findOrgEmployees" resultMap="orgEmployeeResultMap">
+        SELECT e.employee_id,
+               e.employee_name                                         AS name,
+               e.employee_tier                                         AS current_tier,
+               e.employee_role                                         AS role,
+               COALESCE(pd.department_name, d.department_name)        AS department_name,
+               d.team_name
+          FROM employee e
+          LEFT JOIN department d  ON e.department_id = d.department_id
+          LEFT JOIN department pd ON d.parent_department_id = pd.department_id
+        <where>
+            <if test="departmentId != null">
+                AND (d.is_deleted = false OR d.is_deleted IS NULL)
+                AND (
+                    (d.parent_department_id IS NOT NULL AND pd.department_id = #{departmentId})
+                    OR (d.parent_department_id IS NULL AND d.department_id = #{departmentId})
+                )
+            </if>
+            <if test="teamId != null">
+                AND (d.is_deleted = false OR d.is_deleted IS NULL)
+                AND e.department_id = #{teamId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND e.employee_name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+         ORDER BY e.employee_id
+         LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 특정 팀 소속 직원 전체 (팀장 우선 정렬) -->
+    <select id="findEmployeesByTeamId" resultMap="orgEmployeeResultMap">
+        SELECT e.employee_id,
+               e.employee_name                                         AS name,
+               e.employee_tier                                         AS current_tier,
+               e.employee_role                                         AS role,
+               COALESCE(pd.department_name, d.department_name)        AS department_name,
+               d.team_name
+          FROM employee e
+          LEFT JOIN department d  ON e.department_id = d.department_id
+          LEFT JOIN department pd ON d.parent_department_id = pd.department_id
+         WHERE e.department_id = #{teamId}
+         ORDER BY CASE WHEN e.employee_role = 'TL' THEN 0 ELSE 1 END, e.employee_id
+    </select>
+
+</mapper>

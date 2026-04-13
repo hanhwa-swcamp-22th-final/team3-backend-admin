@@ -87,12 +87,14 @@
         <result property="teamName" column="team_name"/>
         <result property="currentTier" column="current_tier"/>
         <result property="totalScore" column="total_score"/>
+        <result property="hireDate" column="hire_date"/>
     </resultMap>
 
     <select id="findProfileByEmployeeId" resultMap="employeeProfileResultMap">
         SELECT e.employee_id,
                e.employee_code,
                e.employee_name,
+               e.hire_date,
                COALESCE(pd.department_name, d.department_name) AS department_name,
                d.team_name,
                e.employee_tier AS current_tier,
