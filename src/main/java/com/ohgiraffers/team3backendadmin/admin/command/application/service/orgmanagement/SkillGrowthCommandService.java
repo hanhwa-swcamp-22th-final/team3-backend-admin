@@ -3,6 +3,7 @@ package com.ohgiraffers.team3backendadmin.admin.command.application.service.orgm
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.SkillRepository;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.score.ScoreSnapshotCommandService;
 import com.ohgiraffers.team3backendadmin.common.exception.SkillNotFoundException;
 import com.ohgiraffers.team3backendadmin.infrastructure.kafka.dto.SkillGrowthCalculatedEvent;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SkillGrowthCommandService {
 
     private final SkillRepository skillRepository;
+    private final ScoreSnapshotCommandService scoreSnapshotCommandService;
 
     @Transactional
     public void applyCalculatedGrowth(SkillGrowthCalculatedEvent event) {
@@ -28,6 +30,11 @@ public class SkillGrowthCommandService {
             event.getSkillContributionScore(),
             event.getAlpha(),
             event.getOccurredAt()
+        );
+
+        scoreSnapshotCommandService.refreshAfterSkillGrowth(
+            event.getEmployeeId(),
+            event.getEvaluationPeriodId()
         );
     }
 }
