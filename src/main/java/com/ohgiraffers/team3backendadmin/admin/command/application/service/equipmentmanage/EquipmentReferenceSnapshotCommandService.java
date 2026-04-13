@@ -75,6 +75,9 @@ public class EquipmentReferenceSnapshotCommandService {
                 null,
                 null,
                 null,
+                null,
+                null,
+                null,
                 true,
                 LocalDateTime.now()
             )
@@ -95,8 +98,12 @@ public class EquipmentReferenceSnapshotCommandService {
 
     private void publishSnapshot(Long equipmentId) {
         equipmentRepository.findById(equipmentId).ifPresent(equipment -> {
-            EquipmentAgingParam agingParam = equipmentAgingParamRepository.findByEquipmentId(equipmentId).orElse(null);
-            EquipmentBaseline baseline = equipmentBaselineRepository.findByEquipmentId(equipmentId).orElse(null);
+            EquipmentAgingParam agingParam = equipmentAgingParamRepository
+                .findFirstByEquipmentIdOrderByEquipmentAgeCalculatedAtDescEquipmentAgingParamIdDesc(equipmentId)
+                .orElse(null);
+            EquipmentBaseline baseline = equipmentBaselineRepository
+                .findFirstByEquipmentIdOrderByEquipmentBaselineCalculatedAtDescEquipmentBaselineIdDesc(equipmentId)
+                .orElse(null);
             EnvironmentStandard environmentStandard = environmentStandardRepository.findById(
                 equipment.getEnvironmentStandardId()
             ).orElse(null);
@@ -116,6 +123,11 @@ public class EquipmentReferenceSnapshotCommandService {
                     baseline == null ? null : baseline.getEquipmentBaselineErrorRate(),
                     baseline == null ? null : baseline.getEquipmentEtaMaint(),
                     baseline == null ? null : baseline.getEquipmentIdx(),
+                    agingParam == null ? null : agingParam.getEquipmentEtaAge(),
+                    agingParam == null ? null : agingParam.getEquipmentAgeMonths(),
+                    baseline == null || baseline.getCurrentEquipmentGrade() == null
+                        ? null
+                        : baseline.getCurrentEquipmentGrade().name(),
                     environmentStandard == null ? null : environmentStandard.getEnvTempMin(),
                     environmentStandard == null ? null : environmentStandard.getEnvTempMax(),
                     environmentStandard == null ? null : environmentStandard.getEnvHumidityMin(),

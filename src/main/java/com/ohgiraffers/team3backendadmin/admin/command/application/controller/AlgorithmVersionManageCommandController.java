@@ -1,10 +1,13 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.algorithmversion.AlgorithmPolicyReviewRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.algorithmversion.AlgorithmVersionCreateRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.algorithmversion.AlgorithmVersionUpdateRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.algorithmversion.AlgorithmPolicyReviewResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.algorithmversion.AlgorithmVersionCreateResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.algorithmversion.AlgorithmVersionDeleteResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.algorithmversion.AlgorithmVersionUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.algorithmversion.AlgorithmPolicyReviewService;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.algorithmversion.AlgorithmVersionManageCommandService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -24,7 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AlgorithmVersionManageCommandController {
 
     private final AlgorithmVersionManageCommandService algorithmVersionManageCommandService;
+    private final AlgorithmPolicyReviewService algorithmPolicyReviewService;
 
+
+    @PostMapping("/policy-review")
+    public ResponseEntity<ApiResponse<AlgorithmPolicyReviewResponse>> reviewPolicyConfig(
+        @Valid @RequestBody AlgorithmPolicyReviewRequest request
+    ) {
+        AlgorithmPolicyReviewResponse response = algorithmPolicyReviewService.review(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
     @PostMapping
     public ResponseEntity<ApiResponse<AlgorithmVersionCreateResponse>> createAlgorithmVersion(
         @Valid @RequestBody AlgorithmVersionCreateRequest request

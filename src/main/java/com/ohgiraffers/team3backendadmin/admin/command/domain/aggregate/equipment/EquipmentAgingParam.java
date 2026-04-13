@@ -31,7 +31,7 @@ public class EquipmentAgingParam {
     @Column(name = "equipment_id", nullable = false)
     private Long equipmentId;
 
-    @Column(name = "equipment_eta_age")
+    @Column(name = "equipment_eta_age", precision = 10, scale = 4)
     private BigDecimal equipmentEtaAge;
 
     @Column(name = "equipment_warranty_month")
@@ -40,7 +40,7 @@ public class EquipmentAgingParam {
     @Column(name = "equipment_design_life_months")
     private Integer equipmentDesignLifeMonths;
 
-    @Column(name = "equipment_wear_coefficient")
+    @Column(name = "equipment_wear_coefficient", precision = 10, scale = 4)
     private BigDecimal equipmentWearCoefficient;
 
     @Column(name = "equipment_age_months")

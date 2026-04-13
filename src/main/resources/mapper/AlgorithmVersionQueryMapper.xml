@@ -10,6 +10,7 @@
             version_no AS versionNo,
             implementation_key AS implementationKey,
             description AS description,
+            policy_config AS policyConfig,
             is_active AS isActive
         FROM algorithm_version
         WHERE 1 = 1
@@ -32,6 +33,7 @@
             version_no AS versionNo,
             implementation_key AS implementationKey,
             description AS description,
+            policy_config AS policyConfig,
             is_active AS isActive,
             created_at AS createdAt,
             created_by AS createdBy,

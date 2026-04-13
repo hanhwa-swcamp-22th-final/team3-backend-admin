@@ -39,6 +39,9 @@ public class AlgorithmVersion {
     @Column(name = "description", length = 500)
     private String description;
 
+    @Column(name = "policy_config", columnDefinition = "json")
+    private String policyConfig;
+
     @Column(name = "is_active")
     private Boolean isActive;
 
@@ -62,6 +65,7 @@ public class AlgorithmVersion {
         String versionNo,
         String implementationKey,
         String description,
+        String policyConfig,
         Boolean isActive
     ) {
         validateVersionNo(versionNo);
@@ -71,6 +75,7 @@ public class AlgorithmVersion {
         this.versionNo = versionNo;
         this.implementationKey = implementationKey;
         this.description = description;
+        this.policyConfig = normalizePolicyConfig(policyConfig);
         this.isActive = isActive;
     }
 
@@ -96,5 +101,9 @@ public class AlgorithmVersion {
         if (description != null && description.length() > 500) {
             throw new IllegalArgumentException("Description must be 500 characters or less");
         }
+    }
+
+    private String normalizePolicyConfig(String policyConfig) {
+        return policyConfig == null || policyConfig.isBlank() ? null : policyConfig;
     }
 }

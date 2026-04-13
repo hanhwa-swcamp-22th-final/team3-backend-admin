@@ -6,12 +6,12 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.Equipment;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentAgingParam;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentBaseline;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipment.EquipmentGrade;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EnvironmentStandardRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentAgingParamRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentBaselineRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentProcessRepository;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.repository.EquipmentRepository;
-import com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage.EquipmentQueryService;
 import com.ohgiraffers.team3backendadmin.common.exception.BusinessException;
 import com.ohgiraffers.team3backendadmin.common.exception.ErrorCode;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,6 @@ public class EquipmentManageCommandService {
   private final EnvironmentStandardRepository environmentStandardRepository;
   private final EquipmentAgingParamRepository equipmentAgingParamRepository;
   private final EquipmentBaselineRepository equipmentBaselineRepository;
-  private final EquipmentQueryService equipmentQueryService;
   private final IdGenerator idGenerator;
   private final EquipmentReferenceSnapshotCommandService equipmentReferenceSnapshotCommandService;
 
@@ -43,7 +44,7 @@ public class EquipmentManageCommandService {
    */
   public EquipmentCreateResponse createEquipment(EquipmentCreateRequest request) {
 
-    if (equipmentQueryService.existsByEquipmentCode(request.getEquipmentCode())) {
+    if (equipmentRepository.findByEquipmentCode(request.getEquipmentCode()).isPresent()) {
       throw new BusinessException(ErrorCode.EQUIPMENT_CODE_ALREADY_EXISTS);
     }
 
@@ -66,6 +67,7 @@ public class EquipmentManageCommandService {
         .equipmentName(request.getEquipmentName())
         .equipmentStatus(request.getEquipmentStatus())
         .equipmentGrade(request.getEquipmentGrade())
+        .equipmentInstallDate(toStartOfDay(request.getEquipmentInstallDate()))
         .equipmentDescription(request.getEquipmentDescription())
         .build();
 
@@ -83,6 +85,8 @@ public class EquipmentManageCommandService {
         .equipmentAgingParamId(equipmentAgingParamId)
         .equipmentStandardPerformanceRate(toBigDecimal(request.getEquipmentStandardPerformanceRate()))
         .equipmentBaselineErrorRate(toBigDecimal(request.getEquipmentBaselineErrorRate()))
+        .equipmentIdx(initialEquipmentIdx(request.getEquipmentGrade()))
+        .currentEquipmentGrade(request.getEquipmentGrade())
         .build();
 
     equipmentRepository.save(equipment);
@@ -123,12 +127,8 @@ public class EquipmentManageCommandService {
         () -> new BusinessException(ErrorCode.ENVIRONMENT_STANDARD_NOT_FOUND)
     );
 
-    Long equipmentAgingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(equipmentId);
-    if (equipmentAgingParamId == null) {
-      throw new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND);
-    }
-
-    EquipmentAgingParam equipmentAgingParam = equipmentAgingParamRepository.findById(equipmentAgingParamId)
+    EquipmentAgingParam equipmentAgingParam = equipmentAgingParamRepository
+        .findFirstByEquipmentIdOrderByEquipmentAgeCalculatedAtDescEquipmentAgingParamIdDesc(equipmentId)
         .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_AGING_PARAM_NOT_FOUND));
 
     equipment.update(
@@ -138,6 +138,7 @@ public class EquipmentManageCommandService {
         request.getEquipmentName(),
         request.getEquipmentStatus(),
         request.getEquipmentGrade(),
+        toStartOfDay(request.getEquipmentInstallDate()),
         request.getEquipmentDescription()
     );
 
@@ -158,21 +159,11 @@ public class EquipmentManageCommandService {
     Equipment equipment = equipmentRepository.findById(equipmentId)
         .orElseThrow(() -> new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND));
 
-    Long equipmentBaselineId = equipmentQueryService.getEquipmentBaselineIdByEquipmentId(equipmentId);
-    if (equipmentBaselineId != null) {
-      equipmentBaselineRepository.deleteById(equipmentBaselineId);
-    }
-
-    Long equipmentAgingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(equipmentId);
-    if (equipmentAgingParamId != null) {
-      equipmentAgingParamRepository.deleteById(equipmentAgingParamId);
-    }
-
     equipmentReferenceSnapshotCommandService.publishDeletedSnapshotAfterCommit(
         equipment.getEquipmentId(),
         equipment.getEquipmentCode()
     );
-    equipmentRepository.delete(equipment);
+    equipment.softDelete();
   }
 
   /**
@@ -180,6 +171,22 @@ public class EquipmentManageCommandService {
    * @param value 변환할 수치 값
    * @return BigDecimal로 변환한 값, null 입력 시 null
    */
+  private LocalDateTime toStartOfDay(LocalDate value) {
+    return value == null ? null : value.atStartOfDay();
+  }
+  private BigDecimal initialEquipmentIdx(EquipmentGrade grade) {
+    if (grade == null) {
+      return null;
+    }
+
+    return switch (grade) {
+      case S -> BigDecimal.valueOf(1.00);
+      case A -> BigDecimal.valueOf(0.90);
+      case B -> BigDecimal.valueOf(0.80);
+      case C -> BigDecimal.valueOf(0.70);
+    };
+  }
+
   private BigDecimal toBigDecimal(Double value) {
     return value == null ? null : BigDecimal.valueOf(value);
   }

@@ -7,4 +7,8 @@ import java.util.Optional;
 public interface EquipmentAgingParamRepository extends JpaEquipmentAgingParamRepository {
 
     Optional<EquipmentAgingParam> findByEquipmentId(Long equipmentId);
+
+    Optional<EquipmentAgingParam> findFirstByEquipmentIdOrderByEquipmentAgeCalculatedAtDescEquipmentAgingParamIdDesc(
+        Long equipmentId
+    );
 }

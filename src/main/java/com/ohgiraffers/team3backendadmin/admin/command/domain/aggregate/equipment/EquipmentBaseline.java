@@ -3,6 +3,8 @@ package com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.equipme
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -34,17 +36,21 @@ public class EquipmentBaseline {
     @Column(name = "equipment_aging_param_id", nullable = false)
     private Long equipmentAgingParamId;
 
-    @Column(name = "equipment_standard_performance_rate")
+    @Column(name = "equipment_standard_performance_rate", precision = 10, scale = 4)
     private BigDecimal equipmentStandardPerformanceRate;
 
-    @Column(name = "equipment_baseline_error_rate")
+    @Column(name = "equipment_baseline_error_rate", precision = 10, scale = 4)
     private BigDecimal equipmentBaselineErrorRate;
 
-    @Column(name = "equipment_eta_maint")
+    @Column(name = "equipment_eta_maint", precision = 10, scale = 4)
     private BigDecimal equipmentEtaMaint;
 
-    @Column(name = "equipment_idx")
+    @Column(name = "equipment_idx", precision = 10, scale = 4)
     private BigDecimal equipmentIdx;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "current_equipment_grade")
+    private EquipmentGrade currentEquipmentGrade;
 
     @Column(name = "equipment_baseline_calculated_at")
     private LocalDateTime equipmentBaselineCalculatedAt;
@@ -73,6 +79,7 @@ public class EquipmentBaseline {
                              BigDecimal equipmentBaselineErrorRate,
                              BigDecimal equipmentEtaMaint,
                              BigDecimal equipmentIdx,
+                             EquipmentGrade currentEquipmentGrade,
                              LocalDateTime equipmentBaselineCalculatedAt,
                              LocalDateTime createdAt,
                              Long createdBy,
@@ -85,6 +92,7 @@ public class EquipmentBaseline {
         this.equipmentBaselineErrorRate = equipmentBaselineErrorRate;
         this.equipmentEtaMaint = equipmentEtaMaint;
         this.equipmentIdx = equipmentIdx;
+        this.currentEquipmentGrade = currentEquipmentGrade;
         this.equipmentBaselineCalculatedAt = equipmentBaselineCalculatedAt;
         this.createdAt = createdAt;
         this.createdBy = createdBy;

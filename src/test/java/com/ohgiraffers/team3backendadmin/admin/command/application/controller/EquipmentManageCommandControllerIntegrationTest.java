@@ -429,7 +429,7 @@ class EquipmentManageCommandControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Delete equipment API integration success: remove equipment and child rows")
+    @DisplayName("Delete equipment API integration success: soft delete equipment and keep child rows")
     void deleteEquipment_success() throws Exception {
         Equipment existingEquipment = createEquipmentAggregate("EQ-" + idGenerator.generate(), "Delete Target Equipment");
         Long agingParamId = equipmentQueryService.getEquipmentAgingParamIdByEquipmentId(existingEquipment.getEquipmentId());
@@ -439,9 +439,11 @@ class EquipmentManageCommandControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true));
 
-        assertTrue(equipmentRepository.findById(existingEquipment.getEquipmentId()).isEmpty());
-        assertFalse(equipmentAgingParamRepository.findById(agingParamId).isPresent());
-        assertFalse(equipmentBaselineRepository.findById(baselineId).isPresent());
+        Equipment deletedEquipment = equipmentRepository.findById(existingEquipment.getEquipmentId()).orElse(null);
+        assertNotNull(deletedEquipment);
+        assertTrue(deletedEquipment.getIsDeleted());
+        assertTrue(equipmentAgingParamRepository.findById(agingParamId).isPresent());
+        assertTrue(equipmentBaselineRepository.findById(baselineId).isPresent());
     }
 
     @Test

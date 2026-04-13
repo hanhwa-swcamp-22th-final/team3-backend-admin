@@ -34,6 +34,7 @@ public class AlgorithmVersionManageCommandService {
             request.getVersionNo(),
             request.getImplementationKey(),
             request.getDescription(),
+            request.getPolicyConfig(),
             request.getIsActive()
         );
 
@@ -44,6 +45,7 @@ public class AlgorithmVersionManageCommandService {
             .versionNo(algorithmVersion.getVersionNo())
             .implementationKey(algorithmVersion.getImplementationKey())
             .description(algorithmVersion.getDescription())
+            .policyConfig(algorithmVersion.getPolicyConfig())
             .isActive(algorithmVersion.getIsActive())
             .build();
     }
@@ -62,6 +64,7 @@ public class AlgorithmVersionManageCommandService {
             request.getVersionNo(),
             request.getImplementationKey(),
             request.getDescription(),
+            request.getPolicyConfig(),
             request.getIsActive()
         );
 
@@ -70,6 +73,7 @@ public class AlgorithmVersionManageCommandService {
             .versionNo(algorithmVersion.getVersionNo())
             .implementationKey(algorithmVersion.getImplementationKey())
             .description(algorithmVersion.getDescription())
+            .policyConfig(algorithmVersion.getPolicyConfig())
             .isActive(algorithmVersion.getIsActive())
             .build();
     }

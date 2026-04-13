@@ -11,14 +11,36 @@
             e.equipment_name AS equipmentName,
             e.equipment_status AS equipmentStatus,
             e.equipment_grade AS equipmentGrade,
-            ep.equipment_process_name AS equipmentProcessName,
-            fl.factory_line_name AS factoryLineName,
-            es.environment_name AS environmentName
+            COALESCE(
+                (
+                    SELECT eb.current_equipment_grade
+                    FROM equipment_baseline eb
+                    WHERE eb.equipment_id = e.equipment_id
+                    ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                             eb.equipment_baseline_calculated_at DESC,
+                             eb.equipment_baseline_id DESC
+                    LIMIT 1
+                ),
+                e.equipment_grade
+            ) AS currentEquipmentGrade,
+            CASE
+                WHEN ep.equipment_process_id IS NULL OR ep.is_deleted = true THEN '삭제된 공정'
+                ELSE ep.equipment_process_name
+            END AS equipmentProcessName,
+            CASE
+                WHEN fl.factory_line_id IS NULL OR fl.is_deleted = true THEN '삭제된 라인'
+                ELSE fl.factory_line_name
+            END AS factoryLineName,
+            CASE
+                WHEN es.environment_standard_id IS NULL OR es.is_deleted = true THEN '삭제된 환경 기준'
+                ELSE es.environment_name
+            END AS environmentName
         FROM equipment e
-        INNER JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
-        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
-        INNER JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
+        LEFT JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
+        LEFT JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        LEFT JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
         WHERE 1 = 1
+          AND e.is_deleted = false
         <if test="request != null and request.keyword != null and request.keyword != ''">
             AND (
                 e.equipment_code LIKE CONCAT('%', #{request.keyword}, '%')
@@ -42,6 +64,7 @@
             SUM(CASE WHEN equipment_status = 'UNDER_INSPECTION' THEN 1 ELSE 0 END) AS underInspectionCount,
             SUM(CASE WHEN equipment_status = 'DISPOSED' THEN 1 ELSE 0 END) AS disposedCount
         FROM equipment
+        WHERE is_deleted = false
     </select>
 
     <select id="selectEquipmentListWithLatestSnapshots" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentLatestSnapshotQueryResponse">
@@ -51,9 +74,30 @@
             e.equipment_name AS equipmentName,
             e.equipment_status AS equipmentStatus,
             e.equipment_grade AS equipmentGrade,
-            ep.equipment_process_name AS equipmentProcessName,
-            fl.factory_line_name AS factoryLineName,
-            es.environment_name AS environmentName,
+            COALESCE(
+                (
+                    SELECT eb.current_equipment_grade
+                    FROM equipment_baseline eb
+                    WHERE eb.equipment_id = e.equipment_id
+                    ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                             eb.equipment_baseline_calculated_at DESC,
+                             eb.equipment_baseline_id DESC
+                    LIMIT 1
+                ),
+                e.equipment_grade
+            ) AS currentEquipmentGrade,
+            CASE
+                WHEN ep.equipment_process_id IS NULL OR ep.is_deleted = true THEN '삭제된 공정'
+                ELSE ep.equipment_process_name
+            END AS equipmentProcessName,
+            CASE
+                WHEN fl.factory_line_id IS NULL OR fl.is_deleted = true THEN '삭제된 라인'
+                ELSE fl.factory_line_name
+            END AS factoryLineName,
+            CASE
+                WHEN es.environment_standard_id IS NULL OR es.is_deleted = true THEN '삭제된 환경 기준'
+                ELSE es.environment_name
+            END AS environmentName,
             (
                 SELECT eap.equipment_aging_param_id
                 FROM equipment_aging_param eap
@@ -136,6 +180,15 @@
                 LIMIT 1
             ) AS latestEquipmentIdx,
             (
+                SELECT eb.equipment_idx
+                FROM equipment_baseline eb
+                WHERE eb.equipment_id = e.equipment_id
+                ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                         eb.equipment_baseline_calculated_at DESC,
+                         eb.equipment_baseline_id DESC
+                LIMIT 1
+            ) AS currentEquipmentIdx,
+            (
                 SELECT eb.equipment_baseline_calculated_at
                 FROM equipment_baseline eb
                 WHERE eb.equipment_id = e.equipment_id
@@ -194,10 +247,11 @@
                 LIMIT 1
             ) AS latestMaintenanceDate
         FROM equipment e
-        INNER JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
-        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
-        INNER JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
+        LEFT JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
+        LEFT JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        LEFT JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
         WHERE 1 = 1
+          AND e.is_deleted = false
         <if test="request != null and request.keyword != null and request.keyword != ''">
             AND (
                 e.equipment_code LIKE CONCAT('%', #{request.keyword}, '%')
@@ -222,17 +276,39 @@
             e.equipment_name AS equipmentName,
             e.equipment_status AS equipmentStatus,
             e.equipment_grade AS equipmentGrade,
+            COALESCE(
+                (
+                    SELECT eb.current_equipment_grade
+                    FROM equipment_baseline eb
+                    WHERE eb.equipment_id = e.equipment_id
+                    ORDER BY CASE WHEN eb.equipment_baseline_calculated_at IS NULL THEN 1 ELSE 0 END,
+                             eb.equipment_baseline_calculated_at DESC,
+                             eb.equipment_baseline_id DESC
+                    LIMIT 1
+                ),
+                e.equipment_grade
+            ) AS currentEquipmentGrade,
             e.equipment_install_date AS equipmentInstallDate,
             e.equipment_description AS equipmentDescription,
-            ep.equipment_process_name AS equipmentProcessName,
-            fl.factory_line_name AS factoryLineName,
+            CASE
+                WHEN ep.equipment_process_id IS NULL OR ep.is_deleted = true THEN '삭제된 공정'
+                ELSE ep.equipment_process_name
+            END AS equipmentProcessName,
+            CASE
+                WHEN fl.factory_line_id IS NULL OR fl.is_deleted = true THEN '삭제된 라인'
+                ELSE fl.factory_line_name
+            END AS factoryLineName,
             es.environment_code AS environmentCode,
-            es.environment_name AS environmentName
+            CASE
+                WHEN es.environment_standard_id IS NULL OR es.is_deleted = true THEN '삭제된 환경 기준'
+                ELSE es.environment_name
+            END AS environmentName
         FROM equipment e
-        INNER JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
-        INNER JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
-        INNER JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
+        LEFT JOIN equipment_process ep ON e.equipment_process_id = ep.equipment_process_id
+        LEFT JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
+        LEFT JOIN environment_standard es ON e.environment_standard_id = es.environment_standard_id
         WHERE e.equipment_id = #{equipmentId}
+          AND e.is_deleted = false
     </select>
 
     <select id="selectEquipmentIdByCode" resultType="java.lang.Long">
@@ -377,6 +453,7 @@
             equipment_baseline_error_rate AS equipmentBaselineErrorRate,
             equipment_eta_maint AS equipmentEtaMaint,
             equipment_idx AS equipmentIdx,
+            current_equipment_grade AS currentEquipmentGrade,
             equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
         FROM equipment_baseline
         WHERE equipment_baseline_id = #{equipmentBaselineId}
@@ -391,6 +468,7 @@
             equipment_baseline_error_rate AS equipmentBaselineErrorRate,
             equipment_eta_maint AS equipmentEtaMaint,
             equipment_idx AS equipmentIdx,
+            current_equipment_grade AS currentEquipmentGrade,
             equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
         FROM equipment_baseline
         WHERE 1 = 1
@@ -420,6 +498,7 @@
             equipment_baseline_error_rate AS equipmentBaselineErrorRate,
             equipment_eta_maint AS equipmentEtaMaint,
             equipment_idx AS equipmentIdx,
+            current_equipment_grade AS currentEquipmentGrade,
             equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
         FROM equipment_baseline
         WHERE equipment_id = #{equipmentId}
@@ -438,6 +517,7 @@
             equipment_baseline_error_rate AS equipmentBaselineErrorRate,
             equipment_eta_maint AS equipmentEtaMaint,
             equipment_idx AS equipmentIdx,
+            current_equipment_grade AS currentEquipmentGrade,
             equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
         FROM equipment_baseline
         WHERE equipment_id = #{equipmentId}
@@ -455,6 +535,7 @@
             equipment_baseline_error_rate AS equipmentBaselineErrorRate,
             equipment_eta_maint AS equipmentEtaMaint,
             equipment_idx AS equipmentIdx,
+            current_equipment_grade AS currentEquipmentGrade,
             equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
         FROM equipment_baseline
         WHERE equipment_id = #{equipmentId}
@@ -472,6 +553,7 @@
             equipment_baseline_error_rate AS equipmentBaselineErrorRate,
             equipment_eta_maint AS equipmentEtaMaint,
             equipment_idx AS equipmentIdx,
+            current_equipment_grade AS currentEquipmentGrade,
             equipment_baseline_calculated_at AS equipmentBaselineCalculatedAt
         FROM equipment_baseline
         WHERE equipment_baseline_calculated_at IS NULL

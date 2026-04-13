@@ -5,7 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EquipmentTest {
 
@@ -36,6 +38,7 @@ class EquipmentTest {
         assertEquals(EquipmentStatus.OPERATING, equipment.getEquipmentStatus());
         assertEquals(EquipmentGrade.A, equipment.getEquipmentGrade());
         assertEquals("Initial description", equipment.getEquipmentDescription());
+        assertFalse(equipment.getIsDeleted());
     }
 
     @Test
@@ -76,5 +79,13 @@ class EquipmentTest {
         assertThrows(IllegalArgumentException.class, () ->
             equipment.updateInfo("Printing Equipment", null, "Updated description")
         );
+    }
+
+    @Test
+    @DisplayName("Soft delete equipment success: isDeleted is changed to true")
+    void softDelete_success() {
+        equipment.softDelete();
+
+        assertTrue(equipment.getIsDeleted());
     }
 }

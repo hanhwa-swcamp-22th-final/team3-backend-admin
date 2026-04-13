@@ -7,4 +7,8 @@ import java.util.Optional;
 public interface EquipmentBaselineRepository extends JpaEquipmentBaselineRepository {
 
     Optional<EquipmentBaseline> findByEquipmentId(Long equipmentId);
+
+    Optional<EquipmentBaseline> findFirstByEquipmentIdOrderByEquipmentBaselineCalculatedAtDescEquipmentBaselineIdDesc(
+        Long equipmentId
+    );
 }
