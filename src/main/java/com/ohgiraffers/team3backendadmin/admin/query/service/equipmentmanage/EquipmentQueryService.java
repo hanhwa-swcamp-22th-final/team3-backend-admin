@@ -2,6 +2,8 @@ package com.ohgiraffers.team3backendadmin.admin.query.service.equipmentmanage;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.request.equipmentmanage.EquipmentSearchRequest;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentEnumOptionResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentEnumValuesResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentSummaryQueryResponse;
@@ -12,7 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +26,47 @@ import java.util.List;
 public class EquipmentQueryService {
 
     private final EquipmentQueryMapper equipmentQueryMapper;
+
+    public EquipmentEnumValuesResponse getEquipmentEnumValues() {
+        return new EquipmentEnumValuesResponse(
+            toOptions(equipmentQueryMapper.selectEquipmentStatusColumnType(), this::equipmentStatusLabel),
+            toOptions(equipmentQueryMapper.selectEquipmentGradeColumnType(), value -> value),
+            toOptions(equipmentQueryMapper.selectEnvironmentTypeColumnType(), this::environmentTypeLabel)
+        );
+    }
+
+    private List<EquipmentEnumOptionResponse> toOptions(String columnType, Function<String, String> labelResolver) {
+        if (columnType == null || !columnType.startsWith("enum(")) {
+            return List.of();
+        }
+
+        Matcher matcher = Pattern.compile("'((?:''|[^'])*)'").matcher(columnType);
+        List<EquipmentEnumOptionResponse> options = new ArrayList<>();
+        while (matcher.find()) {
+            String value = matcher.group(1).replace("''", "'");
+            options.add(new EquipmentEnumOptionResponse(value, labelResolver.apply(value)));
+        }
+        return options;
+    }
+
+    private String equipmentStatusLabel(String status) {
+        return switch (status) {
+            case "OPERATING" -> "가동 중";
+            case "STOPPED" -> "중지";
+            case "UNDER_INSPECTION" -> "점검 중";
+            case "DISPOSED" -> "폐기";
+            default -> status;
+        };
+    }
+
+    private String environmentTypeLabel(String type) {
+        return switch (type) {
+            case "DRYROOM" -> "드라이룸";
+            case "CLEANROOM" -> "클린룸";
+            case "GENERAL" -> "일반 환경";
+            default -> type;
+        };
+    }
 
     /**
      * 설비 목록을 조회한다.

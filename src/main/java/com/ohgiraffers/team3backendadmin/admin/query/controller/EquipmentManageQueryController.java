@@ -16,6 +16,7 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanag
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentAgingParamDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentBaselineDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentDetailResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentEnumValuesResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentLatestSnapshotQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentProcessDetailResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentProcessQueryResponse;
@@ -66,6 +67,12 @@ public class EquipmentManageQueryController {
     private final EnvironmentEventQueryService environmentEventQueryService;
     private final MaintenanceItemStandardQueryService maintenanceItemStandardQueryService;
     private final MaintenanceLogQueryService maintenanceLogQueryService;
+
+    @GetMapping("/enum-values")
+    public ResponseEntity<ApiResponse<EquipmentEnumValuesResponse>> getEquipmentEnumValues() {
+        EquipmentEnumValuesResponse response = equipmentQueryService.getEquipmentEnumValues();
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
     /**
      * 생산 라인 목록을 조회한다.
