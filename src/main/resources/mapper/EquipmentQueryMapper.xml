@@ -56,6 +56,30 @@
         ORDER BY e.equipment_id DESC
     </select>
 
+    <select id="selectEquipmentStatusColumnType" resultType="java.lang.String">
+        SELECT COLUMN_TYPE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'equipment'
+          AND COLUMN_NAME = 'equipment_status'
+    </select>
+
+    <select id="selectEquipmentGradeColumnType" resultType="java.lang.String">
+        SELECT COLUMN_TYPE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'equipment'
+          AND COLUMN_NAME = 'equipment_grade'
+    </select>
+
+    <select id="selectEnvironmentTypeColumnType" resultType="java.lang.String">
+        SELECT COLUMN_TYPE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'environment_standard'
+          AND COLUMN_NAME = 'environment_type'
+    </select>
+
     <select id="selectEquipmentSummary" resultType="com.ohgiraffers.team3backendadmin.admin.query.dto.response.equipmentmanage.EquipmentSummaryQueryResponse">
         SELECT
             COUNT(*) AS totalCount,

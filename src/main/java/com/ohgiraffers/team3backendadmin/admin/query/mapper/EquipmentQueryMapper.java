@@ -22,6 +22,12 @@ public interface EquipmentQueryMapper {
 
     EquipmentSummaryQueryResponse selectEquipmentSummary();
 
+    String selectEquipmentStatusColumnType();
+
+    String selectEquipmentGradeColumnType();
+
+    String selectEnvironmentTypeColumnType();
+
     List<EquipmentLatestSnapshotQueryResponse> selectEquipmentListWithLatestSnapshots(@Param("request") EquipmentSearchRequest request);
 
     EquipmentDetailResponse selectEquipmentDetailById(@Param("equipmentId") Long equipmentId);
