@@ -19,4 +19,6 @@ public interface EmployeeMapper {
     List<EmployeeSkillQueryResponse> findSkillsByEmployeeId(Long employeeId);
     List<TierChartPointQueryResponse> findTierChartByEmployeeId(Long employeeId);
     List<Long> findTeamMemberIdsByLeaderId(@Param("leaderId") Long leaderId);
+    List<Long> findActiveWorkerIdsByTier(@Param("tier") String tier);
+    boolean existsActiveWorkerByIdAndTier(@Param("employeeId") Long employeeId, @Param("tier") String tier);
 }

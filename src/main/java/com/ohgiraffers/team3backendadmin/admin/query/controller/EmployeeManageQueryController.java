@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -43,5 +44,22 @@ public class EmployeeManageQueryController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL')")
     public ResponseEntity<ApiResponse<List<Long>>> getTeamMemberIds(@PathVariable Long leaderId) {
         return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getTeamMemberIds(leaderId)));
+    }
+
+    @GetMapping("/workers/active")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM')")
+    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByTier(@RequestParam String tier) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getActiveWorkerIdsByTier(tier)));
+    }
+
+    @GetMapping("/{employeeId}/active-worker")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM')")
+    public ResponseEntity<ApiResponse<Boolean>> existsActiveWorkerByIdAndTier(
+            @PathVariable Long employeeId,
+            @RequestParam String tier
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                employeeHrQueryService.existsActiveWorkerByIdAndTier(employeeId, tier)
+        ));
     }
 }

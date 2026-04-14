@@ -38,4 +38,12 @@ public class EmployeeHrQueryService {
         }
         return employeeMapper.findTeamMemberIdsByLeaderId(leaderId);
     }
+
+    public List<Long> getActiveWorkerIdsByTier(String tier) {
+        return employeeMapper.findActiveWorkerIdsByTier(tier);
+    }
+
+    public boolean existsActiveWorkerByIdAndTier(Long employeeId, String tier) {
+        return employeeMapper.existsActiveWorkerByIdAndTier(employeeId, tier);
+    }
 }

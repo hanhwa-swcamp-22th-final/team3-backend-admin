@@ -103,4 +103,27 @@ class EmployeeManageQueryControllerTest {
             .andExpect(jsonPath("$.data[0].tier").value("A"))
             .andExpect(jsonPath("$.data[0].totalScore").value(87.25));
     }
+
+    @Test
+    @DisplayName("Get active worker ids by tier API success")
+    void getActiveWorkerIdsByTier_success() throws Exception {
+        when(employeeHrQueryService.getActiveWorkerIdsByTier("B")).thenReturn(List.of(101L, 102L));
+
+        mockMvc.perform(get("/api/v1/admin/employees/workers/active").param("tier", "B"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data[0]").value(101L))
+            .andExpect(jsonPath("$.data[1]").value(102L));
+    }
+
+    @Test
+    @DisplayName("Check active worker by id and tier API success")
+    void existsActiveWorkerByIdAndTier_success() throws Exception {
+        when(employeeHrQueryService.existsActiveWorkerByIdAndTier(101L, "B")).thenReturn(true);
+
+        mockMvc.perform(get("/api/v1/admin/employees/101/active-worker").param("tier", "B"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data").value(true));
+    }
 }

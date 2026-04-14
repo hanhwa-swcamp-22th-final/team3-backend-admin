@@ -178,4 +178,24 @@
          ORDER BY worker.employee_id
     </select>
 
+    <select id="findActiveWorkerIdsByTier" resultType="long">
+        SELECT employee_id
+          FROM employee
+         WHERE employee_role = 'WORKER'
+           AND employee_status = 'ACTIVE'
+           AND employee_tier = #{tier}
+         ORDER BY employee_id
+    </select>
+
+    <select id="existsActiveWorkerByIdAndTier" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+              FROM employee
+             WHERE employee_id = #{employeeId}
+               AND employee_role = 'WORKER'
+               AND employee_status = 'ACTIVE'
+               AND employee_tier = #{tier}
+        )
+    </select>
+
 </mapper>
