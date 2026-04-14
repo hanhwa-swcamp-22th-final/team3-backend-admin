@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSummaryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.mapper.EmployeeMapper;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;

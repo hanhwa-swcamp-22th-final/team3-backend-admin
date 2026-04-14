@@ -1,8 +1,8 @@
 package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.DepartmentResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSummaryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.DepartmentManageQueryService;
 import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.EmployeeManageQueryService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;

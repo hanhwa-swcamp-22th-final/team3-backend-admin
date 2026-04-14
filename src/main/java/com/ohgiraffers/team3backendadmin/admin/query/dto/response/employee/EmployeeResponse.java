@@ -1,4 +1,4 @@
-package com.ohgiraffers.team3backendadmin.admin.query.dto.response;
+package com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee;
 
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeStatus;
