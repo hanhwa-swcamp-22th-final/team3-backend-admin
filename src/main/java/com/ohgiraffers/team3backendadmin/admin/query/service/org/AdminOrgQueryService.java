@@ -28,7 +28,7 @@ public class AdminOrgQueryService {
 
         // 삭제된 부서 제외
         List<DepartmentResponse> active = all.stream()
-                .filter(d -> d.getDepth() != null && !"삭제됨".equals(d.getDepartmentName()))
+                .filter(d -> !Boolean.TRUE.equals(d.getIsDeleted()))
                 .toList();
 
         // 부모별 자식 그룹화
@@ -102,8 +102,7 @@ public class AdminOrgQueryService {
 
         List<DepartmentResponse> teams = all.stream()
                 .filter(d -> departmentId.equals(d.getParentDepartmentId())
-                        && d.getDepth() != null
-                        && !"삭제됨".equals(d.getDepartmentName()))
+                        && !Boolean.TRUE.equals(d.getIsDeleted()))
                 .toList();
 
         List<OrgDepartmentDetailDto.TeamSummary> teamSummaries = new ArrayList<>();

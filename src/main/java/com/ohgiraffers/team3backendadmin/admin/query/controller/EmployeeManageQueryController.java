@@ -38,4 +38,10 @@ public class EmployeeManageQueryController {
     public ResponseEntity<ApiResponse<List<TierChartPointQueryResponse>>> getTierChart(@PathVariable Long employeeId) {
         return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getTierChart(employeeId)));
     }
+
+    @GetMapping("/{leaderId}/team-members")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL')")
+    public ResponseEntity<ApiResponse<List<Long>>> getTeamMemberIds(@PathVariable Long leaderId) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getTeamMemberIds(leaderId)));
+    }
 }

@@ -156,4 +156,26 @@
          ORDER BY ep.eval_year, ep.eval_sequence
     </select>
 
+    <select id="findTeamMemberIdsByLeaderId" resultType="long">
+        SELECT worker.employee_id
+          FROM employee leader
+          JOIN employee worker
+            ON worker.employee_role = 'WORKER'
+          LEFT JOIN department worker_dept
+            ON worker.department_id = worker_dept.department_id
+         WHERE leader.employee_id = #{leaderId}
+           AND (
+               (leader.employee_role = 'TL' AND worker.department_id = leader.department_id)
+               OR (
+                   leader.employee_role = 'DL'
+                   AND (
+                       worker.department_id = leader.department_id
+                       OR worker_dept.parent_department_id = leader.department_id
+                   )
+               )
+           )
+           AND (worker_dept.is_deleted = false OR worker_dept.is_deleted IS NULL)
+         ORDER BY worker.employee_id
+    </select>
+
 </mapper>

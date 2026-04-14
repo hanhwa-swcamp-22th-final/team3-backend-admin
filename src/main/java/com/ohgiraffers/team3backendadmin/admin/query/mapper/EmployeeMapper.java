@@ -6,6 +6,7 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.Emplo
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSkillQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.TierChartPointQueryResponse;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,4 +18,5 @@ public interface EmployeeMapper {
     EmployeeProfileQueryResponse findProfileByEmployeeId(Long employeeId);
     List<EmployeeSkillQueryResponse> findSkillsByEmployeeId(Long employeeId);
     List<TierChartPointQueryResponse> findTierChartByEmployeeId(Long employeeId);
+    List<Long> findTeamMemberIdsByLeaderId(@Param("leaderId") Long leaderId);
 }

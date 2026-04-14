@@ -7,7 +7,9 @@ import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDepartmentMatchResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeDeleteResponse;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.response.employee.EmployeeUpdateResponse;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.org.OrgEmployeeTransferService;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.Employee;
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeRole;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.Skill;
 import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.skill.SkillCategory;
@@ -20,13 +22,15 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.service.Organizati
 import com.ohgiraffers.team3backendadmin.common.constant.ConsentInfo;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
-import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.exception.DuplicateFieldException;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import com.ohgiraffers.team3backendadmin.infrastructure.kafka.dto.EmployeeSnapshotEvent;
 import com.ohgiraffers.team3backendadmin.infrastructure.kafka.publisher.EmployeeReferenceEventPublisher;
+import com.ohgiraffers.team3backendadmin.infrastructure.client.dto.HrMissionAssignmentRequest;
+import com.ohgiraffers.team3backendadmin.infrastructure.client.feign.HrMissionFeignApi;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +43,7 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmployeeManageCommandService {
 
     private final OrganizationManageDomainService organizationManageDomainService;
@@ -50,6 +55,8 @@ public class EmployeeManageCommandService {
     private final PasswordEncoder passwordEncoder;
     private final AesEncryptor aesEncryptor;
     private final EmployeeReferenceEventPublisher employeeReferenceEventPublisher;
+    private final HrMissionFeignApi hrMissionFeignApi;
+    private final OrgEmployeeTransferService orgEmployeeTransferService;
 
     // Insert Employee
     @Transactional
@@ -88,6 +95,7 @@ public class EmployeeManageCommandService {
 
         employeeRepository.save(employee);
         publishEmployeeSnapshotAfterCommit(employee);
+        assignNextTierMissionsAfterCommit(employee);
 
         // 새 사원 생성 시, 각 스킬 카테고리에 대해 레코드 생성 (총 6개, 사용자 입력값 또는 0)
         Arrays.stream(SkillCategory.values())
@@ -160,10 +168,7 @@ public class EmployeeManageCommandService {
         Employee target = employeeRepository.findByEmployeeCode(request.getEmployeeCode())
                 .orElseThrow(EmployeeNotFoundException::new);
 
-        departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(DepartmentNotFoundException::new);
-
-        target.assignDepartment(request.getDepartmentId());
+        orgEmployeeTransferService.transfer(target.getEmployeeId(), request.getDepartmentId());
 
         return EmployeeDepartmentMatchResponse.builder()
                 .employeeName(target.getEmployeeName())
@@ -230,6 +235,9 @@ public class EmployeeManageCommandService {
                 });
 
         publishEmployeeSnapshotAfterCommit(employee);
+        if (request.getEmployeeTier() != null) {
+            assignNextTierMissionsAfterCommit(employee);
+        }
 
         return EmployeeUpdateResponse.builder()
                 .employeeId(employee.getEmployeeId())
@@ -253,6 +261,7 @@ public class EmployeeManageCommandService {
 
         employee.updateTier(employeeTier);
         publishEmployeeSnapshotAfterCommit(employee);
+        assignNextTierMissionsAfterCommit(employee);
     }
 
     private void publishEmployeeSnapshotAfterCommit(Employee employee) {
@@ -275,5 +284,39 @@ public class EmployeeManageCommandService {
         }
 
         employeeReferenceEventPublisher.publishEmployeeSnapshot(event);
+    }
+
+    private void assignNextTierMissionsAfterCommit(Employee employee) {
+        if (employee.getEmployeeRole() != EmployeeRole.WORKER || employee.getEmployeeTier() == null) {
+            return;
+        }
+
+        Runnable action = () -> {
+            try {
+                hrMissionFeignApi.assignNextTierMissions(HrMissionAssignmentRequest.builder()
+                        .employeeId(employee.getEmployeeId())
+                        .currentTier(employee.getEmployeeTier().name())
+                        .build());
+            } catch (Exception e) {
+                log.warn(
+                        "HR mission assignment failed. employeeId={}, currentTier={}",
+                        employee.getEmployeeId(),
+                        employee.getEmployeeTier(),
+                        e
+                );
+            }
+        };
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+            return;
+        }
+
+        action.run();
     }
 }

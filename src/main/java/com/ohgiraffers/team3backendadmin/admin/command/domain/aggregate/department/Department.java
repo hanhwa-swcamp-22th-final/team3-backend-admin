@@ -66,9 +66,5 @@ public class Department {
 
     public void softDelete() {
         this.isDeleted = true;
-        this.departmentName = "삭제됨";
-        this.teamName = "삭제됨";
-        this.parentDepartmentId = null;
-        this.depth = null;
     }
 }
