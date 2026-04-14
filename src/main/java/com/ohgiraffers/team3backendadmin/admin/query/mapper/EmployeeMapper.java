@@ -1,7 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
-import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeResponse;
+import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSummaryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeProfileQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSkillQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.TierChartPointQueryResponse;
