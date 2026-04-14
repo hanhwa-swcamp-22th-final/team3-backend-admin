@@ -56,4 +56,34 @@ public class Score {
     @LastModifiedBy
     @Column(name = "updated_by")
     private Long updatedBy;
+
+    public static Score create(
+        Long scoreId,
+        Long employeeId,
+        Long evalPeriodId,
+        BigDecimal capabilityIndex,
+        Integer totalPoints,
+        EmployeeTier tier
+    ) {
+        return Score.builder()
+            .scoreId(scoreId)
+            .employeeId(employeeId)
+            .evalPeriodId(evalPeriodId)
+            .capabilityIndex(capabilityIndex)
+            .totalPoints(totalPoints)
+            .tier(tier)
+            .build();
+    }
+
+    public void updateSnapshot(BigDecimal capabilityIndex, Integer totalPoints, EmployeeTier tier) {
+        if (capabilityIndex != null) {
+            this.capabilityIndex = capabilityIndex;
+        }
+        if (totalPoints != null) {
+            this.totalPoints = totalPoints;
+        }
+        if (tier != null) {
+            this.tier = tier;
+        }
+    }
 }
