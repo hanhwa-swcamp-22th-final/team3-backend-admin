@@ -5,7 +5,7 @@
 <mapper namespace="com.ohgiraffers.team3backendadmin.admin.query.mapper.EmployeeMapper">
 
     <resultMap id="employeeResultMap"
-               type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse">
+               type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeResponse">
         <result property="employeeId" column="employee_id"/>
         <result property="employeeCode" column="employee_code"/>
         <result property="employeeName" column="employee_name"/>
@@ -52,10 +52,11 @@
     </select>
 
     <resultMap id="employeeSummaryResultMap"
-               type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse">
+               type="com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSummaryResponse">
         <result property="employeeName" column="employee_name"/>
         <result property="employeeCode" column="employee_code"/>
         <result property="employeeRole" column="employee_role"/>
+        <result property="employeeStatus" column="employee_status"/>
         <result property="employeeTier" column="employee_tier"/>
         <result property="hireDate" column="hire_date"/>
         <result property="factoryLineName" column="factory_line_name"/>
@@ -66,6 +67,7 @@
         SELECT e.employee_name,
                e.employee_code,
                e.employee_role,
+               e.employee_status,
                e.employee_tier,
                e.hire_date,
                fl.factory_line_name,
