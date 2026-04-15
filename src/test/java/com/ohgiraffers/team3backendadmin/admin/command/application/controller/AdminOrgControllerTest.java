@@ -9,6 +9,7 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.org.OrgDepartm
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.org.OrgEmployeeItem;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.org.OrgTeamMembersDto;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.org.OrgUnitDto;
+import com.ohgiraffers.team3backendadmin.admin.query.controller.AdminOrgQueryController;
 import com.ohgiraffers.team3backendadmin.admin.query.service.org.AdminOrgQueryService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AdminOrgController.class)
+@WebMvcTest({AdminOrgController.class, AdminOrgQueryController.class})
 @AutoConfigureMockMvc(addFilters = false)
 class AdminOrgControllerTest {
 

@@ -70,13 +70,9 @@
                e.employee_status,
                e.employee_tier,
                e.hire_date,
-               fl.factory_line_name,
-               eq.equipment_name
+               NULL AS factory_line_name,
+               NULL AS equipment_name
           FROM employee e
-          LEFT JOIN worker_deployment wd ON e.employee_id = wd.employee_id
-          LEFT JOIN equipment eq ON wd.equipment_id = eq.equipment_id
-          LEFT JOIN equipment_process ep ON eq.equipment_process_id = ep.equipment_process_id
-          LEFT JOIN factory_line fl ON ep.factory_line_id = fl.factory_line_id
          ORDER BY e.employee_id
     </select>
 
