@@ -107,7 +107,7 @@ class EmployeeManageQueryControllerTest {
     @Test
     @DisplayName("Get active worker ids by tier API success")
     void getActiveWorkerIdsByTier_success() throws Exception {
-        when(employeeHrQueryService.getActiveWorkerIdsByTier("B")).thenReturn(List.of(101L, 102L));
+        when(employeeHrQueryService.getActiveWorkerIdsByTier(EmployeeTier.B)).thenReturn(List.of(101L, 102L));
 
         mockMvc.perform(get("/api/v1/admin/employees/workers/active").param("tier", "B"))
             .andExpect(status().isOk())
@@ -119,7 +119,7 @@ class EmployeeManageQueryControllerTest {
     @Test
     @DisplayName("Check active worker by id and tier API success")
     void existsActiveWorkerByIdAndTier_success() throws Exception {
-        when(employeeHrQueryService.existsActiveWorkerByIdAndTier(101L, "B")).thenReturn(true);
+        when(employeeHrQueryService.existsActiveWorkerByIdAndTier(101L, EmployeeTier.B)).thenReturn(true);
 
         mockMvc.perform(get("/api/v1/admin/employees/101/active-worker").param("tier", "B"))
             .andExpect(status().isOk())

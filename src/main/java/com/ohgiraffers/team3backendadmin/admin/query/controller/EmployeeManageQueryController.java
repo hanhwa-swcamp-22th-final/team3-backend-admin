@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.controller;
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeProfileQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSkillQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.TierChartPointQueryResponse;
@@ -48,7 +49,7 @@ public class EmployeeManageQueryController {
 
     @GetMapping("/workers/active")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM')")
-    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByTier(@RequestParam String tier) {
+    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByTier(@RequestParam EmployeeTier tier) {
         return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getActiveWorkerIdsByTier(tier)));
     }
 
@@ -56,7 +57,7 @@ public class EmployeeManageQueryController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM')")
     public ResponseEntity<ApiResponse<Boolean>> existsActiveWorkerByIdAndTier(
             @PathVariable Long employeeId,
-            @RequestParam String tier
+            @RequestParam EmployeeTier tier
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 employeeHrQueryService.existsActiveWorkerByIdAndTier(employeeId, tier)
