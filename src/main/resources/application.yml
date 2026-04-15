@@ -43,3 +43,7 @@ google:
     project-id: ${GOOGLE_AI_PROJECT_ID:}
     location: ${GOOGLE_AI_LOCATION:global}
     model: ${GOOGLE_AI_MODEL:gemini-3-flash-preview}
+
+feign:
+  hr:
+    url: ${FEIGN_HR_URL:http://localhost:8081}

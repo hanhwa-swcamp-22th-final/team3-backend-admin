@@ -30,4 +30,20 @@ public class EmployeeHrQueryService {
     public List<TierChartPointQueryResponse> getTierChart(Long employeeId) {
         return employeeMapper.findTierChartByEmployeeId(employeeId);
     }
+
+    public List<Long> getTeamMemberIds(Long leaderId) {
+        EmployeeProfileQueryResponse profile = employeeMapper.findProfileByEmployeeId(leaderId);
+        if (profile == null) {
+            throw new EmployeeNotFoundException();
+        }
+        return employeeMapper.findTeamMemberIdsByLeaderId(leaderId);
+    }
+
+    public List<Long> getActiveWorkerIdsByTier(String tier) {
+        return employeeMapper.findActiveWorkerIdsByTier(tier);
+    }
+
+    public boolean existsActiveWorkerByIdAndTier(Long employeeId, String tier) {
+        return employeeMapper.existsActiveWorkerByIdAndTier(employeeId, tier);
+    }
 }

@@ -14,6 +14,7 @@ public class DepartmentResponse {
     private String departmentName;
     private String teamName;
     private String depth;
+    private Boolean isDeleted;
     private LocalDateTime createdAt;
     private Long createdBy;
     private LocalDateTime updatedAt;

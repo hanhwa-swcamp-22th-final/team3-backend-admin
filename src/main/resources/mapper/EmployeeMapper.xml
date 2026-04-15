@@ -158,4 +158,46 @@
          ORDER BY ep.eval_year, ep.eval_sequence
     </select>
 
+    <select id="findTeamMemberIdsByLeaderId" resultType="long">
+        SELECT worker.employee_id
+          FROM employee leader
+          JOIN employee worker
+            ON worker.employee_role = 'WORKER'
+          LEFT JOIN department worker_dept
+            ON worker.department_id = worker_dept.department_id
+         WHERE leader.employee_id = #{leaderId}
+           AND (
+               (leader.employee_role = 'TL' AND worker.department_id = leader.department_id)
+               OR (
+                   leader.employee_role = 'DL'
+                   AND (
+                       worker.department_id = leader.department_id
+                       OR worker_dept.parent_department_id = leader.department_id
+                   )
+               )
+           )
+           AND (worker_dept.is_deleted = false OR worker_dept.is_deleted IS NULL)
+         ORDER BY worker.employee_id
+    </select>
+
+    <select id="findActiveWorkerIdsByTier" resultType="long">
+        SELECT employee_id
+          FROM employee
+         WHERE employee_role = 'WORKER'
+           AND employee_status = 'ACTIVE'
+           AND employee_tier = #{tier}
+         ORDER BY employee_id
+    </select>
+
+    <select id="existsActiveWorkerByIdAndTier" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+              FROM employee
+             WHERE employee_id = #{employeeId}
+               AND employee_role = 'WORKER'
+               AND employee_status = 'ACTIVE'
+               AND employee_tier = #{tier}
+        )
+    </select>
+
 </mapper>

@@ -20,8 +20,15 @@
                e.employee_name                                         AS name,
                e.employee_tier                                         AS current_tier,
                e.employee_role                                         AS role,
-               COALESCE(pd.department_name, d.department_name)        AS department_name,
-               d.team_name
+               CASE
+                   WHEN d.is_deleted = true THEN '임시 발령 대기'
+                   WHEN pd.is_deleted = true THEN '임시 발령 대기'
+                   ELSE COALESCE(pd.department_name, d.department_name)
+               END                                                     AS department_name,
+               CASE
+                   WHEN d.is_deleted = true THEN '임시 발령 대기'
+                   ELSE d.team_name
+               END                                                     AS team_name
           FROM employee e
           LEFT JOIN department d  ON e.department_id = d.department_id
           LEFT JOIN department pd ON d.parent_department_id = pd.department_id
@@ -51,9 +58,16 @@
                e.employee_name                                         AS name,
                e.employee_tier                                         AS current_tier,
                e.employee_role                                         AS role,
-               COALESCE(pd.department_name, d.department_name)        AS department_name,
-               d.team_name
-          FROM employee e
+               CASE
+                   WHEN d.is_deleted = true THEN '임시 발령 대기'
+                   WHEN pd.is_deleted = true THEN '임시 발령 대기'
+                   ELSE COALESCE(pd.department_name, d.department_name)
+               END                                                     AS department_name,
+               CASE
+                   WHEN d.is_deleted = true THEN '임시 발령 대기'
+                   ELSE d.team_name
+               END                                                     AS team_name
+         FROM employee e
           LEFT JOIN department d  ON e.department_id = d.department_id
           LEFT JOIN department pd ON d.parent_department_id = pd.department_id
          WHERE e.department_id = #{teamId}

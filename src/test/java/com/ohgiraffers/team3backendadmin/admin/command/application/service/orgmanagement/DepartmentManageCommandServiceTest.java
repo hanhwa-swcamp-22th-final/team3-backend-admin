@@ -296,10 +296,11 @@ class DepartmentManageCommandServiceTest {
             departmentManageCommandService.deleteDepartment(1000L, "EMP-0001");
 
             // then
-            assertEquals("삭제됨", existing.getDepartmentName());
-            assertEquals("삭제됨", existing.getTeamName());
-            assertNull(existing.getParentDepartmentId());
-            assertNull(existing.getDepth());
+            assertTrue(existing.getIsDeleted());
+            assertEquals("경영지원본부", existing.getDepartmentName());
+            assertEquals("시스템관리팀", existing.getTeamName());
+            assertEquals(50L, existing.getParentDepartmentId());
+            assertEquals("L1", existing.getDepth());
         }
 
         @Test

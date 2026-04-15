@@ -1,6 +1,7 @@
 package com.ohgiraffers.team3backendadmin.admin.command.application.controller;
 
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.org.OrgDepartmentRequest;
+import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.org.OrgDepartmentLeaderRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.org.OrgTeamMemberRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.dto.request.org.OrgTeamRequest;
 import com.ohgiraffers.team3backendadmin.admin.command.application.service.org.AdminOrgCommandService;
@@ -10,6 +11,7 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.org.OrgTeamMem
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.org.OrgUnitDto;
 import com.ohgiraffers.team3backendadmin.admin.query.service.org.AdminOrgQueryService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -145,5 +147,18 @@ public class AdminOrgController {
             @PathVariable Long employeeId) {
         orgCommandService.removeTeamMember(teamId, employeeId);
         return ResponseEntity.noContent().build();
+    }
+
+    /** HR-085: 부서장 지정 */
+    @RequestMapping(
+            value = "/departments/{departmentId}/leader",
+            method = {RequestMethod.PATCH, RequestMethod.PUT}
+    )
+    @PreAuthorize("hasAnyAuthority('HRM', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Long>> assignDepartmentLeader(
+            @PathVariable Long departmentId,
+            @Valid @RequestBody OrgDepartmentLeaderRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(
+                orgCommandService.assignDepartmentLeader(departmentId, request)));
     }
 }

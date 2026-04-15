@@ -11,6 +11,7 @@
         <result property="departmentName" column="department_name"/>
         <result property="teamName" column="team_name"/>
         <result property="depth" column="depth"/>
+        <result property="isDeleted" column="is_deleted"/>
         <result property="createdAt" column="created_at"/>
         <result property="createdBy" column="created_by"/>
         <result property="updatedAt" column="updated_at"/>
@@ -23,6 +24,7 @@
                department_name,
                team_name,
                depth,
+               is_deleted,
                created_at,
                created_by,
                updated_at,
@@ -37,6 +39,7 @@
                department_name,
                team_name,
                depth,
+               is_deleted,
                created_at,
                created_by,
                updated_at,
