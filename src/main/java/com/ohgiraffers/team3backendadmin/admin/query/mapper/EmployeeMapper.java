@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.mapper;
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.EmployeeSummaryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeProfileQueryResponse;
@@ -19,6 +20,6 @@ public interface EmployeeMapper {
     List<EmployeeSkillQueryResponse> findSkillsByEmployeeId(Long employeeId);
     List<TierChartPointQueryResponse> findTierChartByEmployeeId(Long employeeId);
     List<Long> findTeamMemberIdsByLeaderId(@Param("leaderId") Long leaderId);
-    List<Long> findActiveWorkerIdsByTier(@Param("tier") String tier);
-    boolean existsActiveWorkerByIdAndTier(@Param("employeeId") Long employeeId, @Param("tier") String tier);
+    List<Long> findActiveWorkerIdsByTier(@Param("tier") EmployeeTier tier);
+    boolean existsActiveWorkerByIdAndTier(@Param("employeeId") Long employeeId, @Param("tier") EmployeeTier tier);
 }

@@ -1,5 +1,6 @@
 package com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement;
 
+import com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.employee.EmployeeTier;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeProfileQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.EmployeeSkillQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.TierChartPointQueryResponse;
@@ -39,11 +40,11 @@ public class EmployeeHrQueryService {
         return employeeMapper.findTeamMemberIdsByLeaderId(leaderId);
     }
 
-    public List<Long> getActiveWorkerIdsByTier(String tier) {
+    public List<Long> getActiveWorkerIdsByTier(EmployeeTier tier) {
         return employeeMapper.findActiveWorkerIdsByTier(tier);
     }
 
-    public boolean existsActiveWorkerByIdAndTier(Long employeeId, String tier) {
+    public boolean existsActiveWorkerByIdAndTier(Long employeeId, EmployeeTier tier) {
         return employeeMapper.existsActiveWorkerByIdAndTier(employeeId, tier);
     }
 }
