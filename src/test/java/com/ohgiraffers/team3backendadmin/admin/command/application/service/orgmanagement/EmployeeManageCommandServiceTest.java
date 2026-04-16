@@ -22,6 +22,8 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.service.Organizati
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
 import com.ohgiraffers.team3backendadmin.infrastructure.kafka.publisher.EmployeeReferenceEventPublisher;
+import com.ohgiraffers.team3backendadmin.admin.command.application.service.org.OrgEmployeeTransferService;
+import com.ohgiraffers.team3backendadmin.infrastructure.client.feign.HrMissionFeignApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,11 +45,9 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeManageCommandServiceTest {
@@ -81,6 +81,12 @@ class EmployeeManageCommandServiceTest {
 
     @Mock
     private EmployeeReferenceEventPublisher employeeReferenceEventPublisher;
+
+    @Mock
+    private HrMissionFeignApi hrMissionFeignApi;
+
+    @Mock
+    private OrgEmployeeTransferService orgEmployeeTransferService;
 
     private Employee admin;
 
@@ -338,6 +344,11 @@ class EmployeeManageCommandServiceTest {
                     .willReturn(Optional.of(targetEmployee));
             given(departmentRepository.findById(100L))
                     .willReturn(Optional.of(Department.builder().departmentId(100L).build()));
+
+            doAnswer(invocation -> {
+                targetEmployee.assignDepartment(100L);
+                return null;
+            }).when(orgEmployeeTransferService).transfer(anyLong(), anyLong());
 
             // when
             EmployeeDepartmentMatchResponse response = employeeManageCommandService.matchDepartment(request, "EMP-0001");

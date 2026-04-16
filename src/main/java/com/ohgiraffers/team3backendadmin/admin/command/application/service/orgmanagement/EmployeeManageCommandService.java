@@ -22,6 +22,7 @@ import com.ohgiraffers.team3backendadmin.admin.command.domain.service.Organizati
 import com.ohgiraffers.team3backendadmin.common.constant.ConsentInfo;
 import com.ohgiraffers.team3backendadmin.common.encryption.AesEncryptor;
 import com.ohgiraffers.team3backendadmin.common.exception.AdminAccessDeniedException;
+import com.ohgiraffers.team3backendadmin.common.exception.DepartmentNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.exception.DuplicateFieldException;
 import com.ohgiraffers.team3backendadmin.common.exception.EmployeeNotFoundException;
 import com.ohgiraffers.team3backendadmin.common.idgenerator.IdGenerator;
@@ -168,12 +169,15 @@ public class EmployeeManageCommandService {
         Employee target = employeeRepository.findByEmployeeCode(request.getEmployeeCode())
                 .orElseThrow(EmployeeNotFoundException::new);
 
+        departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(DepartmentNotFoundException::new);
+
         orgEmployeeTransferService.transfer(target.getEmployeeId(), request.getDepartmentId());
 
         return EmployeeDepartmentMatchResponse.builder()
                 .employeeName(target.getEmployeeName())
                 .employeeCode(target.getEmployeeCode())
-                .departmentId(target.getDepartmentId())
+                .departmentId(request.getDepartmentId())
                 .build();
     }
 
