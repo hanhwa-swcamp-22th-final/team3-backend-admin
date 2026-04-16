@@ -44,6 +44,15 @@ google:
     location: ${GOOGLE_AI_LOCATION:global}
     model: ${GOOGLE_AI_MODEL:gemini-3-flash-preview}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
 feign:
   hr:
     url: ${FEIGN_HR_URL:http://localhost:8081}

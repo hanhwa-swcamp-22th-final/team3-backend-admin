@@ -86,6 +86,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/v1/auth/test").permitAll()
                                 // DB삽입 오류로 인한 401에러 차단
                                 .requestMatchers("/error").permitAll()
+                                // Prometheus metrics endpoint
+                                .requestMatchers("/actuator/**").permitAll()
                                 // 서버 간 내부 호출 — 알고리즘 버전 조회, 도메인 키워드 조회
                                 .requestMatchers(HttpMethod.GET, "/api/v1/algorithm-version", "/api/v1/algorithm-version/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/domain-keyword", "/api/v1/domain-keyword/**").permitAll()
