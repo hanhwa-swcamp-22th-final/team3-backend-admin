@@ -49,6 +49,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // build.gradle
+    implementation 'software.amazon.msk:aws-msk-iam-auth:2.2.0'
 }
 dependencyManagement {
     imports {
