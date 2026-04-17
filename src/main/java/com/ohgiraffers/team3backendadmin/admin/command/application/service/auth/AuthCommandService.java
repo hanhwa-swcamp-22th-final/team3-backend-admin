@@ -16,6 +16,7 @@ import com.ohgiraffers.team3backendadmin.common.exception.InvalidCredentialsExce
 import com.ohgiraffers.team3backendadmin.common.exception.InvalidTokenException;
 import com.ohgiraffers.team3backendadmin.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,12 @@ public class AuthCommandService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRepository jpaAuthRepository;
     private final AesEncryptor aesEncryptor;
+
+    @Value("${cookie.secure:false}")
+    private boolean cookieSecure;
+
+    @Value("${cookie.same-site:Strict}")
+    private String cookieSameSite;
 
     public TokenResponse login(LoginRequest loginRequest) {
         // 1. 이메일 암호화 후 조회
@@ -134,10 +141,10 @@ public class AuthCommandService {
     public ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                // .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Strict")
+                .sameSite(cookieSameSite)
                 .build();
     }
 
@@ -145,10 +152,10 @@ public class AuthCommandService {
     public ResponseCookie createDeleteRefreshTokenCookie() {
         return ResponseCookie.from("refreshToken")
                 .httpOnly(true)
-                // .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite(cookieSameSite)
                 .build();
     }
 
