@@ -15,6 +15,7 @@ public class EmployeeProfileQueryResponse {
     private Long employeeId;
     private String employeeCode;
     private String employeeName;
+    private Long departmentId;
     private String departmentName;
     private String teamName;
     private EmployeeTier currentTier;

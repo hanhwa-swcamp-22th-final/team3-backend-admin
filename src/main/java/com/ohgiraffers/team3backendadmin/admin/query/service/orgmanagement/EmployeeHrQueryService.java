@@ -44,7 +44,20 @@ public class EmployeeHrQueryService {
         return employeeMapper.findActiveWorkerIdsByTier(tier);
     }
 
+    public List<Long> getActiveWorkerIdsByDepartmentId(Long departmentId) {
+        return employeeMapper.findActiveWorkerIdsByDepartmentId(departmentId);
+    }
+
+    public List<Long> getActiveWorkerIdsByRootDepartmentId(Long departmentId) {
+        return employeeMapper.findActiveWorkerIdsByRootDepartmentId(departmentId);
+    }
+
     public boolean existsActiveWorkerByIdAndTier(Long employeeId, EmployeeTier tier) {
         return employeeMapper.existsActiveWorkerByIdAndTier(employeeId, tier);
+    }
+
+    public List<EmployeeProfileQueryResponse> getProfiles(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return employeeMapper.findProfilesByIds(ids);
     }
 }

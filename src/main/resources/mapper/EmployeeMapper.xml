@@ -81,6 +81,7 @@
         <result property="employeeId" column="employee_id"/>
         <result property="employeeCode" column="employee_code"/>
         <result property="employeeName" column="employee_name"/>
+        <result property="departmentId" column="department_id"/>
         <result property="departmentName" column="department_name"/>
         <result property="teamName" column="team_name"/>
         <result property="currentTier" column="current_tier"/>
@@ -93,6 +94,7 @@
                e.employee_code,
                e.employee_name,
                e.hire_date,
+               e.department_id,
                COALESCE(pd.department_name, d.department_name) AS department_name,
                d.team_name,
                e.employee_tier AS current_tier,
@@ -185,6 +187,39 @@
          ORDER BY employee_id
     </select>
 
+    <select id="findActiveWorkerIdsByDepartmentId" resultType="long">
+        SELECT employee_id
+          FROM employee
+         WHERE employee_role = 'WORKER'
+           AND employee_status = 'ACTIVE'
+           AND department_id = #{departmentId}
+         ORDER BY employee_id
+    </select>
+
+    <select id="findActiveWorkerIdsByRootDepartmentId" resultType="long">
+        WITH RECURSIVE dept_tree AS (
+            SELECT department_id
+              FROM department
+             WHERE department_id = #{departmentId}
+               AND is_deleted = false
+
+            UNION ALL
+
+            SELECT child.department_id
+              FROM department child
+              JOIN dept_tree parent
+                ON child.parent_department_id = parent.department_id
+             WHERE child.is_deleted = false
+        )
+        SELECT e.employee_id
+          FROM employee e
+          JOIN dept_tree dt
+            ON e.department_id = dt.department_id
+         WHERE e.employee_role = 'WORKER'
+           AND e.employee_status = 'ACTIVE'
+         ORDER BY e.employee_id
+    </select>
+
     <select id="existsActiveWorkerByIdAndTier" resultType="boolean">
         SELECT EXISTS (
             SELECT 1
@@ -194,6 +229,40 @@
                AND employee_status = 'ACTIVE'
                AND employee_tier = #{tier}
         )
+    </select>
+
+    <select id="findProfilesByIds" resultMap="employeeProfileResultMap">
+        SELECT e.employee_id,
+               e.employee_code,
+               e.employee_name,
+               e.hire_date,
+               e.department_id,
+               COALESCE(pd.department_name, d.department_name) AS department_name,
+               d.team_name,
+               e.employee_tier AS current_tier,
+               CAST(ls.total_points AS DECIMAL(10, 2)) AS total_score
+          FROM employee e
+          LEFT JOIN department d
+            ON e.department_id = d.department_id
+          LEFT JOIN department pd
+            ON d.parent_department_id = pd.department_id
+          LEFT JOIN (
+                SELECT s1.employee_id,
+                       s1.total_points
+                  FROM score s1
+                  JOIN (
+                        SELECT employee_id, MAX(eval_period_id) AS max_eval_period_id
+                          FROM score
+                         GROUP BY employee_id
+                  ) latest
+                    ON latest.employee_id = s1.employee_id
+                   AND latest.max_eval_period_id = s1.eval_period_id
+          ) ls
+            ON ls.employee_id = e.employee_id
+         WHERE e.employee_id IN
+         <foreach collection="ids" item="id" open="(" separator="," close=")">
+             #{id}
+         </foreach>
     </select>
 
 </mapper>
