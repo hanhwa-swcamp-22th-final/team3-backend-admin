@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ import com.ohgiraffers.team3backendadmin.common.exception.EmployeeOnLeaveExcepti
 import com.ohgiraffers.team3backendadmin.common.exception.InvalidCredentialsException;
 import com.ohgiraffers.team3backendadmin.common.exception.InvalidTokenException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 import java.util.Date;
@@ -35,6 +37,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,6 +65,9 @@ class AuthCommandServiceTest {
 
     @BeforeEach
     void setUp() {
+        ReflectionTestUtils.setField(authCommandService, "cookieSecure", false);
+        ReflectionTestUtils.setField(authCommandService, "cookieSameSite", "Strict");
+
         employee = Employee.builder()
                 .employeeId(1L)
                 .employeeCode("EMP-0001")
@@ -89,10 +95,10 @@ class AuthCommandServiceTest {
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);
             given(jwtTokenProvider.createToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리"), anyString()))
                     .willReturn("access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리"), anyString()))
                     .willReturn("refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
@@ -103,7 +109,10 @@ class AuthCommandServiceTest {
             assertNotNull(response);
             assertEquals("access-token", response.getAccessToken());
             assertEquals("refresh-token", response.getRefreshToken());
-            verify(jpaAuthRepository).save(any(RefreshToken.class));
+
+            ArgumentCaptor<RefreshToken> tokenCaptor = ArgumentCaptor.forClass(RefreshToken.class);
+            verify(jpaAuthRepository).save(tokenCaptor.capture());
+            assertNotNull(tokenCaptor.getValue().getLoginSessionId());
         }
 
         @Test
@@ -189,10 +198,10 @@ class AuthCommandServiceTest {
             given(passwordEncoder.matches("rawPassword", "$2a$10$encodedPassword"))
                     .willReturn(true);
             given(jwtTokenProvider.createToken(
-                    eq(2L), eq("EMP-0002"), eq("HRM"), eq("김신입")))
+                    eq(2L), eq("EMP-0002"), eq("HRM"), eq("김신입"), anyString()))
                     .willReturn("access-token-hrm");
             given(jwtTokenProvider.createRefreshToken(
-                    eq(2L), eq("EMP-0002"), eq("HRM"), eq("김신입")))
+                    eq(2L), eq("EMP-0002"), eq("HRM"), eq("김신입"), anyString()))
                     .willReturn("refresh-token-hrm");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
@@ -219,12 +228,44 @@ class AuthCommandServiceTest {
 
             given(jwtTokenProvider.validateToken(refreshToken)).willReturn(true);
             given(jwtTokenProvider.getEmployeeCodeFromJWT(refreshToken)).willReturn("EMP-0001");
+            given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(
+                    RefreshToken.builder()
+                            .employeeCode("EMP-0001")
+                            .token(refreshToken)
+                            .loginSessionId("test-session-id")
+                            .expiryDate(new Date(System.currentTimeMillis() + 604800000L))
+                            .build()
+            ));
 
             // when
             authCommandService.logout(refreshToken);
 
             // then
             verify(jpaAuthRepository).deleteById("EMP-0001");
+        }
+
+        @Test
+        @DisplayName("이전 refresh token으로 로그아웃하면 현재 세션을 삭제하지 않는다")
+        void logoutWithSupersededRefreshTokenDoesNotDeleteCurrentSession() {
+            // given
+            String refreshToken = "old-refresh-token";
+
+            given(jwtTokenProvider.validateToken(refreshToken)).willReturn(true);
+            given(jwtTokenProvider.getEmployeeCodeFromJWT(refreshToken)).willReturn("EMP-0001");
+            given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(
+                    RefreshToken.builder()
+                            .employeeCode("EMP-0001")
+                            .token("current-refresh-token")
+                            .loginSessionId("current-session-id")
+                            .expiryDate(new Date(System.currentTimeMillis() + 604800000L))
+                            .build()
+            ));
+
+            // when
+            authCommandService.logout(refreshToken);
+
+            // then
+            verify(jpaAuthRepository, never()).deleteById("EMP-0001");
         }
     }
 
@@ -241,6 +282,7 @@ class AuthCommandServiceTest {
                     com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken.builder()
                             .employeeCode("EMP-0001")
                             .token("valid-refresh-token")
+                            .loginSessionId("test-session-id")
                             .expiryDate(new Date(System.currentTimeMillis() + 604800000L))
                             .build();
 
@@ -249,10 +291,10 @@ class AuthCommandServiceTest {
             given(jpaAuthRepository.findById("EMP-0001")).willReturn(Optional.of(storedToken));
             given(employeeRepository.findByEmployeeCode("EMP-0001")).willReturn(Optional.of(employee));
             given(jwtTokenProvider.createToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("test-session-id")))
                     .willReturn("new-access-token");
             given(jwtTokenProvider.createRefreshToken(
-                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리")))
+                    eq(1L), eq("EMP-0001"), eq("ADMIN"), eq("김관리"), eq("test-session-id")))
                     .willReturn("new-refresh-token");
             given(jwtTokenProvider.getRefreshExpiration()).willReturn(604800000L);
 
@@ -263,7 +305,10 @@ class AuthCommandServiceTest {
             assertNotNull(response);
             assertEquals("new-access-token", response.getAccessToken());
             assertEquals("new-refresh-token", response.getRefreshToken());
-            verify(jpaAuthRepository).save(any(com.ohgiraffers.team3backendadmin.admin.command.domain.aggregate.RefreshToken.class));
+
+            ArgumentCaptor<RefreshToken> tokenCaptor = ArgumentCaptor.forClass(RefreshToken.class);
+            verify(jpaAuthRepository).save(tokenCaptor.capture());
+            assertEquals("test-session-id", tokenCaptor.getValue().getLoginSessionId());
         }
 
         @Test

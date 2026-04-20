@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -58,15 +59,17 @@ public class AuthCommandService {
         }
 
         // 3. 비밀번호가 일치 -> 로그인 성공 -> 토큰 생성 -> 발급
+        String loginSessionId = UUID.randomUUID().toString();
         String accessToken = this.jwtTokenProvider.createToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName(), loginSessionId);
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName(), loginSessionId);
 
         // 5. refresh token DB에 저장(보안 및 토큰 재발급 검증용)
         RefreshToken tokenEntity = RefreshToken.builder()
                 .employeeCode(employee.getEmployeeCode())
                 .token(refreshToken)
+                .loginSessionId(loginSessionId)
                 .expiryDate(new Date(System.currentTimeMillis() + jwtTokenProvider.getRefreshExpiration())).build();
 
         this.jpaAuthRepository.save(tokenEntity);
@@ -81,7 +84,9 @@ public class AuthCommandService {
 
         String employeeCode = this.jwtTokenProvider.getEmployeeCodeFromJWT(refreshToken);
 
-        this.jpaAuthRepository.deleteById(employeeCode); // DB에서 employee_code가 일치하는 행을 삭제
+        this.jpaAuthRepository.findById(employeeCode)
+                .filter(storedToken -> storedToken.getToken().equals(refreshToken))
+                .ifPresent(storedToken -> this.jpaAuthRepository.deleteById(employeeCode)); // DB에서 현재 refresh token과 일치하는 행만 삭제
     }
 
     /* refresh token 검증 후 새 token 발급 서비스 */
@@ -106,20 +111,23 @@ public class AuthCommandService {
             throw new InvalidTokenException("refresh token이 만료되었습니다.");
         }
 
+        String loginSessionId = storedToken.getLoginSessionId();
+
         // employeeCode가 일치하는 회원(employee) 조회
         Employee employee = this.employeeRepository.findByEmployeeCode(employeeCode)
                 .orElseThrow(EmployeeNotFoundException::new);
 
         // 새로운 token 발급
         String accessToken = this.jwtTokenProvider.createToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName(), loginSessionId);
         String refreshToken = this.jwtTokenProvider.createRefreshToken(
-                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName());
+                employee.getEmployeeId(), employee.getEmployeeCode(), employee.getEmployeeRole().name(), employee.getEmployeeName(), loginSessionId);
 
         // refresh token entity 생성 (저장용)
         RefreshToken tokenEntity = RefreshToken.builder()
                 .employeeCode(employeeCode)
                 .token(refreshToken)
+                .loginSessionId(loginSessionId)
                 .expiryDate(new Date(System.currentTimeMillis() + this.jwtTokenProvider.getRefreshExpiration()))
                 .build();
         // DB 저장 (PK 중복 행이 이미 존재 -> UPDATE)
