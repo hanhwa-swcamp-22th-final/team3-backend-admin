@@ -29,6 +29,7 @@ public enum ErrorCode {
     EMPLOYEE_ON_LEAVE(HttpStatus.FORBIDDEN, "AUTH_002", "휴직 중인 사원은 로그인할 수 없습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_003", "유효하지 않은 토큰입니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_004", "현재 비밀번호가 일치하지 않습니다."),
+    SESSION_SUPERSEDED(HttpStatus.UNAUTHORIZED, "AUTH_005", "다른 기기에서 새로운 로그인이 감지되었습니다. 다시 로그인해 주세요."),
 
     DUPLICATE_FIELD(HttpStatus.CONFLICT, "CONFLICT_005", "이미 사용 중인 값입니다."),
     ENVIRONMENT_STANDARD_CODE_ALREADY_EXISTS(HttpStatus.CONFLICT, "CONFLICT_001", "이미 사용 중인 환경 기준 코드입니다."),

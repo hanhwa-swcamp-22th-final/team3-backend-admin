@@ -26,6 +26,9 @@ public class RefreshToken {
     @Column(name = "token", nullable = false, length = 1000)
     private String token;
 
+    @Column(name = "login_session_id", length = 36)
+    private String loginSessionId;
+
     @Column(name = "expiry_date", nullable = false)
     private Date expiryDate;
 

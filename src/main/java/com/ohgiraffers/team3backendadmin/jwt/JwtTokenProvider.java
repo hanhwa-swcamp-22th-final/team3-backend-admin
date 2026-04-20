@@ -33,7 +33,7 @@ public class JwtTokenProvider {
     }
 
     /* access token 생성 메서드 */
-    public String createToken(Long employeeId, String employeeCode, String role, String employeeName) {
+    public String createToken(Long employeeId, String employeeCode, String role, String employeeName, String loginSessionId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
@@ -42,6 +42,7 @@ public class JwtTokenProvider {
                 .claim("employeeCode", employeeCode)      // payload: employeeCode (사원코드)
                 .claim("role", role)                      // payload: role (권한 정보)
                 .claim("employeeName", employeeName)      // payload: employeeName (사원명)
+                .claim("loginSessionId", loginSessionId)  // payload: loginSessionId (로그인 세션 ID)
                 .issuedAt(now)                            // payload: issuedAt (발행 시간)
                 .expiration(expiryDate)                   // payload: Expiration time (토큰 만료 시간)
                 .signWith(secretKey)                      // signature: 비밀키 서명 (위변조 방지)
@@ -49,7 +50,7 @@ public class JwtTokenProvider {
     }
 
     /* refresh token 생성 메서드 */
-    public String createRefreshToken(Long employeeId, String employeeCode, String role, String employeeName) {
+    public String createRefreshToken(Long employeeId, String employeeCode, String role, String employeeName, String loginSessionId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtRefreshExpiration);
 
@@ -58,6 +59,7 @@ public class JwtTokenProvider {
                 .claim("employeeCode", employeeCode)      // payload: employeeCode (사원코드)
                 .claim("role", role)                      // payload: role (권한 정보)
                 .claim("employeeName", employeeName)      // payload: employeeName (사원명)
+                .claim("loginSessionId", loginSessionId)  // payload: loginSessionId (로그인 세션 ID)
                 .issuedAt(now)                            // payload: issuedAt (발행 시간)
                 .expiration(expiryDate)                   // payload: Expiration time (토큰 만료 시간)
                 .signWith(secretKey)                      // signature: 비밀키 서명 (위변조 방지)
@@ -104,6 +106,16 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload();
         return claims.get("employeeCode", String.class);
+    }
+
+    /* JWT Token 중 payload의 claim 중에서 loginSessionId(로그인 세션 ID)의 값을 반환하는 메서드 */
+    public String getLoginSessionIdFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("loginSessionId", String.class);
     }
 
 }
