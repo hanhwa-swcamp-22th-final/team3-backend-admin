@@ -6,10 +6,12 @@ import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.Emplo
 import com.ohgiraffers.team3backendadmin.admin.query.dto.response.employee.TierChartPointQueryResponse;
 import com.ohgiraffers.team3backendadmin.admin.query.service.orgmanagement.EmployeeHrQueryService;
 import com.ohgiraffers.team3backendadmin.common.dto.ApiResponse;
+import com.ohgiraffers.team3backendadmin.config.security.CustomUserDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,26 +29,38 @@ public class EmployeeManageQueryController {
 
     @GetMapping("/{employeeId}/profile")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL', 'WORKER')")
-    public ResponseEntity<ApiResponse<EmployeeProfileQueryResponse>> getWorkerProfile(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getProfile(employeeId)));
+    public ResponseEntity<ApiResponse<EmployeeProfileQueryResponse>> getWorkerProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long employeeId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getProfile(userDetails, employeeId)));
     }
 
     @GetMapping("/{employeeId}/skills")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL', 'WORKER')")
-    public ResponseEntity<ApiResponse<List<EmployeeSkillQueryResponse>>> getWorkerSkills(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getSkills(employeeId)));
+    public ResponseEntity<ApiResponse<List<EmployeeSkillQueryResponse>>> getWorkerSkills(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long employeeId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getSkills(userDetails, employeeId)));
     }
 
     @GetMapping("/{employeeId}/tier-chart")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL', 'WORKER')")
-    public ResponseEntity<ApiResponse<List<TierChartPointQueryResponse>>> getTierChart(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getTierChart(employeeId)));
+    public ResponseEntity<ApiResponse<List<TierChartPointQueryResponse>>> getTierChart(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long employeeId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getTierChart(userDetails, employeeId)));
     }
 
     @GetMapping("/{leaderId}/team-members")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL')")
-    public ResponseEntity<ApiResponse<List<Long>>> getTeamMemberIds(@PathVariable Long leaderId) {
-        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getTeamMemberIds(leaderId)));
+    public ResponseEntity<ApiResponse<List<Long>>> getTeamMemberIds(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long leaderId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getTeamMemberIds(userDetails, leaderId)));
     }
 
     @GetMapping("/workers/active")
@@ -56,15 +70,25 @@ public class EmployeeManageQueryController {
     }
 
     @GetMapping("/workers/active-by-department")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL', 'WORKER')")
-    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByDepartmentId(@RequestParam Long departmentId) {
-        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getActiveWorkerIdsByDepartmentId(departmentId)));
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL')")
+    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByDepartmentId(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long departmentId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                employeeHrQueryService.getActiveWorkerIdsByDepartmentId(userDetails, departmentId)
+        ));
     }
 
     @GetMapping("/workers/active-by-root-department")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL')")
-    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByRootDepartmentId(@RequestParam Long departmentId) {
-        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getActiveWorkerIdsByRootDepartmentId(departmentId)));
+    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByRootDepartmentId(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam Long departmentId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                employeeHrQueryService.getActiveWorkerIdsByRootDepartmentId(userDetails, departmentId)
+        ));
     }
 
     @GetMapping("/{employeeId}/active-worker")
@@ -79,10 +103,11 @@ public class EmployeeManageQueryController {
     }
 
     @PostMapping("/profiles/batch")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL', 'WORKER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL')")
     public ResponseEntity<ApiResponse<List<EmployeeProfileQueryResponse>>> getProfilesBatch(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody List<Long> ids
     ) {
-        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getProfiles(ids)));
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getProfiles(userDetails, ids)));
     }
 }

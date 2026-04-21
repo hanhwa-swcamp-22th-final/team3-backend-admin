@@ -17,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,7 +46,7 @@ class EmployeeManageQueryControllerTest {
         response.setCurrentTier(EmployeeTier.A);
         response.setTotalScore(new BigDecimal("88.50"));
 
-        when(employeeHrQueryService.getProfile(101L)).thenReturn(response);
+        when(employeeHrQueryService.getProfile(any(), eq(101L))).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/admin/employees/101/profile"))
             .andExpect(status().isOk())
@@ -58,7 +60,7 @@ class EmployeeManageQueryControllerTest {
     @Test
     @DisplayName("Get worker profile API failure when not found")
     void getWorkerProfile_whenNotFound_thenReturn404() throws Exception {
-        when(employeeHrQueryService.getProfile(999L))
+        when(employeeHrQueryService.getProfile(any(), eq(999L)))
             .thenThrow(new BusinessException(ErrorCode.EMPLOYEE_NOT_FOUND));
 
         mockMvc.perform(get("/api/v1/admin/employees/999/profile"))
@@ -74,7 +76,7 @@ class EmployeeManageQueryControllerTest {
         response.setSkillName("QUALITY_MANAGEMENT");
         response.setSkillScore(new BigDecimal("91.00"));
 
-        when(employeeHrQueryService.getSkills(101L)).thenReturn(List.of(response));
+        when(employeeHrQueryService.getSkills(any(), eq(101L))).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/v1/admin/employees/101/skills"))
             .andExpect(status().isOk())
@@ -93,7 +95,7 @@ class EmployeeManageQueryControllerTest {
         response.setTier("A");
         response.setTotalScore(new BigDecimal("87.25"));
 
-        when(employeeHrQueryService.getTierChart(101L)).thenReturn(List.of(response));
+        when(employeeHrQueryService.getTierChart(any(), eq(101L))).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/v1/admin/employees/101/tier-chart"))
             .andExpect(status().isOk())
