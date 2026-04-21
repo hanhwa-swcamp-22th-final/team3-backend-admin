@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +55,18 @@ public class EmployeeManageQueryController {
         return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getActiveWorkerIdsByTier(tier)));
     }
 
+    @GetMapping("/workers/active-by-department")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL', 'WORKER')")
+    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByDepartmentId(@RequestParam Long departmentId) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getActiveWorkerIdsByDepartmentId(departmentId)));
+    }
+
+    @GetMapping("/workers/active-by-root-department")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL')")
+    public ResponseEntity<ApiResponse<List<Long>>> getActiveWorkerIdsByRootDepartmentId(@RequestParam Long departmentId) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getActiveWorkerIdsByRootDepartmentId(departmentId)));
+    }
+
     @GetMapping("/{employeeId}/active-worker")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM')")
     public ResponseEntity<ApiResponse<Boolean>> existsActiveWorkerByIdAndTier(
@@ -62,5 +76,13 @@ public class EmployeeManageQueryController {
         return ResponseEntity.ok(ApiResponse.success(
                 employeeHrQueryService.existsActiveWorkerByIdAndTier(employeeId, tier)
         ));
+    }
+
+    @PostMapping("/profiles/batch")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HRM', 'DL', 'TL', 'WORKER')")
+    public ResponseEntity<ApiResponse<List<EmployeeProfileQueryResponse>>> getProfilesBatch(
+            @RequestBody List<Long> ids
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(employeeHrQueryService.getProfiles(ids)));
     }
 }

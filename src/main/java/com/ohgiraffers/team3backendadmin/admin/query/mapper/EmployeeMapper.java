@@ -21,5 +21,9 @@ public interface EmployeeMapper {
     List<TierChartPointQueryResponse> findTierChartByEmployeeId(Long employeeId);
     List<Long> findTeamMemberIdsByLeaderId(@Param("leaderId") Long leaderId);
     List<Long> findActiveWorkerIdsByTier(@Param("tier") EmployeeTier tier);
+    List<Long> findActiveWorkerIdsByDepartmentId(@Param("departmentId") Long departmentId);
+    List<Long> findActiveWorkerIdsByRootDepartmentId(@Param("departmentId") Long departmentId);
     boolean existsActiveWorkerByIdAndTier(@Param("employeeId") Long employeeId, @Param("tier") EmployeeTier tier);
+
+    List<EmployeeProfileQueryResponse> findProfilesByIds(@Param("ids") List<Long> ids);
 }
